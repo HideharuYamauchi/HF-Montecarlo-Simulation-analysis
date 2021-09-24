@@ -1,5 +1,5 @@
 # HF-simulation
-The codes of MonteCarlo method which aims to give the simulation of MuSEUM experiment; particle/nuclear physics experiment to measure the Hyperfine Splitting of Muonium in J-PARC. I use using ROOT and GEANT4. 
+The codes of MonteCarlo method which aims to give the simulation of MuSEUM experiment; particle/nuclear physics experiment to measure the Hyperfine Splitting of Muonium in J-PARC. I use ROOT and GEANT4. 
 https://geant4.web.cern.ch/node/1 
 https://root.cern/
 https://g-2.kek.jp/gakusai/research_MuHFS.html
