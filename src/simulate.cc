@@ -35,16 +35,16 @@ int main(int argc, const char** argv){
   
   //-------------------------muon stop distribution info
   muonstopping run(argv[3], argv[4]);
-
+  
+  //if you want to make the root file
+  //run.MakeRootFile();
+  
   // if you want to scan the tree object
-  run.GetScanTree("*","");
+  //run.GetScanTree("*","");
   //run.GetScanTree("particle:volume:pointX:pointY:pointZ", "e+==particle"); 
   
   // if you want to get the list of tree at a entry
   //run.GetListOfEntry(0);
-
-  // if you want to make the root file
-  //run.MakeRootFile();
 
   // if you want to visualize muon stopping distribution
   //run.Vis_stopping_distXY(double Z);
