@@ -1,7 +1,9 @@
 # HF-Motecarlo Simulation
 The codes of MonteCarlo method which aims to give the simulation of MuSEUM experiment; particle/nuclear physics experiment to measure the Hyperfine Splitting of Muonium at J-PARC. ROOT and GEANT4 is used here. <br>
-https://geant4.web.cern.ch/node/1 
-https://root.cern/
+GEANT4 is the simulation package of radiation.  
+https://geant4.web.cern.ch/node/1 <br>
+ROOT is the analysis software flamework for high energy physis experiment. It is provided by cern.
+https://root.cern/<br>
 https://g-2.kek.jp/gakusai/research_MuHFS.html
 
 1. RF.cc and RF.hh.<br>
