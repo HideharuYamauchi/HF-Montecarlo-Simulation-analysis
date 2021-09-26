@@ -8,7 +8,7 @@ https://root.cern/<br>
 https://g-2.kek.jp/gakusai/research_MuHFS.html
 
 1. RF.cc and RF.hh.<br>
-To calculate the TMmode of microware in the cavity. We use TM110 and TM210 mode to demo the RF respectively.
+To calculate the TMmode of microware in the cavity. We use TM110 and TM210 mode to demonstrate the frequency which cause hyperfine splitting respectively.
 
 2. magnet.cc and magnet.hh.<br>
 To calculate the magnetic field about 1.7 T of superconductive magnet. The magnet will use at MuSEUM experiment and muon(g-2) experiment in the future.
