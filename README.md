@@ -1,4 +1,4 @@
-# HF-Motecarlo Simulation
+# HF-Montecarlo Simulation
 The codes of MonteCarlo method which aims to give the simulation of MuSEUM experiment; particle/nuclear physics experiment to measure the Hyperfine Splitting of Muonium at J-PARC. The full codes is based on ROOT and GEANT4.<br>
 
 GEANT4 is the simulation package of radiation. It is used in the fields of physics, etc. medical...
