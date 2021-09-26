@@ -11,4 +11,4 @@ To calculate the TMmode of microware in the cavity. We use TM110 and TM210 mode 
 To calculate the magnetic field about 1.7 T of superconductive magnet. This magnet will use at MuSEUM experiment and muon(g-2) experiment in future.
 
 3. stop.cc and stop.hh.
-4. To calculate the muon stopping distribution in the RFcavity Using Geant4. 
+To calculate the muon stopping distribution in the RFcavity Using Geant4. 
