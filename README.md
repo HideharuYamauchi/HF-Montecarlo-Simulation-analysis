@@ -12,3 +12,6 @@ To calculate the magnetic field about 1.7 T of superconductive magnet. This magn
 
 3. stop.cc and stop.hh.
 To calculate the muon stopping distribution in the RFcavity Using Geant4. 
+
+4. simulator.cc and simulator.hh.
+To calculate the effective microwave distribution by superposition of RF field and muons distribution.
