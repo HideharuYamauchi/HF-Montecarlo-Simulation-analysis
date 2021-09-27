@@ -3,7 +3,7 @@ The codes of MonteCarlo which aims to give the simulation of MuSEUM experiment; 
 
 GEANT4 is the radiation simulation packages. It is used in the fields of physics, etc. medical...
 https://geant4.web.cern.ch/node/1<br>
-ROOT is the analysis software flamework base on C++ programming language for high energy physis experiment. It is provided by cern.
+ROOT is the analysis software flamework base on C++ programming language for high energy physis experiment. It has been devloped by cern.
 https://root.cern/<br>
 
 https://g-2.kek.jp/portal/index.html
