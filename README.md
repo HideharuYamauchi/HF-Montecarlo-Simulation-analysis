@@ -3,7 +3,7 @@ The codes of MonteCarlo which aims to give the simulation of MuSEUM experiment; 
 
 ・GEANT4 is the radiation simulation packages. It is used in the fields of physics, etc. medical, space...
 https://geant4.web.cern.ch/node/1<br>
-・ROOT is the　data analysis software base on C++ programming language for high energy physis experiment. It has been devloped by cern.
+・ROOT is the data analysis software base on C++ programming language for high energy physis experiment. It has been devloped by cern.
 https://root.cern/<br> 
 ・High Field MuSEUM experiment will be held at Materials and Life Science Experimental Facility of J-PARC. J-PARC (Japan Proton Accelerator Research Complex) is a high intensity proton accelerator facility. It is a joint project between KEK and JAEA and is located at the Tokai campus of JAEA.  
 https://j-parc.jp/c/index.html<br>
