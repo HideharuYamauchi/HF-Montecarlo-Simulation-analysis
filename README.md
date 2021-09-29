@@ -7,7 +7,6 @@ https://geant4.web.cern.ch/node/1<br>
 https://root.cern/<br> 
 ・High Field MuSEUM experiment will be held at Materials and Life Science Experimental Facility of J-PARC. J-PARC (Japan Proton Accelerator Research Complex) is a high intensity proton accelerator facility. It is a joint project between KEK and JAEA and is located at the Tokai campus of JAEA.  
 https://j-parc.jp/c/index.html<br>
-https://g-2.kek.jp/portal/index.html<br>
 https://g-2.kek.jp/gakusai/research_MuHFS.html
 
 1. RF.cc and RF.hh.<br>
