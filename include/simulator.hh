@@ -24,7 +24,7 @@ private:
   double state_amp[2];
   
 public:
-  simulator(int mode){Mode=mode;};
+  simulator(int mode);
   simulator(TTree* runtree, int mode);
   ~simulator(void){;};
   TF1* f1;

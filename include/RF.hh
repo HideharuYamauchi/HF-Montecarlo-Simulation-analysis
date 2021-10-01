@@ -22,10 +22,10 @@ public:
   ~RFfield(void){;};
   double GetXYZ(int x, int y, int z);
   double TM_mode(void);
-  void Vis_RF();
+  void Vis_RF(void);
+  //int effective(stopping data);
   
 private:
-  const double pi = TMath::Pi();
   const double j_11 = 3.831705970207512315614; 
   const double j_21 = 5.135622301840682556301;
   const double e = 8.854187817e-12; // dielectric constant for krypton                              

@@ -61,7 +61,7 @@ public:
   void CreateRootFile(void);
   void Vis_stopping_distZ();
   void Vis_stopping_distXY(Double_t posZ);
-  int GetNumber(Double_t* pos);
+  int* GetMuonDist(void);
   TCanvas* c;
   TCanvas* c2;
   TH2D* dtxy;
