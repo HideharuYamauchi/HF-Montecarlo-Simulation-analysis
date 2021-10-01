@@ -8,7 +8,6 @@
 
 #include <stdio.h>
 #include "../include/RF.hh"
-#include "../include/HFgeometry.hh"
 #include <gsl/gsl_sf_bessel.h> 
 #include "Math/IFunction.h"
 #include <Riostream.h>
@@ -46,7 +45,7 @@ double RFfield::TM_mode(void){
   return permeability*sqrt(Bfield);
 }
 
-void RFfield::Vis_RF(){
+void RFfield::Vis_RF(void){
   c = new TCanvas("c", "c",1600,600);
   gStyle->SetOptStat(0);
   gStyle->SetTitleXOffset(1.5);
@@ -99,4 +98,9 @@ void RFfield::Vis_RF(){
   delete top_pad;
   delete c;
 }
+/*
+int RFfield::effective(stopping data){
+  ;
+}
+*/
 #endif

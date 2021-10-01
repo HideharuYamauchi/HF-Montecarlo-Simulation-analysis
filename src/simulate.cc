@@ -12,6 +12,12 @@
 #include "simulator.cc"
 
 int main(int argc, const char** argv){
+  /*
+  if(argc!=6){
+    std::cout << "arguments list:[TMmode] [PATH/to/magnetic_moment_dist] [PATH/to/Geant4_simulation_result] [PATH/to/Geant4_simulation_enviroment]" << std::endl;
+    return 0;
+  }
+  */
   //--------------------------radio frequency info(TMmode)
   //RFfield field_RF(atol(argv[1]));
   
@@ -26,28 +32,28 @@ int main(int argc, const char** argv){
   //magfield magnet_field(argv[2]);
   
   // if you want to visualize magnet field at Z
-  //magnet_field.Vis_magfield(75.);
+  //magnet_field.Vis_magfield(-25.);
   //----------------------------------------------------------------------
 
   
   //-------------------------muon stop distribution info
-  //muonstopping run(argv[3], argv[4]);
+  muonstopping run(argv[3], argv[4]);
   
   // if you want to make the root file
   //run.CreateRootFile();
   
   // if you want to visualize muon stopping distribution
   //run.Vis_stopping_distXY(0.);
-  //run.Vis_stopping_distZ();
+  run.Vis_stopping_distZ();
 
   // if you want to get the bins at pos
-  //std::cout << run.GetNumber(nullptr) << std::endl;
+  //std::cout << run.GetMuonDistNumber() << std::endl;
   //----------------------------------------------------------------------
 
   
   //-------------------------calculate the effective RF field
   //simulator sim(atol(argv[1]), &field_RF);
-  simulator sim(atol(argv[1]));
+  //simulator sim(atol(argv[1]));
 
   // if you want to get state amplitude
   //sim.timedev(double t, double b, double delta, double gamma);

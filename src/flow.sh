@@ -17,7 +17,7 @@ echo "now execute..."
 #    exit 1
 #fi
 
-./execute.out 210 ../include/BRECON_MOM_20200716_6.txt /home/hideharu/position/result/pos/run0001.dat /home/hideharu/position/result/pos/environment_run0001.dat
+./execute.out 210 ../include/BRECON_MOM_20200716_6.txt /home/hideharu/position/result/pos/run0007.dat /home/hideharu/position/result/pos/environment_run0007.dat
 
 # argv[3] = "path/to/run0000.dat"
 

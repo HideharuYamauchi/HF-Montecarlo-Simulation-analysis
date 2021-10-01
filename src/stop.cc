@@ -107,13 +107,14 @@ void muonstopping::Vis_stopping_distZ(){
   TString title_dt = "Z-Distribution";
   c2 = new TCanvas("c2", "c2",1400,900);
   gStyle->SetOptStat(0); // do not set the stat tabel 
-  dtz = new TH2D("Z-Dist", "", 400, -200, 200, 240, -120, 120);
-  //dtz = new TH2D("Z-Dist", "", 3600, -1800, 1800, 240, -120, 120);
+  dtz = new TH2D("Z-Dist", "", 400, 1000, 1400, 240, -120, 120);
+  //dtz = new TH2D("Z-Dist", "", 4000, -2000, 2000, 240, -120, 120);
   dtz->SetXTitle("Position on the beam axis [/mm]");
   dtz->SetYTitle("Position on the vertical axis [/mm]");
   for(Int_t n=0;n<entries;n++){
     tree->GetEntry(n);
-    if(std::string(process)=="DecayWithSpin") dtz->Fill(Z-1000.,Y);
+    if(std::string(process)=="DecayWithSpin") dtz->Fill(Z,X);
+    //if(std::string(particle)=="mu+") dtz->Fill(Z,X);
   }
   dtz->Draw("Colz");
   dtz->GetXaxis()->SetTitleOffset(1.3);
@@ -123,7 +124,8 @@ void muonstopping::Vis_stopping_distZ(){
   delete c2;
 }
 
-int muonstopping::GetNumber(Double_t* pos){
+int* muonstopping::GetMuonDist(void){
+  int* dist = nullptr;
   int number=0,mu_number=0,e_number=0;
   /*
   for(int n=0;n<entries;n++){
@@ -144,7 +146,7 @@ int muonstopping::GetNumber(Double_t* pos){
     }
   }
   /*
-  for(int i=0;i<29093;i++){
+  for(int i=0;i<29093;i++){ // 29093=max step number
     for(int n=0;n<entries;n++){
       tree->GetEntry(n);
       if((ntrack==1)&&(nstep==i)&&(std::string(particle)=="mu+")) number++;
@@ -154,5 +156,5 @@ int muonstopping::GetNumber(Double_t* pos){
   }
   */
   std::cout << "mu+ number:" << mu_number << "\t" << "e+ number:" << e_number << std::endl;
-  return number;
+  return dist;
 }

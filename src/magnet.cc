@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <string>
 #include "../include/magnet.hh"
-#include "../include/HFgeometry.hh"
 #include <cstdio>
 #include <fstream>
 #include <iostream>
