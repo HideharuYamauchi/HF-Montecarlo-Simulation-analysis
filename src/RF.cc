@@ -15,7 +15,7 @@
 #include <fstream>
 #include <iostream>
 
-RFfield::RFfield(int Mode){
+RFfield::RFfield(int Mode):distance(0.), Bfield(0.){
   R__LOAD_LIBRARY(libMathMore);
   mode = Mode;
 }
@@ -98,9 +98,14 @@ void RFfield::Vis_RF(void){
   delete top_pad;
   delete c;
 }
-/*
-int RFfield::effective(stopping data){
-  ;
+
+int RFfield::Effective(TH2D* dtxy, TH2D* dtz){
+  for(int z=-0.5*304;z<0.5*304;z++){
+    //for(){
+    //;}
+    ;
+  }
+  return 0;
 }
-*/
+
 #endif

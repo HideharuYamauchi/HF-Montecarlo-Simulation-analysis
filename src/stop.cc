@@ -20,6 +20,7 @@
 
 muonstopping::muonstopping(std::string runfile, const char* envfile):tree(nullptr),branchtime(nullptr),branchX(nullptr),branchY(nullptr),branchZ(nullptr),branchPx(nullptr),branchPy(nullptr),branchPz(nullptr),branchkE(nullptr),branchdepE(nullptr),branchtrack(nullptr),branchstep(nullptr),branchcopyno(nullptr){
   TString runfile2 = runfile;
+  gStyle->SetPalette(1); // set the color plot
   run_num = runfile.substr(runfile.find("run"), 7); // get the present run number
   
   tree = new TTree("tree",run_num);
@@ -50,36 +51,34 @@ void muonstopping::CreateRootFile(void){
   delete file;
 }
 
-void muonstopping::Vis_stopping_distXY(Double_t posZ){
+TH2D* muonstopping::Vis_stopping_distXY(Double_t posZ){
   TString title_dt = "z=" + std::to_string(int(posZ)) + " [/mm]";
   TString title_dt2 = "XY-Distribution_z:" + std::to_string(int(posZ));
-  c = new TCanvas("c", "c",900,900);
-  TPad* center_pad = new TPad("center_pad", "center_pad",0.0,0.0,0.5,0.5);
+  c = new TCanvas("c","c",900,900);
+  TPad* center_pad = new TPad("center_pad","",0.0,0.0,0.5,0.5);
   center_pad->Draw();
-  TPad* right_pad = new TPad("right_pad", "",0.5,0.0,1.0,0.5);
+  TPad* right_pad = new TPad("right_pad","",0.5,0.0,1.0,0.5);
   right_pad->Draw();
-  TPad* top_pad = new TPad("top_pad", "",0.0,0.5,0.5,1.0);
+  TPad* top_pad = new TPad("top_pad","",0.0,0.5,0.5,1.0);
   top_pad->Draw();
-  dtxy = new TH2D("XY-Dist", title_dt, 240, -120, 120, 240, -120, 120);
+  TH2D* dtxy = new TH2D("XY-Dist", title_dt, 240, -120, 120, 240, -120, 120);
   center_pad->cd();
   dtxy->SetXTitle("X [/mm]");
   dtxy->SetYTitle("Y [/mm]");                         
   center_pad->SetLeftMargin(0.15);
   center_pad->SetRightMargin(-0.03);
-  
   for(int n=0;n<entries;n++){
     tree->GetEntry(n);
-    if((Z<=posZ)&&(posZ<=Z+1.)&&(std::string(particle)=="mu+")&&(std::string(process)=="DecayWithSpin")) dtxy->Fill(X,Y);
+    if(std::string(process)=="DecayWithSpin") dtxy->Fill(X,Y);
   }
   TH1D* projdtx = dtxy->ProjectionX();
-  projdtx->SetTitle("X Projection");
+  projdtx->SetTitle("Position on the horizontal axis");
   projdtx->SetXTitle("X [/mm]");
   TH1D* projdty = dtxy->ProjectionY();
-  projdty->SetTitle("Y Projection");
+  projdty->SetTitle("Position on the vertical axis");
   projdty->SetXTitle("Y [/mm]");
 
   center_pad->cd();
-  gStyle->SetPalette(1);
   dtxy->Draw("Colz");
   dtxy->GetZaxis()->SetTitleOffset(1.3);
   dtxy->SetStats(1); // set the stats table
@@ -99,29 +98,29 @@ void muonstopping::Vis_stopping_distXY(Double_t posZ){
   projdty->SetStats(0);
 
   c->SaveAs(title_dt2+=".png");
-  delete dtxy;
   delete c;
+  return dtxy;
 }
 
-void muonstopping::Vis_stopping_distZ(){
+TH2D* muonstopping::Vis_stopping_distZ(void){
   TString title_dt = "Z-Distribution";
   c2 = new TCanvas("c2", "c2",1400,900);
   gStyle->SetOptStat(0); // do not set the stat tabel 
-  dtz = new TH2D("Z-Dist", "", 400, 1000, 1400, 240, -120, 120);
-  //dtz = new TH2D("Z-Dist", "", 4000, -2000, 2000, 240, -120, 120);
+  //TH2D* dtz = new TH2D("Z-Dist", "", 500, 1000, 1400, 240, -120, 120);
+  TH2D* dtz = new TH2D("Z-Dist", "", 400, -200, 200, 240, -120, 120);
   dtz->SetXTitle("Position on the beam axis [/mm]");
   dtz->SetYTitle("Position on the vertical axis [/mm]");
   for(Int_t n=0;n<entries;n++){
     tree->GetEntry(n);
-    if(std::string(process)=="DecayWithSpin") dtz->Fill(Z,X);
-    //if(std::string(particle)=="mu+") dtz->Fill(Z,X);
+    if(std::string(process)=="DecayWithSpin") dtz->Fill(Z-1050,X);
+    //if(std::string(process)=="DecayWithSpin") std::cout<<"px:"<<Px<<"\t"<<"py:"<<Py<<"\t"<<"pz:"<<Pz<<"\t"<<"E:"<<kE<<std::endl;
   }
   dtz->Draw("Colz");
   dtz->GetXaxis()->SetTitleOffset(1.3);
   dtz->GetYaxis()->SetTitleOffset(1.2);
   c2->SaveAs(title_dt+=".png");
-  delete dtz;
   delete c2;
+  return dtz;
 }
 
 int* muonstopping::GetMuonDist(void){

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////
-//  High Field Simulation for MuSUEUM experiment
+//  High Field Simulation for MuSUEUM Collaboration
 //
 //      Author: Hideharu Yamauchi 2021/9/23
 ////////////////////////////////////////////////////
@@ -13,16 +13,34 @@
 
 int main(int argc, const char** argv){
   /*
-  if(argc!=6){
-    std::cout << "arguments list:[TMmode] [PATH/to/magnetic_moment_dist] [PATH/to/Geant4_simulation_result] [PATH/to/Geant4_simulation_enviroment]" << std::endl;
+  if(argc!=4){
+    std::cout << "argument lists:[TMmode] [PATH/to/magnetic_moment_dist] [PATH/to/Geant4_simulation_result] [PATH/to/Geant4_simulation_enviroment]" << std::endl;
     return 0;
   }
   */
+  //-------------------------muon stop distribution info 
+  muonstopping* run = new muonstopping(argv[3], argv[4]);
+
+  // if you want to make the root file                      
+  //run->CreateRootFile();
+  
+  // if you want to visualize muon stopping distribution       
+  //run->Vis_stopping_distXY(1050.);                             
+  //run->Vis_stopping_distZ();
+  
+  // if you want to get the bins at pos                                       
+  //std::cout << run->GetMuonDistNumber() << std::endl;                  
+  //----------------------------------------------------------------------
+
+  
   //--------------------------radio frequency info(TMmode)
-  //RFfield field_RF(atol(argv[1]));
+  RFfield RF(atol(argv[1]));
   
   // if you want to visualize RF field
-  //field_RF.Vis_RF();
+  RF.Vis_RF();
+
+  // if you want to get the effective RF field
+  //RF.Effective(run->Vis_stopping_distXY(1050.), run->Vis_stopping_distZ());
   //----------------------------------------------------------------------
 
   
@@ -33,21 +51,6 @@ int main(int argc, const char** argv){
   
   // if you want to visualize magnet field at Z
   //magnet_field.Vis_magfield(-25.);
-  //----------------------------------------------------------------------
-
-  
-  //-------------------------muon stop distribution info
-  muonstopping run(argv[3], argv[4]);
-  
-  // if you want to make the root file
-  //run.CreateRootFile();
-  
-  // if you want to visualize muon stopping distribution
-  //run.Vis_stopping_distXY(0.);
-  run.Vis_stopping_distZ();
-
-  // if you want to get the bins at pos
-  //std::cout << run.GetMuonDistNumber() << std::endl;
   //----------------------------------------------------------------------
 
   
