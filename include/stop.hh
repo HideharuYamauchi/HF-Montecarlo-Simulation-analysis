@@ -14,7 +14,6 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TH2.h"
-#include "TGraph.h"
 #include "TCanvas.h"
 
 class muonstopping{
