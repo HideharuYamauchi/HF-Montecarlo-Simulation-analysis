@@ -23,12 +23,12 @@ public:
   double GetXYZ(int x, int y, int z);
   double TM_mode(void);
   void Vis_RF(void);
-  //int effective(stopping data);
+  Int_t Effective(TH2D* dtxy, TH2D* dtz);
   
 private:
   const double j_11 = 3.831705970207512315614; 
   const double j_21 = 5.135622301840682556301;
-  const double e = 8.854187817e-12; // dielectric constant for krypton                              
+  const double e = 8.854187817e-12; // dielectric constant for krypton     
   const double C = 2.99792458e+8; // speed of light    
   const double permeability = pi*4e-7; // permeability for krypton
   int mode;

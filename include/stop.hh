@@ -59,12 +59,10 @@ public:
   muonstopping(std::string runfile, const char* envfile);
   ~muonstopping(void){delete tree;}
   void CreateRootFile(void);
-  void Vis_stopping_distZ();
-  void Vis_stopping_distXY(Double_t posZ);
+  TH2D* Vis_stopping_distZ(void);
+  TH2D* Vis_stopping_distXY(Double_t posZ);
   int* GetMuonDist(void);
   TCanvas* c;
   TCanvas* c2;
-  TH2D* dtxy;
-  TH2D* dtz;
 };
 #endif
