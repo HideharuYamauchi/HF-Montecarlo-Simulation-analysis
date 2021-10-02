@@ -7,6 +7,7 @@
 #define ___class_RFfield_ 1
 
 #include <stdio.h>
+#include <string>
 #include "../include/RF.hh"
 #include <gsl/gsl_sf_bessel.h> 
 #include "Math/IFunction.h"
@@ -18,35 +19,34 @@
 RFfield::RFfield(int Mode):distance(0.), Bfield(0.){
   R__LOAD_LIBRARY(libMathMore);
   mode = Mode;
+  if(mode==110){
+    kc = j_11/cavity_radius;
+    Kr_freq = sqrt(kc*kc/(e*permeability)); // angluar frequency of Kr  
+    H_coefficient = cavity_power[0]*Q_value[0]/(2*Kr_freq*permeability*cavity_volume*pow((gsl_sf_bessel_Jn(2,j_11)), 2.0));
+  }else if(mode==210){
+    kc = j_21/cavity_radius;
+    Kr_freq =sqrt(kc*kc/(e*permeability));
+    H_coefficient = cavity_power[1]*Q_value[1]/(2*Kr_freq*permeability*cavity_volume*pow((gsl_sf_bessel_Jn(3,j_21)), 2.0));
+  }
 }
 
-double RFfield::GetXYZ(int x, int y, int z){
-  position[0]=x;
-  position[1]=y;
-  position[2]=z;
-  angle = std::atan2(position[1], position[0]);
-  distance = sqrt(pow(position[0], 2.0) + pow(position[1], 2.0))*1.0e-3; // convert mm to m
+double RFfield::GetXY(int x, int y){
+  angle = std::atan2(y, x);
+  distance = sqrt(pow(x, 2.0) + pow(y, 2.0))*1.0e-3; // convert mm to m
   return distance*1.0e+3; // convert m to mm
 }
 
 double RFfield::TM_mode(void){
   if(mode==110){
-    kc = j_11/cavity_radius;
-    Kr_freq = sqrt(kc*kc/(e*permeability)); // angluar frequency of Kr
-    H_coefficient = cavity_power[0]*Q_value[0]/(2*Kr_freq*permeability*cavity_volume*pow((gsl_sf_bessel_Jn(2,j_11)), 2.0));
-    Bfield=H_coefficient*(pow(gsl_sf_bessel_Jn(2,kc*distance), 2.0)+pow(gsl_sf_bessel_J0(kc*distance), 2.0)-2*(gsl_sf_bessel_Jn(2,kc*distance))*(gsl_sf_bessel_J0(kc*distance))*std::cos(2*angle));
+    Bfield=H_coefficient*(pow(gsl_sf_bessel_Jn(2,kc*distance),2.0)+pow(gsl_sf_bessel_J0(kc*distance),2.0)-2*(gsl_sf_bessel_Jn(2,kc*distance))*(gsl_sf_bessel_J0(kc*distance))*std::cos(2*angle));
   }else if(mode==210){
-    kc = j_21/cavity_radius; 
-    Kr_freq =sqrt(kc*kc/(e*permeability)); 
-    H_coefficient = cavity_power[1]*Q_value[1]/(2*Kr_freq*permeability*cavity_volume*pow((gsl_sf_bessel_Jn(3,j_21)), 2.0));
-    Bfield=H_coefficient*(pow(gsl_sf_bessel_Jn(3,kc*distance), 2.0)+pow(gsl_sf_bessel_J1(kc*distance), 2.0)-2*(gsl_sf_bessel_Jn(3,kc*distance))*(gsl_sf_bessel_J1(kc*distance))*std::cos(4*angle));
-    //std::cout << Bfield << std::endl;
+    Bfield=H_coefficient*(pow(gsl_sf_bessel_Jn(3,kc*distance),2.0)+pow(gsl_sf_bessel_J1(kc*distance),2.0)-2*(gsl_sf_bessel_Jn(3,kc*distance))*(gsl_sf_bessel_J1(kc*distance))*std::cos(4*angle));
   }
   return permeability*sqrt(Bfield);
 }
 
 void RFfield::Vis_RF(void){
-  c = new TCanvas("c", "c",1600,600);
+  c = new TCanvas("c","c",1600,600);
   gStyle->SetOptStat(0);
   gStyle->SetTitleXOffset(1.5);
   gStyle->SetTitleYOffset(2);
@@ -70,14 +70,13 @@ void RFfield::Vis_RF(void){
   int i=0;                                   
   for(int yy=-100; yy<101; yy++){                                   
     for(int xx=-100; xx<101; xx++){
-      if(GetXYZ(xx,yy,0)<cavity_radius*1.0e+3){
+      if(GetXY(xx,yy)<cavity_radius*1.0e+3){
         dt->SetPoint(i,double(xx),double(yy),TM_mode());	
         dt2->Fill(xx,yy,TM_mode());                  
         i++;                                                                          
       }                        
     }                                                
   }
-  //std::cout << H_coefficient << std::endl;
   top_pad->cd();
   gStyle->SetPalette(1);                                                                        
   dt->Draw("surf1");                                                                       
@@ -91,7 +90,6 @@ void RFfield::Vis_RF(void){
   dt2->GetZaxis()->SetTitleOffset(1.3);
   if(mode==110) {c->SaveAs("TM110.png");}
   else if(mode==210) {c->SaveAs("TM210.png");}
-
   delete dt;
   delete dt2;
   delete center_pad;
@@ -99,13 +97,21 @@ void RFfield::Vis_RF(void){
   delete c;
 }
 
-int RFfield::Effective(TH2D* dtxy, TH2D* dtz){
-  for(int z=-0.5*304;z<0.5*304;z++){
-    //for(){
-    //;}
+Int_t RFfield::Effective(TH2D* xy_dist, TH2D* z_dist){
+  if(mode==110) hist = new TH1D("hist","b_{12}",200,0,200);
+  else if(mode==210) hist = new TH1D("hist","b_{34}",200,0,200);
+  /*
+  for(int zz=-int(cavity_foil_position*0.5*1.0e+3); zz<int(cavity_foil_position*0.5*1.0e+3); zz++){
+    for(int yy=-100; yy<101; yy++){
+      for(int xx=-100; xx<101; xx++){
+	if(GetXY(xx,yy)<cavity_radius*1.0e+3)
+      }
+    }
     ;
   }
-  return 0;
+  */
+  Int_t mean = 0;
+  delete hist;
+  return mean;
 }
-
 #endif

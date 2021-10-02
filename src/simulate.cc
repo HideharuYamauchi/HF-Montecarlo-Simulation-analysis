@@ -27,9 +27,6 @@ int main(int argc, const char** argv){
   // if you want to visualize muon stopping distribution       
   //run->Vis_stopping_distXY(1050.);                             
   //run->Vis_stopping_distZ();
-  
-  // if you want to get the bins at pos                                       
-  //std::cout << run->GetMuonDistNumber() << std::endl;                  
   //----------------------------------------------------------------------
 
   

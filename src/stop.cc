@@ -81,7 +81,7 @@ TH2D* muonstopping::Vis_stopping_distXY(Double_t posZ){
   center_pad->cd();
   dtxy->Draw("Colz");
   dtxy->GetZaxis()->SetTitleOffset(1.3);
-  dtxy->SetStats(1); // set the stats table
+  dtxy->SetStats(000001111); // set the stats table
   gStyle->SetStatX(0.9); // set the xposition of stats table
   gStyle->SetStatY(0.95); 
   top_pad->cd();
