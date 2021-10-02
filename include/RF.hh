@@ -9,6 +9,7 @@
 #include "TMath.h"
 #include <cmath>         
 #include <math.h>
+#include "TH1.h"
 #include "TH2.h"
 #include "TCanvas.h"
 #include "TGraph2D.h"
@@ -19,10 +20,10 @@ class RFfield{
 public:
   RFfield(int Mode);
   ~RFfield(void){;};
-  double GetXYZ(int x, int y, int z);
+  double GetXY(int x, int y);
   double TM_mode(void);
   void Vis_RF(void);
-  Int_t Effective(TH2D* dtxy, TH2D* dtz);
+  Int_t Effective(TH2D* xy_dist, TH2D* z_dist);
   
 private:
   const double j_11 = 3.831705970207512315614; 
@@ -31,7 +32,6 @@ private:
   const double C = 2.99792458e+8; // speed of light    
   const double permeability = pi*4e-7; // permeability for krypton
   int mode;
-  int position[3];
   double kc; 
   double Kr_freq;
   double Bfield;
@@ -43,5 +43,6 @@ private:
   TPad* top_pad;
   TGraph2D* dt;
   TH2D* dt2;
+  TH1D* hist;
 };
 #endif
