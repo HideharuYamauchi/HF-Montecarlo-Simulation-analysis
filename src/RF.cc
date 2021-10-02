@@ -19,6 +19,7 @@
 RFfield::RFfield(int Mode):distance(0.), Bfield(0.){
   R__LOAD_LIBRARY(libMathMore);
   mode = Mode;
+  title = "TM" + std::to_string(mode);
   if(mode==110){
     kc = j_11/cavity_radius;
     Kr_freq = sqrt(kc*kc/(e*permeability)); // angluar frequency of Kr  
@@ -32,7 +33,7 @@ RFfield::RFfield(int Mode):distance(0.), Bfield(0.){
 
 double RFfield::GetXY(int x, int y){
   angle = std::atan2(y, x);
-  distance = sqrt(pow(x, 2.0) + pow(y, 2.0))*1.0e-3; // convert mm to m
+  distance = sqrt(pow(x, 2.0)+pow(y, 2.0))*1.0e-3; // convert mm to m
   return distance*1.0e+3; // convert m to mm
 }
 
@@ -88,8 +89,7 @@ void RFfield::Vis_RF(void){
   center_pad->SetRightMargin(0.2);
   dt2->Draw("colz");
   dt2->GetZaxis()->SetTitleOffset(1.3);
-  if(mode==110) {c->SaveAs("TM110.png");}
-  else if(mode==210) {c->SaveAs("TM210.png");}
+  c->SaveAs(title+=".png");
   delete dt;
   delete dt2;
   delete center_pad;
