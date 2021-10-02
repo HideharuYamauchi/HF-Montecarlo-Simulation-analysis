@@ -54,7 +54,7 @@ const double cavity_radial_thickness = 0.015; //m
 double cavity_power[2] = {8., 10.}; // same with liu exp         
 double Q_value[2] = {14000., 20000.};  // same with liu exp
 const double cavity_length = 0.27; // m
-const double cavity_flange_length = 0.031; // m, up=down
+const double cavity_flange_length = 0.031; // m, up=down, 0.013+0.009+0.009
 const double cavity_foil_position = 0.304; // =304mm
 const double cavity_volume = cavity_foil_position*pow(cavity_radius, 2.)*pi; 
 const double cavity_foil_thickness = 25*1.0e-6; // m
