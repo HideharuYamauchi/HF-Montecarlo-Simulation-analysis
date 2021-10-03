@@ -8,15 +8,18 @@ https://root.cern/<br>
 ・High Field MuSEUM experiment will be held at Materials and Life Science Experimental Facility of J-PARC. J-PARC (Japan Proton Accelerator Research Complex) is a high intensity proton accelerator facility. It is a joint project between KEK and JAEA and is located at the Tokai campus of JAEA.  
 https://j-parc.jp/c/index.html<br>
 https://g-2.kek.jp/gakusai/research_MuHFS.html
+ 
+1. HFgeometry.hh.<br>
+To set and describe the alignment of experiment. 
 
-1. RF.cc and RF.hh.<br>
+2. RF.cc and RF.hh.<br>
 To calculate the TMmode of microware in the cavity. We respectively use TM110 and TM210 mode to demonstrate the frequency which cause hyperfine splitting in the high magnetic field.
 
-2. magnet.cc and magnet.hh.<br>
+3. magnet.cc and magnet.hh.<br>
 To calculate the magnetic field about 1.7 T of superconductive magnet. The magnet will use at MuSEUM experiment and muon(g-2) experiment in the future.
 
-3. stop.cc and stop.hh.<br>
+4. stop.cc and stop.hh.<br>
 To calculate and analysis the muon stopping distribution in the RFcavity Using Geant4. 
 
-4. simulator.cc and simulator.hh.<br>
+5. simulator.cc and simulator.hh.<br>
 To calculate the effective microwave distribution by superposition of RF field and muons distribution.
