@@ -34,7 +34,7 @@ const double X = B_cons*(gfactor_j*magnetic_moment_j + gfactor_mu_prime*magnetic
 const double coefficient_s = sqrt(0.5)*sqrt(1-X/sqrt(1+X*X));
 const double coefficient_c = sqrt(0.5)*sqrt(1+X/sqrt(1+X*X));
 
-// the coefficient to change RF field to frequency, 0.001 is for coverting Hz to kHz
+// the coefficient to change RF field to frequency, 0.001 is for coverting Hz/T to kHz/T
 const double b_12 = 0.001*0.25*(coefficient_s*gfactor_j*magnetic_moment_j + coefficient_c*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided; // kHz/T 
 const double b_34 = 0.001*0.25*(coefficient_s*gfactor_j*magnetic_moment_j - coefficient_c*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided;
 

@@ -23,16 +23,18 @@ public:
   double GetXY(int x, int y);
   double TM_mode(void);
   void Vis_RF(void);
-  Int_t Effective(TH2D* xy_dist, TH2D* z_dist);
+  Int_t Effective(TH2D* xy_dist);
   
 private:
   TString title;
+  TString title2;
   const double j_11 = 3.831705970207512315614; 
   const double j_21 = 5.135622301840682556301;
   const double e = 8.854187817e-12; // dielectric constant for krypton     
   const double C = 2.99792458e+8; // speed of light    
   const double permeability = pi*4e-7; // permeability for krypton
   int mode;
+  double b; // the coefficient to change RF field to frequency
   double kc; 
   double Kr_freq;
   double Bfield;
