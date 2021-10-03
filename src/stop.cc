@@ -5,7 +5,6 @@
 /////////////////////////////////////////////////////               
 #ifndef ___class_muonstopping_
 #define ___class_muonstopping_ 1
-
 #include <stdio.h>
 #include <ostream>
 #include <fstream>
@@ -69,7 +68,8 @@ TH2D* muonstopping::Vis_stopping_distXY(Double_t posZ){
   center_pad->SetRightMargin(-0.03);
   for(int n=0;n<entries;n++){
     tree->GetEntry(n);
-    if(std::string(process)=="DecayWithSpin") dtxy->Fill(X,Y);
+    if(std::string(process)=="DecayWithSpin") dtxy->Fill(X,Y); // vis all z components
+    //if(std::string(process)=="DecayWithSpin"&&int(posZ)<=Z&&Z<=int(posZ)+1) dtxy->Fill(X,Y); // vis posZ<z<posZ+1
   }
   TH1D* projdtx = dtxy->ProjectionX();
   projdtx->SetTitle("Position on the horizontal axis");
@@ -96,7 +96,6 @@ TH2D* muonstopping::Vis_stopping_distXY(Double_t posZ){
   right_pad->SetRightMargin(0.03);
   projdty->Draw("hbar");
   projdty->SetStats(0);
-
   c->SaveAs(title_dt2+=".png");
   delete c;
   return dtxy;

@@ -21,10 +21,14 @@ RFfield::RFfield(int Mode):distance(0.), Bfield(0.){
   mode = Mode;
   title = "TM" + std::to_string(mode);
   if(mode==110){
+    title2 = "b_{12}";
+    b = b_12;
     kc = j_11/cavity_radius;
     Kr_freq = sqrt(kc*kc/(e*permeability)); // angluar frequency of Kr  
     H_coefficient = cavity_power[0]*Q_value[0]/(2*Kr_freq*permeability*cavity_volume*pow((gsl_sf_bessel_Jn(2,j_11)), 2.0));
   }else if(mode==210){
+    title2 = "b_{34}";
+    b = b_34;
     kc = j_21/cavity_radius;
     Kr_freq =sqrt(kc*kc/(e*permeability));
     H_coefficient = cavity_power[1]*Q_value[1]/(2*Kr_freq*permeability*cavity_volume*pow((gsl_sf_bessel_Jn(3,j_21)), 2.0));
@@ -97,20 +101,38 @@ void RFfield::Vis_RF(void){
   delete c;
 }
 
-Int_t RFfield::Effective(TH2D* xy_dist, TH2D* z_dist){
-  if(mode==110) hist = new TH1D("hist","b_{12}",200,0,200);
-  else if(mode==210) hist = new TH1D("hist","b_{34}",200,0,200);
-  /*
-  for(int zz=-int(cavity_foil_position*0.5*1.0e+3); zz<int(cavity_foil_position*0.5*1.0e+3); zz++){
-    for(int yy=-100; yy<101; yy++){
-      for(int xx=-100; xx<101; xx++){
-	if(GetXY(xx,yy)<cavity_radius*1.0e+3)
-      }
-    }
-    ;
+Int_t RFfield::Effective(TH2D* xy_dist){
+  TCanvas* c = new TCanvas("c", "c",900,900);
+  hist = new TH1D("hist",title2,200,0,200);
+  hist->SetXTitle("b [/kHz]");
+  hist->SetYTitle("");
+  
+  Int_t pos_x, pos_y, pos_z;
+  Int_t all_binx = xy_dist->GetNbinsX();
+  Int_t all_biny = xy_dist->GetNbinsY();                 
+  Int_t global_bins = xy_dist->GetBin(all_binx,all_biny);
+  Double_t contents;
+  Double_t xcenter, ycenter, xwidth, ywidth;
+  for(int k=0; k<global_bins; k++){
+    xy_dist->GetBinXYZ(k, pos_x, pos_y, pos_z);
+    contents = xy_dist->GetBinContent(k);
+    xcenter = xy_dist->GetXaxis()->GetBinCenter(k);
+    ycenter = xy_dist->GetYaxis()->GetBinCenter(k);
+    xwidth = xy_dist->GetXaxis()->GetBinWidth(k);
+    ywidth = xy_dist->GetYaxis()->GetBinWidth(k);
+    if(false){std::cout<<"k:"<<k<<"\t"
+		  <<"x:"<<pos_x<<"\t"<<"x_center:"<<xcenter<<"\t"<<"x_width:"<<xwidth<<"\t"
+		  <<"y:"<<pos_y<<"\t"<<"y_center:"<<ycenter<<"\t"<<"y_width:"<<ywidth<<"\t"
+		  <<"z:"<<pos_z<<"\t"
+		  <<"contents:"<<contents<<std::endl;}
+    if(GetXY(pos_x-120, pos_y-120)<cavity_radius*1.0e+3){for(int j=0;j<contents;j++) hist->Fill(b*TM_mode());}
   }
-  */
-  Int_t mean = 0;
+  hist->Draw();
+  c->SaveAs(title2+=".png");
+  Int_t mean = hist->GetMean();
+  Int_t stddev = hist->GetStdDev();
+  Int_t RMS = hist->GetRMS();
+  std::cout << "total entries:" << hist->GetEntries() << std::endl;
   delete hist;
   return mean;
 }

@@ -3,7 +3,6 @@
 //
 //      Author: Hideharu Yamauchi 2021/9/23
 ////////////////////////////////////////////////////
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "RF.cc"
@@ -18,7 +17,7 @@ int main(int argc, const char** argv){
     return 0;
   }
   */
-  //-------------------------muon stop distribution info 
+  //-------------------------muon stopping distribution info 
   muonstopping* run = new muonstopping(argv[3], argv[4]);
 
   // if you want to make the root file                      
@@ -34,31 +33,32 @@ int main(int argc, const char** argv){
   RFfield RF(atol(argv[1]));
   
   // if you want to visualize RF field
-  RF.Vis_RF();
+  //RF.Vis_RF();
 
   // if you want to get the effective RF field
-  //RF.Effective(run->Vis_stopping_distXY(1050.), run->Vis_stopping_distZ());
+  RF.Effective(run->Vis_stopping_distXY(1050.));
   //----------------------------------------------------------------------
 
   
   //-------------------------superconductive magnet info
   // using copy constructor to initialize default constructor
-  //magfield magnet_field = magfield();
-  //magfield magnet_field(argv[2]);
+  //magfield magnet = magfield();
+  //magfield magnet(argv[2]);
   
   // if you want to visualize magnet field at Z
-  //magnet_field.Vis_magfield(-25.);
+  //magnet.Vis_magfield(-25.);
   //----------------------------------------------------------------------
 
   
-  //-------------------------calculate the effective RF field
+  //-------------------------calculation
   //simulator sim(atol(argv[1]), &field_RF);
   //simulator sim(atol(argv[1]));
 
   // if you want to get state amplitude
-  //sim.timedev(double t, double b, double delta, double gamma);
+  //sim.timedev(double t, RF.Effective(run->Vis_stopping_distXY(1050.)), double delta, double gamma);
   
   //----------------------------------------------------------------------
-  
+
+  delete run;
   return 0;
 }
