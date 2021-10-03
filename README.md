@@ -10,7 +10,7 @@ https://j-parc.jp/c/index.html<br>
 https://g-2.kek.jp/gakusai/research_MuHFS.html
  
 1. HFgeometry.hh.<br>
-To set and describe the alignment of experiment. 
+To set the alignment of experiment and describe the physics constants.
 
 2. RF.cc and RF.hh.<br>
 To calculate the TMmode of microware in the cavity. We respectively use TM110 and TM210 mode to demonstrate the frequency which cause hyperfine splitting in the high magnetic field.
