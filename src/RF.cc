@@ -107,33 +107,59 @@ Int_t RFfield::Effective(TH2D* xy_dist){
   hist->SetXTitle("b [/kHz]");
   hist->SetYTitle("");
   
-  Int_t pos_x, pos_y, pos_z;
   Int_t all_binx = xy_dist->GetNbinsX();
-  Int_t all_biny = xy_dist->GetNbinsY();                 
-  Int_t global_bins = xy_dist->GetBin(all_binx,all_biny);
+  Int_t all_biny = xy_dist->GetNbinsY();
   Double_t contents;
   Double_t xcenter, ycenter, xwidth, ywidth;
+  for(int k=0; k<all_binx; k++){
+    xcenter = xy_dist->GetXaxis()->GetBinCenter(k); // GetBinCenter(bin) which bin is not global bin 
+    xwidth = xy_dist->GetXaxis()->GetBinWidth(k);
+    for(int l=0; l<all_biny; l++){
+      ycenter = xy_dist->GetYaxis()->GetBinCenter(l); // GetBinCenter(bin) which bin is not global bin 
+      ywidth = xy_dist->GetYaxis()->GetBinWidth(l);
+      contents = xy_dist->GetBinContent(xy_dist->GetBin(k,l,0));
+      if(GetXY(xcenter, ycenter)<cavity_radius*1.0e+3){for(int j=0;j<contents;j++) hist->Fill(b*TM_mode());}
+    }
+  }
+  /*
+  Int_t pos_x, pos_y, pos_z;
+  Int_t global_bins = xy_dist->GetBin(all_binx,all_biny)
   for(int k=0; k<global_bins; k++){
     xy_dist->GetBinXYZ(k, pos_x, pos_y, pos_z);
     contents = xy_dist->GetBinContent(k);
-    xcenter = xy_dist->GetXaxis()->GetBinCenter(k);
-    ycenter = xy_dist->GetYaxis()->GetBinCenter(k);
-    xwidth = xy_dist->GetXaxis()->GetBinWidth(k);
-    ywidth = xy_dist->GetYaxis()->GetBinWidth(k);
-    if(false){std::cout<<"k:"<<k<<"\t"
-		  <<"x:"<<pos_x<<"\t"<<"x_center:"<<xcenter<<"\t"<<"x_width:"<<xwidth<<"\t"
-		  <<"y:"<<pos_y<<"\t"<<"y_center:"<<ycenter<<"\t"<<"y_width:"<<ywidth<<"\t"
-		  <<"z:"<<pos_z<<"\t"
-		  <<"contents:"<<contents<<std::endl;}
     if(GetXY(pos_x-120, pos_y-120)<cavity_radius*1.0e+3){for(int j=0;j<contents;j++) hist->Fill(b*TM_mode());}
   }
+  */
   hist->Draw();
   c->SaveAs(title2+=".png");
   Int_t mean = hist->GetMean();
   Int_t stddev = hist->GetStdDev();
   Int_t RMS = hist->GetRMS();
-  std::cout << "total entries:" << hist->GetEntries() << std::endl;
+  Int_t entries = hist->GetEntries();
   delete hist;
+  delete c;
   return mean;
+}
+
+TTree* RFfield::AddRFBranch(TTree* decaytree){
+  Double_t Effective_RF;
+  Double_t RF;
+  Double_t decaytime, decaypositionx, decaypositiony, decaypositionz;
+  decaytree->SetBranchAddress("decaytime",&decaytime);
+  decaytree->SetBranchAddress("decaypositionx",&decaypositionx);
+  decaytree->SetBranchAddress("decaypositiony",&decaypositiony);
+  decaytree->SetBranchAddress("decaypositionz",&decaypositionz);
+  decaytree->SetBranchStatus("*",1);
+  auto RF_Branch = decaytree->Branch("RF",&RF,"RF/D");
+  auto Effective_RF_Branch = decaytree->Branch("Effective_RF",&Effective_RF,"Effective_RF/D");
+  for(int n=0; n<decaytree->GetEntries(); n++){
+    decaytree->GetEntry(n);
+    GetXY(int(decaypositionx), int(decaypositiony));
+    RF = TM_mode();
+    RF_Branch->Fill();
+    Effective_RF = b*TM_mode();
+    Effective_RF_Branch->Fill();
+  }
+  return decaytree;
 }
 #endif

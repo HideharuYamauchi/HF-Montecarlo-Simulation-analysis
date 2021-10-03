@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////        
 //   High field simulation for MuSEUM Collaboration             
 //                                               
-//         Author: Hideharu Yamauchi 2021/09/19                          
+//         Author: Hideharu Yamauchi 2021/09/19
 /////////////////////////////////////////////////////               
 #ifndef ___class_muonstopping_
 #define ___class_muonstopping_ 1
@@ -10,11 +10,11 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <cmath>
-#include "TMath.h"
+//#include <cmath>
+//#include "TMath.h"
 #include "../include/stop.hh"
 #include "TStyle.h"
-#include "TPad.h"
+//#include "TPad.h"
 #endif
 
 muonstopping::muonstopping(std::string runfile, const char* envfile):tree(nullptr),branchtime(nullptr),branchX(nullptr),branchY(nullptr),branchZ(nullptr),branchPx(nullptr),branchPy(nullptr),branchPz(nullptr),branchkE(nullptr),branchdepE(nullptr),branchtrack(nullptr),branchstep(nullptr),branchcopyno(nullptr){
@@ -122,25 +122,25 @@ TH2D* muonstopping::Vis_stopping_distZ(void){
   return dtz;
 }
 
-int* muonstopping::GetMuonDist(void){
-  int* dist = nullptr;
-  int number=0,mu_number=0,e_number=0;
-  /*
+TTree* muonstopping::GetDecayTree(void){
+  TTree* decaytree = new TTree("decaytree","decay muons");
+  Double_t decaytime;
+  Double_t decaypositionx;
+  Double_t decaypositiony;
+  Double_t decaypositionz;
+  decaytree->Branch("decaytime",&decaytime,"decaytime/D");
+  decaytree->Branch("decaypositionx",&decaypositionx,"decaypositionx/D");
+  decaytree->Branch("decaypositiony",&decaypositiony,"decaypositiony/D");
+  decaytree->Branch("decaypositionz",&decaypositionz,"decaypositionz/D");
   for(int n=0;n<entries;n++){
     tree->GetEntry(n);
-    //if((X<*pos)&&(*pos<X+1)&&(Y<*(pos+1))&&(*(pos)<Y+1)&&(Z<*(pos+2))&&(*(pos+2)<Z+1)&&((std::string(particle)=="mu+")&&(std::string(process)=="DecayWithSpin")) number++;
-    //if(number<=nstep) number=nstep;
-    if(std::string(process)=="DecayWithSpin") number++;
-  }
-  */
-  for(int i=0;i<entries;i++){
-    tree->GetEntry(i);
-    if((std::string(particle)=="e+")&&(std::string(process)=="initStep")) {
-      //std::cout << "step:" << nstep <<"\t" <<"particle:"<< particle<< "\t" << "volume:" << volume <<"\t"<< "X:" << X << "\t" << "Y:" << Y << "\t" << "Z:" << Z << "\t" << "depE:" << kE << std::endl;
-      e_number++;
-    }else if(std::string(process)=="DecayWithSpin") {
-      //std::cout << "step:" << nstep <<"\t" <<"particle:"<< particle<< "\t" << "volume:" << volume <<"\t"<< "X:" << X << "\t" << "Y:" << Y << "\t" << "Z:" << Z << "\t" << "depE:" << kE << std::endl;
-      mu_number++;
+    //if(std::string(process)=="DecayWithSpin"&&(std::string(volume)=="Cavity"||std::string(volume)=="CavityFoil")){
+    if(std::string(process)=="DecayWithSpin"){
+      decaytime = time;
+      decaypositionx = X;
+      decaypositiony = Y;
+      decaypositionz = Z;
+      decaytree->Fill();
     }
   }
   /*
@@ -153,6 +153,5 @@ int* muonstopping::GetMuonDist(void){
     number=0;
   }
   */
-  std::cout << "mu+ number:" << mu_number << "\t" << "e+ number:" << e_number << std::endl;
-  return dist;
+  return decaytree;
 }

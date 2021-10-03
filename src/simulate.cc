@@ -31,12 +31,13 @@ int main(int argc, const char** argv){
   
   //--------------------------radio frequency info(TMmode)
   RFfield RF(atol(argv[1]));
+  RF.AddRFBranch(run->GetDecayTree());
   
   // if you want to visualize RF field
   //RF.Vis_RF();
 
   // if you want to get the effective RF field
-  RF.Effective(run->Vis_stopping_distXY(1050.));
+  //RF.Effective(run->Vis_stopping_distXY(1050.));
   //----------------------------------------------------------------------
 
   
