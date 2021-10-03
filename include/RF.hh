@@ -11,6 +11,7 @@
 #include <math.h>
 #include "TH1.h"
 #include "TH2.h"
+#include "TTree.h"
 #include "TCanvas.h"
 #include "TGraph2D.h"
 #include "TStyle.h"
@@ -24,6 +25,7 @@ public:
   double TM_mode(void);
   void Vis_RF(void);
   Int_t Effective(TH2D* xy_dist);
+  TTree* AddRFBranch(TTree* decaytree);
   
 private:
   TString title;

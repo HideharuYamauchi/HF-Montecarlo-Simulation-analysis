@@ -60,7 +60,7 @@ public:
   void CreateRootFile(void);
   TH2D* Vis_stopping_distZ(void);
   TH2D* Vis_stopping_distXY(Double_t posZ);
-  int* GetMuonDist(void);
+  TTree* GetDecayTree(void);
   TCanvas* c;
   TCanvas* c2;
 };
