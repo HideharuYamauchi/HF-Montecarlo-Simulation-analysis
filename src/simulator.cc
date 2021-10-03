@@ -1,8 +1,8 @@
-///////////////////////////////////////////
-//          High field simulation                      
+/////////////////////////////////////////////////////////////
+//          High field simulation for MuSEUM Collaboration
 //
-//  Author: Hideharu Yamauchi 2021/09/19                     
-///////////////////////////////////////////
+//               Author: Hideharu Yamauchi 2021/09/19
+/////////////////////////////////////////////////////////////
 
 #ifndef ___class_simulator_
 #define ___class_simulator_ 1
@@ -27,7 +27,7 @@ simulator::simulator(int mode){
             << "state amplitue(t=0) of 34transition=" << state_amp[1] << std::endl;
 }
 
-simulator::simulator(TTree* runtree, int mode){
+simulator::simulator(TTree* decaytree, int mode){
   Mode = mode;
 }
 
@@ -39,8 +39,8 @@ void simulator::timedev(double t, double b, double delta, double gamma){
 }
 
 void simulator::Vis_state_amp(void){
-  f1 = new TF1("amplitude","myfunction",0,10,2);    
-  //f1->SetParameters(2,1);                                                                                       
+  f1 = new TF1("amplitude","myfunction",0,10,2);
+  //f1->SetParameters(2,1);                                                                  
   //f1->SetParNames("constant","coefficient");                                                      
   //f1->Draw();
   delete f1;

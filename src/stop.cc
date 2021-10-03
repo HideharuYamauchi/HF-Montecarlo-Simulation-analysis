@@ -139,7 +139,7 @@ TTree* muonstopping::GetDecayTree(void){
       decaytime = time;
       decaypositionx = X;
       decaypositiony = Y;
-      decaypositionz = Z;
+      decaypositionz = Z-cavity_center;
       decaytree->Fill();
     }
   }

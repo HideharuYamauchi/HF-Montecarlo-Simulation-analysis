@@ -66,8 +66,7 @@ void magfield::Vis_magfield(double Z){ // unit of Z:mm, range: from -152 to +152
   c = new TCanvas("c", "c",1600,600);
   gStyle->SetOptStat(0);
   gStyle->SetTitleXOffset(1.5);
-  gStyle->SetTitleYOffset(2);
-  
+  gStyle->SetTitleYOffset(2); 
   center_pad = new TPad("center_pad", "center_pad",0.5,0,1.0,1.0);
   center_pad->Draw();
   top_pad = new TPad("top_pad", "top_pad",0,0,0.5,1.0);
@@ -75,12 +74,10 @@ void magfield::Vis_magfield(double Z){ // unit of Z:mm, range: from -152 to +152
   
   dt = new TGraph2D();
   dt->SetTitle(title_dt);
-
   dt2 = new TH2D("dt", title_dt2, 201,-100.0 , 100.0 ,201, -100.0, 100.0);
   dt2->SetXTitle("X [/mm]");
   dt2->SetYTitle("Y [/mm]");
   dt2->SetZTitle("B^{ER} [/Gauss]");
-
   int i=0;
   for(int X=-100; X<101; X++){
     for(int Y=-100; Y<101; Y++){      
@@ -109,4 +106,24 @@ void magfield::Vis_magfield(double Z){ // unit of Z:mm, range: from -152 to +152
   delete dt;
   delete dt2;
   delete c;
+}
+
+TTree* magfield::AddMagnetBranch(TTree* decaytree){
+  Double_t magnet_field;
+  Double_t decaytime, decaypositionx, decaypositiony, decaypositionz, RF, Effective_RF;
+  decaytree->SetBranchAddress("decaytime",&decaytime);
+  decaytree->SetBranchAddress("decaypositionx",&decaypositionx);
+  decaytree->SetBranchAddress("decaypositiony",&decaypositiony);
+  decaytree->SetBranchAddress("decaypositionz",&decaypositionz);
+  decaytree->SetBranchAddress("RF",&RF);
+  decaytree->SetBranchAddress("Effective_RF",&Effective_RF);
+  decaytree->SetBranchStatus("*",1);
+  auto magnet_field_Branch = decaytree->Branch("magnet_field",&magnet_field,"magnet_field/D");
+  for(int n=0; n<decaytree->GetEntries(); n++){
+    decaytree->GetEntry(n);
+    GetDistance(decaypositionx, decaypositiony, decaypositionz);
+    magnet_field = Bfield_value*scaling_factor; // scaling magnet field to ~1.7
+    magnet_field_Branch->Fill();
+  }
+  return decaytree;  
 }

@@ -19,32 +19,30 @@ int main(int argc, const char** argv){
   */
   //-------------------------muon stopping distribution info 
   muonstopping* run = new muonstopping(argv[3], argv[4]);
-
-  // if you want to make the root file                      
-  //run->CreateRootFile();
   
   // if you want to visualize muon stopping distribution       
-  //run->Vis_stopping_distXY(1050.);                             
+  //run->Vis_stopping_distXY(1050.);        
   //run->Vis_stopping_distZ();
   //----------------------------------------------------------------------
 
   
   //--------------------------radio frequency info(TMmode)
-  RFfield RF(atol(argv[1]));
-  RF.AddRFBranch(run->GetDecayTree());
+  RFfield* RF = new RFfield(atol(argv[1]));
+  //RF->AddRFBranch(run->GetDecayTree());
   
   // if you want to visualize RF field
-  //RF.Vis_RF();
+  //RF->Vis_RF();
 
   // if you want to get the effective RF field
-  //RF.Effective(run->Vis_stopping_distXY(1050.));
+  //RF->Effective(run->Vis_stopping_distXY(1050.));
   //----------------------------------------------------------------------
 
   
   //-------------------------superconductive magnet info
   // using copy constructor to initialize default constructor
   //magfield magnet = magfield();
-  //magfield magnet(argv[2]);
+  //magfield* magnet = new magfield(argv[2]);
+  //magnet->AddMagnetBranch(RF->AddRFBranch(run->GetDecayTree()));
   
   // if you want to visualize magnet field at Z
   //magnet.Vis_magfield(-25.);
