@@ -33,6 +33,7 @@ public:
   double GetDistance(double x, double y, double z);
   double Bfield_value(void);
   void Vis_magfield(double Z);
+  TTree* AddMagnetBranch(TTree* decaytree);
   TCanvas* c;
   TPad* center_pad;
   TPad* top_pad;

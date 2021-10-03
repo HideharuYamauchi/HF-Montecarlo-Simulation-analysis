@@ -25,7 +25,7 @@ private:
   
 public:
   simulator(int mode);
-  simulator(TTree* runtree, int mode);
+  simulator(TTree* decaytree, int mode);
   ~simulator(void){;};
   TF1* f1;
   void GetXYZ(int x, int y, int z);
