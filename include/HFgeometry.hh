@@ -1,11 +1,11 @@
-////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 //                 High field simulation for MuSEUM Collaboration 
 //
-//                    Author: Hideharu Yamauchi 2021/09/18
+//                    Author : Hideharu Yamauchi 2021/09/18
 //
 //     All physics constants are referenced to the following nist website
 //         https://physics.nist.gov/cuu/Constants/Table/allascii.txt
-///////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 #if !defined(___header_geometry_)
 #define ___header_geometry_ 1 
@@ -45,8 +45,10 @@ const double beam_x_sigma = 34.; // mm
 const double beam_y_sigma = 30.; // mm
 
 const double muon_mass = 105.6583755; // MeV/c^2
-//const double muon_life = 2.197*1.0e-6;// s
 const double positron_max_momentum = 52.83; // MeV/c
+
+// Geant4 setting 
+const double Magnet_center = 1200.; // mm
 
 //------------HF cavity--------------
 const double cavity_radius = 0.0935; // m
@@ -59,7 +61,8 @@ const double cavity_foil_position = 0.304; // =304mm
 const double cavity_volume = cavity_foil_position*pow(cavity_radius, 2.)*pi; 
 const double cavity_foil_thickness = 25*1.0e-6; // m
 
-const double cavity_center = 1200. // mm, G4 setting
+const double overhang_thickness = 25.; // mm, G4 setting
+const double cavity_center =  Magnet_center-overhang_thickness*0.5; // mm, G4 setting, 1187.5 mm
 
 //------------Positron counter---------------
 const double counter_sizeXY = 240.; // mm
@@ -69,6 +72,10 @@ double positron_counterD = 340.;
 //------------Gas Chamber-------------------
 const double chamber_length = 390.; // mm
 const double chamber_diameter = 400.; // inner diameter
-const double chamber_thickness = 30.; 
-  
+const double chamber_thickness = 30.;
+const double chamber_window_diameter = 100.; // mm, front window
+const double chamber_foil_thickness = 0.1; // mm
+const double chamber_flange_diameter = 430.; // mm
+const double chamber_flange_thickness_u = 30.; // mm
+
 #endif

@@ -1,8 +1,8 @@
-///////////////////////////////////////////          
-//  High field simulation(MuSEUM project)
+///////////////////////////////////////////////////////
+//   High field simulation for MuSEUM Collaboration 
 //
-//  Hideharu Yamauchi 2021/09/18                                            
-///////////////////////////////////////////  
+//        Author : Hideharu Yamauchi 2021/09/18                
+///////////////////////////////////////////////////////
 #if !defined(___header_magfield_)
 #define ___header_magfield_ 1
 
@@ -26,9 +26,10 @@ private:
   std::vector<double> position;
   const double B_ave = 1.199671277270803; // average field
   const double scaling_factor = B_cons/B_ave;
+  const double DSV = 300.; // mm
   
 public:
-  magfield(const char* magnetfile);
+  magfield(const char* magnetfile, int Mode);
   ~magfield(void){;};
   double GetDistance(double x, double y, double z);
   double Bfield_value(void);

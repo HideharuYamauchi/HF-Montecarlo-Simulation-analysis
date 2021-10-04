@@ -22,6 +22,7 @@ public:
   RFfield(int Mode);
   ~RFfield(void){;};
   double GetXY(int x, int y);
+  double GetXY(double x, double y);
   double TM_mode(void);
   void Vis_RF(void);
   Int_t Effective(TH2D* xy_dist);
