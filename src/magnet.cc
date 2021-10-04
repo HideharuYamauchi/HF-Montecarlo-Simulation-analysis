@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////          
-//      Class for calculation of Magnet field     
+//        Class for calculation of Magnet field     
 //                                                  
-//  Author:   Hideharu Yamauchi 2021/09/16        
+//        Author:   Hideharu Yamauchi 2021/09/16        
 /////////////////////////////////////////////////////////
 #ifndef ___class_magfield_
 #define ___class_magfield_ 1
@@ -16,9 +16,10 @@
 #include <numeric>
 #endif
 
-magfield::magfield(const char* magnetfile):moment_coordinate(moment_num,std::vector<double>(3)),moment(moment_num,std::vector<double>(3)),distance(moment_num,std::vector<double>(3)),interval(moment_num),position(3){
+magfield::magfield(const char* magnetfile, int Mode):moment_coordinate(moment_num,std::vector<double>(3)),moment(moment_num,std::vector<double>(3)),distance(moment_num,std::vector<double>(3)),interval(moment_num),position(3){
+  mode = Mode;
   std::ifstream ifs(magnetfile);
-  if(ifs.fail()) {
+  if(ifs.fail()){
     std::cout << "Failed to open the file..." << std::endl;
     std::exit(EXIT_FAILURE);
   }
@@ -42,7 +43,7 @@ double magfield::GetDistance(double x, double y, double z){
       }
       interval[i] = sqrt(pow(distance[i][0], 2.)+pow(distance[i][1], 2.)+pow(distance[i][2], 2.));
     }
-  }else{std::cout << "distance is over the DSV(30 mm)..." << std::endl;}
+  }else{std::cout << "distance is over the DSV" << DSV << "(mm)..." << std::endl;}
   return sqrt(pow(x, 2.)+pow(y, 2.)); // mm
 }
 
@@ -52,7 +53,7 @@ double magfield::Bfield_value(void){
     BvalueZ = (1.0e-7)*(1/pow(interval[i], 3.))*(3*(moment[i][0]*distance[i][0] + moment[i][1]*distance[i][1] + moment[i][2]*distance[i][2])*distance[i][2]/pow(interval[i], 2.)-moment[i][2]);
     total_BvalueZ += BvalueZ;
   }
-  return total_BvalueZ;
+  return total_BvalueZ; // T
 }
 
 void magfield::Vis_magfield(double Z){ // unit of Z:mm, range: from -152 to +152
@@ -100,7 +101,6 @@ void magfield::Vis_magfield(double Z){ // unit of Z:mm, range: from -152 to +152
   dt2->Draw("colz");
   dt2->GetZaxis()->SetTitleOffset(1.3);
   c->SaveAs(title_dt3); 
-  
   delete center_pad;
   delete top_pad;
   delete dt;
@@ -109,21 +109,32 @@ void magfield::Vis_magfield(double Z){ // unit of Z:mm, range: from -152 to +152
 }
 
 TTree* magfield::AddMagnetBranch(TTree* decaytree){
-  Double_t magnet_field;
-  Double_t decaytime, decaypositionx, decaypositiony, decaypositionz, RF, Effective_RF;
+  Double_t magnet_field, b;
+  Double_t decaytime, decaypositionx, decaypositiony, decaypositionz;
+  double X_temp, coefficient_s_temp, coefficient_c_temp;
   decaytree->SetBranchAddress("decaytime",&decaytime);
   decaytree->SetBranchAddress("decaypositionx",&decaypositionx);
   decaytree->SetBranchAddress("decaypositiony",&decaypositiony);
   decaytree->SetBranchAddress("decaypositionz",&decaypositionz);
-  decaytree->SetBranchAddress("RF",&RF);
-  decaytree->SetBranchAddress("Effective_RF",&Effective_RF);
   decaytree->SetBranchStatus("*",1);
   auto magnet_field_Branch = decaytree->Branch("magnet_field",&magnet_field,"magnet_field/D");
+  auto b_Branch = decaytree->Branch("b",&b,"b/D");
   for(int n=0; n<decaytree->GetEntries(); n++){
     decaytree->GetEntry(n);
     GetDistance(decaypositionx, decaypositiony, decaypositionz);
-    magnet_field = Bfield_value*scaling_factor; // scaling magnet field to ~1.7
+    magnet_field = (B_ave+Bfield_value())*scaling_factor; // scaling magnet field to ~1.7
     magnet_field_Branch->Fill();
+    X_temp = magnet_field*(gfactor_j*magnetic_moment_j + gfactor_mu_prime*magnetic_moment_mu)/(plank_const*v_exp);
+    coefficient_s_temp = sqrt(0.5)*sqrt(1-X_temp/sqrt(1+X_temp*X_temp));
+    coefficient_c_temp = sqrt(0.5)*sqrt(1+X_temp/sqrt(1+X_temp*X_temp));
+    if(mode==110){
+      b = 0.001*0.25*(coefficient_s_temp*gfactor_j*magnetic_moment_j + coefficient_c_temp*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided;
+      b_Branch->Fill();
+    }else if(mode==210){
+      b = 0.001*0.25*(coefficient_s_temp*gfactor_j*magnetic_moment_j - coefficient_c_temp*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided;
+      b_Branch->Fill();
+    }
   }
+  //decaytree->Scan("*");
   return decaytree;  
 }

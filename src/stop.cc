@@ -5,16 +5,14 @@
 /////////////////////////////////////////////////////               
 #ifndef ___class_muonstopping_
 #define ___class_muonstopping_ 1
+
 #include <stdio.h>
 #include <ostream>
 #include <fstream>
 #include <iostream>
 #include <string>
-//#include <cmath>
-//#include "TMath.h"
 #include "../include/stop.hh"
 #include "TStyle.h"
-//#include "TPad.h"
 #endif
 
 muonstopping::muonstopping(std::string runfile, const char* envfile):tree(nullptr),branchtime(nullptr),branchX(nullptr),branchY(nullptr),branchZ(nullptr),branchPx(nullptr),branchPy(nullptr),branchPz(nullptr),branchkE(nullptr),branchdepE(nullptr),branchtrack(nullptr),branchstep(nullptr),branchcopyno(nullptr){
@@ -105,14 +103,17 @@ TH2D* muonstopping::Vis_stopping_distZ(void){
   TString title_dt = "Z-Distribution";
   c2 = new TCanvas("c2", "c2",1400,900);
   gStyle->SetOptStat(0); // do not set the stat tabel 
-  //TH2D* dtz = new TH2D("Z-Dist", "", 500, 1000, 1400, 240, -120, 120);
+  //TH2D* dtz = new TH2D("Z-Dist", "", 500, 900, 1400, 240, -120, 120);
   TH2D* dtz = new TH2D("Z-Dist", "", 400, -200, 200, 240, -120, 120);
   dtz->SetXTitle("Position on the beam axis [/mm]");
   dtz->SetYTitle("Position on the vertical axis [/mm]");
+  double radius = cavity_radius*1.0e+3; // convert 0.0935 m to 93.5 mm
+  double foil = cavity_foil_position*0.5*1.0e+3; // convert 0.304 m to 152 mm
   for(Int_t n=0;n<entries;n++){
     tree->GetEntry(n);
-    if(std::string(process)=="DecayWithSpin") dtz->Fill(Z-1050,X);
-    //if(std::string(process)=="DecayWithSpin") std::cout<<"px:"<<Px<<"\t"<<"py:"<<Py<<"\t"<<"pz:"<<Pz<<"\t"<<"E:"<<kE<<std::endl;
+    Z = Z -1050.; // change 1050 to cavity_center
+    if(std::string(process)=="DecayWithSpin"&&(-radius<=X&&X<=radius)&&(-radius<=Y&&Y<=radius)&&(-70<=Z&&Z<=foil)) dtz->Fill(Z*2.,X*1.5); // 2. and 1.5 is for scaling
+    //if(std::string(process)=="DecayWithSpin") dtz->Fill(Z,Y);
   }
   dtz->Draw("Colz");
   dtz->GetXaxis()->SetTitleOffset(1.3);
@@ -132,17 +133,22 @@ TTree* muonstopping::GetDecayTree(void){
   decaytree->Branch("decaypositionx",&decaypositionx,"decaypositionx/D");
   decaytree->Branch("decaypositiony",&decaypositiony,"decaypositiony/D");
   decaytree->Branch("decaypositionz",&decaypositionz,"decaypositionz/D");
+  double radius = cavity_radius*1.0e+3; // convert 0.0935 m to 93.5 mm
+  double foil = cavity_foil_position*0.5*1.0e+3; // convert 0.304 m to 152 mm
   for(int n=0;n<entries;n++){
     tree->GetEntry(n);
     //if(std::string(process)=="DecayWithSpin"&&(std::string(volume)=="Cavity"||std::string(volume)=="CavityFoil")){
-    if(std::string(process)=="DecayWithSpin"){
+    Z = Z -1050.;
+    if(std::string(process)=="DecayWithSpin"&&(-radius<=X&&X<=radius)&&(-radius<=Y&&Y<=radius)&&(-70<=Z&&Z<=foil)){
       decaytime = time;
-      decaypositionx = X;
-      decaypositiony = Y;
-      decaypositionz = Z-cavity_center;
+      decaypositionx = X*1.5; // 1.5 for scaling
+      decaypositiony = Y*1.5;
+      //decaypositionz = Z-cavity_center;
+      decaypositionz = Z*2.; // 2. for scaling
       decaytree->Fill();
     }
   }
+  //decaytree->Scan("*");
   /*
   for(int i=0;i<29093;i++){ // 29093=max step number
     for(int n=0;n<entries;n++){

@@ -41,6 +41,12 @@ double RFfield::GetXY(int x, int y){
   return distance*1.0e+3; // convert m to mm
 }
 
+double RFfield::GetXY(double x, double y){
+  angle = std::atan2(y, x);
+  distance = sqrt(pow(x, 2.0)+pow(y, 2.0))*1.0e-3; // convert mm to m
+  return distance*1.0e+3; // convert m to mm
+}
+
 double RFfield::TM_mode(void){
   if(mode==110){
     Bfield=H_coefficient*(pow(gsl_sf_bessel_Jn(2,kc*distance),2.0)+pow(gsl_sf_bessel_J0(kc*distance),2.0)-2*(gsl_sf_bessel_Jn(2,kc*distance))*(gsl_sf_bessel_J0(kc*distance))*std::cos(2*angle));
@@ -144,22 +150,25 @@ Int_t RFfield::Effective(TH2D* xy_dist){
 TTree* RFfield::AddRFBranch(TTree* decaytree){
   Double_t Effective_RF;
   Double_t RF;
-  Double_t decaytime, decaypositionx, decaypositiony, decaypositionz;
+  Double_t decaytime, decaypositionx, decaypositiony, decaypositionz, magnet_field, b;
   decaytree->SetBranchAddress("decaytime",&decaytime);
   decaytree->SetBranchAddress("decaypositionx",&decaypositionx);
   decaytree->SetBranchAddress("decaypositiony",&decaypositiony);
   decaytree->SetBranchAddress("decaypositionz",&decaypositionz);
+  decaytree->SetBranchAddress("magnet_field",&magnet_field);
+  decaytree->SetBranchAddress("b",&b);
   decaytree->SetBranchStatus("*",1);
   auto RF_Branch = decaytree->Branch("RF",&RF,"RF/D");
   auto Effective_RF_Branch = decaytree->Branch("Effective_RF",&Effective_RF,"Effective_RF/D");
   for(int n=0; n<decaytree->GetEntries(); n++){
     decaytree->GetEntry(n);
-    GetXY(int(decaypositionx), int(decaypositiony));
+    GetXY(decaypositionx, decaypositiony);
     RF = TM_mode();
     RF_Branch->Fill();
-    Effective_RF = b*TM_mode();
+    Effective_RF = b*TM_mode(); // kHz
     Effective_RF_Branch->Fill();
   }
+  //decaytree->Scan("*");
   return decaytree;
 }
 #endif

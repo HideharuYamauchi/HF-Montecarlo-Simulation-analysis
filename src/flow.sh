@@ -10,14 +10,7 @@ g++ $(gsl-config --cflags) $(root-config --cflags) simulate.cc -o execute.out $(
 echo "compile complete..."
 echo "now execute..."
 #g++ GSL_INCLUDE_PATH ROOT_INCLUDE_PATH simulate.cc -o execute.out GSL_LIBRARY_PATH ROOT_LIBRARY_PATH
-
-#if [ $# -ne 6 ]                                                                                                                                                
-#then
-#    echo "usage: ./execute.out [TMmode] [PATH/to/magnetic_moment_dist] [PATH/to/Geant4_simulation_result] [PATH/to/Geant4_simulation_enviroment]"
-#    exit 1
-#fi
-
-./execute.out 110 ../include/BRECON_MOM_20200716_6.txt /home/hideharu/position/result/pos/run0007.dat /home/hideharu/position/result/pos/environment_run0007.dat
+./execute.out 210 ../include/BRECON_MOM_20200716_6.txt /home/hideharu/position/result/pos/run0007.dat /home/hideharu/position/result/pos/environment_run0007.dat
 
 # argv[3] = "path/to/run0000.dat"
 
