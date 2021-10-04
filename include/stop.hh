@@ -1,8 +1,8 @@
-///////////////////////////////////////////                
-//  High field simulation(MuSEUM project)                               
+//////////////////////////////////////////////////////////               
+//     High field simulation for MuSEUM Collaboration  
 //                                                  
-//      Hideharu Yamauchi 2021/09/19
-///////////////////////////////////////////                                    
+//         Author : Hideharu Yamauchi 2021/09/19
+/////////////////////////////////////////////////////////                     
 #ifndef ___header_muonstopping_
 #define ___header_muonstopping_ 1
 
