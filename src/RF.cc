@@ -150,12 +150,14 @@ Int_t RFfield::Effective(TH2D* xy_dist){
 TTree* RFfield::AddRFBranch(TTree* decaytree){
   Double_t Effective_RF;
   Double_t RF;
-  Double_t decaytime, decaypositionx, decaypositiony, decaypositionz, magnet_field, b;
+  Double_t decaytime, decaypositionx, decaypositiony, decaypositionz, magnet_field, coefficientS, coefficientC, b;
   decaytree->SetBranchAddress("decaytime",&decaytime);
   decaytree->SetBranchAddress("decaypositionx",&decaypositionx);
   decaytree->SetBranchAddress("decaypositiony",&decaypositiony);
   decaytree->SetBranchAddress("decaypositionz",&decaypositionz);
   decaytree->SetBranchAddress("magnet_field",&magnet_field);
+  decaytree->SetBranchAddress("coefficientS",&coefficientS);
+  decaytree->SetBranchAddress("coefficientC",&coefficientC);
   decaytree->SetBranchAddress("b",&b);
   decaytree->SetBranchStatus("*",1);
   auto RF_Branch = decaytree->Branch("RF",&RF,"RF/D");

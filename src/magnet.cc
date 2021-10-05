@@ -12,7 +12,6 @@
 #include <cstdio>
 #include <fstream>
 #include <iostream>
-#include <math.h>
 #include <numeric>
 #endif
 
@@ -111,13 +110,15 @@ void magfield::Vis_magfield(double Z){ // unit of Z:mm, range: from -152 to +152
 TTree* magfield::AddMagnetBranch(TTree* decaytree){
   Double_t magnet_field, b;
   Double_t decaytime, decaypositionx, decaypositiony, decaypositionz;
-  double X_temp, coefficient_s_temp, coefficient_c_temp;
+  double X_temp, coefficientS, coefficientC;
   decaytree->SetBranchAddress("decaytime",&decaytime);
   decaytree->SetBranchAddress("decaypositionx",&decaypositionx);
   decaytree->SetBranchAddress("decaypositiony",&decaypositiony);
   decaytree->SetBranchAddress("decaypositionz",&decaypositionz);
   decaytree->SetBranchStatus("*",1);
   auto magnet_field_Branch = decaytree->Branch("magnet_field",&magnet_field,"magnet_field/D");
+  auto coefficientS_Branch = decaytree->Branch("coefficientS",&coefficientS,"coefficientS/D");
+  auto coefficientC_Branch = decaytree->Branch("coefficientC",&coefficientC,"coefficientC/D");
   auto b_Branch = decaytree->Branch("b",&b,"b/D");
   for(int n=0; n<decaytree->GetEntries(); n++){
     decaytree->GetEntry(n);
@@ -125,13 +126,15 @@ TTree* magfield::AddMagnetBranch(TTree* decaytree){
     magnet_field = (B_ave+Bfield_value())*scaling_factor; // scaling magnet field to ~1.7
     magnet_field_Branch->Fill();
     X_temp = magnet_field*(gfactor_j*magnetic_moment_j + gfactor_mu_prime*magnetic_moment_mu)/(plank_const*v_exp);
-    coefficient_s_temp = sqrt(0.5)*sqrt(1-X_temp/sqrt(1+X_temp*X_temp));
-    coefficient_c_temp = sqrt(0.5)*sqrt(1+X_temp/sqrt(1+X_temp*X_temp));
+    coefficientS = sqrt(0.5)*sqrt(1-X_temp/sqrt(1+X_temp*X_temp));
+    coefficientS_Branch->Fill();
+    coefficientC = sqrt(0.5)*sqrt(1+X_temp/sqrt(1+X_temp*X_temp));
+    coefficientC_Branch->Fill();
     if(mode==110){
-      b = 0.001*0.25*(coefficient_s_temp*gfactor_j*magnetic_moment_j + coefficient_c_temp*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided;
+      b = 0.001*0.25*(coefficientS*gfactor_j*magnetic_moment_j + coefficientC*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided;
       b_Branch->Fill();
     }else if(mode==210){
-      b = 0.001*0.25*(coefficient_s_temp*gfactor_j*magnetic_moment_j - coefficient_c_temp*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided;
+      b = 0.001*0.25*(coefficientS*gfactor_j*magnetic_moment_j - coefficientC*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided;
       b_Branch->Fill();
     }
   }

@@ -43,7 +43,7 @@ muonstopping::muonstopping(std::string runfile, const char* envfile):tree(nullpt
 
 void muonstopping::CreateRootFile(void){
   file = TFile::Open(run_num+=".root","RECREATE");
-  if(tree->Write()) std::cout << run_num << " is made." << std::endl;             
+  if(tree->Write()) std::cout << run_num << " is made." << std::endl;   
   file->Close();
   delete file;
 }
@@ -125,14 +125,24 @@ TH2D* muonstopping::Vis_stopping_distZ(void){
 
 TTree* muonstopping::GetDecayTree(void){
   TTree* decaytree = new TTree("decaytree","decay muons");
-  Double_t decaytime;
-  Double_t decaypositionx;
-  Double_t decaypositiony;
-  Double_t decaypositionz;
+  Double_t decaytime, decaypositionx, decaypositiony, decaypositionz;
+  Double_t decaymuon_momentumx, decaymuon_momentumy, decaymuon_momentumz;
+  Double_t positron_momentumx, positron_momentumy, positron_momentumz;
+  Double_t positron_energy;
   decaytree->Branch("decaytime",&decaytime,"decaytime/D");
   decaytree->Branch("decaypositionx",&decaypositionx,"decaypositionx/D");
   decaytree->Branch("decaypositiony",&decaypositiony,"decaypositiony/D");
   decaytree->Branch("decaypositionz",&decaypositionz,"decaypositionz/D");
+  decaytree->Branch("decaymuon_momentumx",&decaymuon_momentumx,"decaymuon_momentumx/D");
+  decaytree->Branch("decaymuon_momentumy",&decaymuon_momentumy,"decaymuon_momentumy/D");
+  decaytree->Branch("decaymuon_momentumz",&decaymuon_momentumz,"decaymuon_momentumz/D");
+  decaytree->Branch("positron_positionx",&positron_positionx,"positron_positionx/D");
+  decaytree->Branch("positron_positiony",&positron_positiony,"positron_positiony/D");
+  decaytree->Branch("positron_positionz",&positron_positionz,"positron_positionz/D");
+  decaytree->Branch("positron_momentumx",&positron_momentumx,"positron_momentumx/D");
+  decaytree->Branch("positron_momentumy",&positron_momentumy,"positron_momentumy/D");
+  decaytree->Branch("positron_momentumz",&positron_momentumz,"positron_momentumx/D");
+  decaytree->Branch("positron_energy",&positron_energy,"positron_energy/D");
   double radius = cavity_radius*1.0e+3; // convert 0.0935 m to 93.5 mm
   double foil = cavity_foil_position*0.5*1.0e+3; // convert 0.304 m to 152 mm
   for(int n=0;n<entries;n++){
@@ -140,15 +150,29 @@ TTree* muonstopping::GetDecayTree(void){
     //if(std::string(process)=="DecayWithSpin"&&(std::string(volume)=="Cavity"||std::string(volume)=="CavityFoil")){
     Z = Z -1050.;
     if(std::string(process)=="DecayWithSpin"&&(-radius<=X&&X<=radius)&&(-radius<=Y&&Y<=radius)&&(-70<=Z&&Z<=foil)){
+      Double_t dummyx = X;
+      Double_t dummyy = Y;
+      Double_t dummyz = Z+1050.;
       decaytime = time;
       decaypositionx = X*1.5; // 1.5 for scaling
       decaypositiony = Y*1.5;
       //decaypositionz = Z-cavity_center;
       decaypositionz = Z*2.; // 2. for scaling
+      decaymuon_momentumx = Px; // direction
+      decaymuon_momentumy = Py;
+      decaymuon_momentumz = Pz;
+      tree->GetEntry(n+1);
+      positron_positionx = X*1.5;
+      positron_positiony = Y*1.5;
+      position_positionz = (Z-1050.)*2;
+      positron_momentumx = Px; 
+      positron_momentumy = Py;
+      positron_momentumz = Pz;
+      positron_energy = kE; // keV
       decaytree->Fill();
     }
   }
-  //decaytree->Scan("*");
+  decaytree->Scan("*");
   /*
   for(int i=0;i<29093;i++){ // 29093=max step number
     for(int n=0;n<entries;n++){
