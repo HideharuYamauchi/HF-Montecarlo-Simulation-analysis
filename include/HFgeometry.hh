@@ -49,7 +49,25 @@ const double positron_max_momentum = 52.83; // MeV/c
 
 // Geant4 setting 
 const double Magnet_center = 1200.; // mm
+const double G4WorldSizeXY = 1200.; // mm
+const double G4WorldSizeZ = 3600.; // mm
 
+//------------Gas Chamber-------------------
+const double chamber_length = 390.; // mm
+const double chamber_diameter = 400.; // inner diameter
+const double chamber_thickness = 30.;
+const double chamber_window_diameter = 100.; // mm, front window
+const double chamber_foil_thickness = 0.1; // mm
+const double chamber_flange_diameter = 430.; // mm
+const double chamber_flange_thickness_u = 30.; // mm
+
+const double chamber_center = Magnet_center; // 1200 mm
+const double chamber_upflange_center = Magnet_center-(chamber_length+chamber_flange_thickness_u)*0.5; // 1200-(390+30)*0.5= 990 mm
+const double chamber_downflange_center = Magnet_center+(chamber_length+chamber_flange_thickness_d)*0.5; // 1200+(390+30)*0.5= 1410 mm
+const double chamber_foil_center = Magnet_center-(chamber_length+chamber_foil_thickness)*0.5-chamber_flange_thickness_u; // 1200-(390+0.1)*0.5-30=1034.95 mm
+
+const double overhang_thickness = 25.; // mm
+  
 //------------HF cavity--------------
 const double cavity_radius = 0.0935; // m
 const double cavity_radial_thickness = 0.015; //m
@@ -61,21 +79,32 @@ const double cavity_foil_position = 0.304; // =304mm
 const double cavity_volume = cavity_foil_position*pow(cavity_radius, 2.)*pi; 
 const double cavity_foil_thickness = 25*1.0e-6; // m
 
-const double overhang_thickness = 25.; // mm, G4 setting
-const double cavity_center =  Magnet_center-overhang_thickness*0.5; // mm, G4 setting, 1187.5 mm
-
+// G4 setting
+const double cavity_center = Magnet_center-overhang_thickness*0.5; // mm, 1200-25*0.5 = 1187.5 mm
+const double cavity_upflange_center = cavity_center-(cavity_flange_length+cavity_length)*0.5; // 1187.5-(44+244)*0.5= 1043.5
+const double cavity_upflange_center = cavity_center+(cavity_flange_length+cavity_length)*0.5; // 1187.5+(44+244)*0.5= 1331.5
+const double cavity_upfoil_center = cavity_center-26.-cavity_length*0.5; // 1187.5-26-244*0.5= 1039.5
+const double cavity_downfoil_center = cavity_center+26.+cavity_length*0.5; // 1187.5+26+244*0.5= 1335.5
+  
 //------------Positron counter---------------
 const double counter_sizeXY = 240.; // mm
-double positron_counterU = 300.; 
-double positron_counterD = 340.; 
+const double positron_counterU = 300.; 
+const double positron_counterD = 340.;
+const double counter_couver_thickness = 2.; 
 
-//------------Gas Chamber-------------------
-const double chamber_length = 390.; // mm
-const double chamber_diameter = 400.; // inner diameter
-const double chamber_thickness = 30.;
-const double chamber_window_diameter = 100.; // mm, front window
-const double chamber_foil_thickness = 0.1; // mm
-const double chamber_flange_diameter = 430.; // mm
-const double chamber_flange_thickness_u = 30.; // mm
+//------Beam window kapton foil;G4 setting--------
+const double kapton_diameter = 300.;
+const double kapton_thickness = 0.075;
+const double kapton_center = -500.0;
+const double kapton_position = Magnet_center+kapton_center; // 700 mm
+
+//------Beam Profile Monitor;G4 setting---------
+const double bpm_sizeXY = 100.; // mm
+const double bpm_thickness = 0.15;
+const double bpm_positionU = kapton_center+5.; // -495 mm
+const double bpm_positionD = kapton_center+10.; // -490 mm
+
+const double upbpm_center = Magnet_center+bpm_positionU; // 1200-495 = 705 mm
+const double downbpm_center = Magnet_center+bpm_positionD; // 1200-490 = 710 mm
 
 #endif
