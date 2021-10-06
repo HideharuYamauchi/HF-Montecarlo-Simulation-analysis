@@ -82,7 +82,7 @@ const double cavity_foil_thickness = 25*1.0e-6; // m
 // G4 setting
 const double cavity_center = Magnet_center-overhang_thickness*0.5; // mm, 1200-25*0.5 = 1187.5 mm
 const double cavity_upflange_center = cavity_center-(cavity_flange_length+cavity_length)*0.5; // 1187.5-(44+244)*0.5= 1043.5
-const double cavity_upflange_center = cavity_center+(cavity_flange_length+cavity_length)*0.5; // 1187.5+(44+244)*0.5= 1331.5
+const double cavity_downflange_center = cavity_center+(cavity_flange_length+cavity_length)*0.5; // 1187.5+(44+244)*0.5= 1331.5
 const double cavity_upfoil_center = cavity_center-26.-cavity_length*0.5; // 1187.5-26-244*0.5= 1039.5
 const double cavity_downfoil_center = cavity_center+26.+cavity_length*0.5; // 1187.5+26+244*0.5= 1335.5
   
