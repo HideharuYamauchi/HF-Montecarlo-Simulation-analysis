@@ -94,9 +94,13 @@ const double counter_couver_thickness = 2.;
 
 //------Beam window kapton foil;G4 setting--------
 const double kapton_diameter = 300.;
-const double kapton_thickness = 0.075;
+const double kapton_thickness = 0.075; // 0.075*0.5 = 0.0375
 const double kapton_center = -500.0;
 const double kapton_position = Magnet_center+kapton_center; // 700 mm
+
+const double beam_vacuum_region = Magnet_center+kapton_center+(G4WorldSizeZ-kapton_thickness)*0.5; // 1200-500+(3600-0.075)*0.5=700+1800-0.0325=2499.9675 mm
+const double beam_vacuum_region_center = (beam_vacuum_region-G4WorldSizeZ)*0.5; // 1249.98375-1800 = -550.01625 mm
+const double beam_vacuum_region_end = beam_vacuum_region_center+beam_vacuum_region*0.5; // -550.01625 + 1249.98375 = 699.9675 mm
 
 //------Beam Profile Monitor;G4 setting---------
 const double bpm_sizeXY = 100.; // mm
