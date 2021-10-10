@@ -62,12 +62,12 @@ const double chamber_flange_diameter = 430.; // mm
 const double chamber_flange_thickness_u = 30.; // mm
 
 const double chamber_center = Magnet_center; // 1200 mm
-const double chamber_upflange_center = Magnet_center-(chamber_length+chamber_flange_thickness_u)*0.5; // 1200-(390+30)*0.5= 990 mm
-const double chamber_downflange_center = Magnet_center+(chamber_length+chamber_flange_thickness_d)*0.5; // 1200+(390+30)*0.5= 1410 mm
-const double chamber_foil_center = Magnet_center-(chamber_length+chamber_foil_thickness)*0.5-chamber_flange_thickness_u; // 1200-(390+0.1)*0.5-30=1034.95 mm
+const double chamber_upflange_center = Magnet_center-(chamber_length+chamber_flange_thickness_u)*0.5; // 1200-(390+30)*0.5 = 990 mm
+const double chamber_downflange_center = Magnet_center+(chamber_length+chamber_flange_thickness_u)*0.5; // 1200+(390+30)*0.5 = 1410 mm
+const double chamber_foil_center = Magnet_center-(chamber_length+chamber_foil_thickness)*0.5-chamber_flange_thickness_u; // 1200-(390+0.1)*0.5-30 = 1034.95 mm
 
 const double overhang_thickness = 25.; // mm
-  
+
 //------------HF cavity--------------
 const double cavity_radius = 0.0935; // m
 const double cavity_radial_thickness = 0.015; //m

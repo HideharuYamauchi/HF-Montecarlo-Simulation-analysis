@@ -59,7 +59,7 @@ public:
   ~muonstopping(void){delete tree;}
   void CreateRootFile(void);
   TH2D* Vis_stopping_distZ(void);
-  TH2D* Vis_stopping_distXY(Double_t posZ);
+  TH2D* Vis_stopping_distXY(Double_t zpoint1, Double_t zpoint2);
   TTree* GetDecayTree(void);
   TCanvas* c;
   TCanvas* c2;
