@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////          
-//        Class for calculation of Magnet field     
+//         Class for calculation of Magnet field     
 //                                                  
 //        Author:   Hideharu Yamauchi 2021/09/16        
 /////////////////////////////////////////////////////////

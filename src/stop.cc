@@ -48,9 +48,9 @@ void muonstopping::CreateRootFile(void){
   delete file;
 }
 
-TH2D* muonstopping::Vis_stopping_distXY(Double_t posZ){
-  TString title_dt = "z=" + std::to_string(int(posZ)) + " [/mm]";
-  TString title_dt2 = "XY-Distribution_z:" + std::to_string(int(posZ));
+TH2D* muonstopping::Vis_stopping_distXY(Double_t zpoint1, Double_t zpoint2){
+  TString title_dt = "XY-Distribution";
+  TString title_dt2 = "XY-Distribution:" + std::to_string(int(zpoint1)) + "~" + std::to_string(int(zpoint2));
   c = new TCanvas("c","c",900,900);
   TPad* center_pad = new TPad("center_pad","",0.0,0.0,0.5,0.5);
   center_pad->Draw();
@@ -66,8 +66,7 @@ TH2D* muonstopping::Vis_stopping_distXY(Double_t posZ){
   center_pad->SetRightMargin(-0.03);
   for(int n=0;n<entries;n++){
     tree->GetEntry(n);
-    if(std::string(process)=="DecayWithSpin") dtxy->Fill(X,Y); // vis all z components
-    //if(std::string(process)=="DecayWithSpin"&&int(posZ)<=Z&&Z<=int(posZ)+1) dtxy->Fill(X,Y); // vis posZ<z<posZ+1
+    if(std::string(process)=="DecayWithSpin"&&(zpoint1<=Z&&Z<=zpoint2)) dtxy->Fill(X,Y); // vis all z components
   }
   TH1D* projdtx = dtxy->ProjectionX();
   projdtx->SetTitle("Position on the horizontal axis");
@@ -103,17 +102,12 @@ TH2D* muonstopping::Vis_stopping_distZ(void){
   TString title_dt = "Z-Distribution";
   c2 = new TCanvas("c2", "c2",1400,900);
   gStyle->SetOptStat(0); // do not set the stat tabel 
-  //TH2D* dtz = new TH2D("Z-Dist", "", 500, 900, 1400, 240, -120, 120);
-  TH2D* dtz = new TH2D("Z-Dist", "", 400, -200, 200, 240, -120, 120);
+  TH2D* dtz = new TH2D("Z-Dist", "", 500, 1000, 1400, 240, -120, 120);
   dtz->SetXTitle("Position on the beam axis [/mm]");
   dtz->SetYTitle("Position on the vertical axis [/mm]");
-  double radius = cavity_radius*1.0e+3; // convert 0.0935 m to 93.5 mm
-  double foil = cavity_foil_position*0.5*1.0e+3; // convert 0.304 m to 152 mm
   for(Int_t n=0;n<entries;n++){
     tree->GetEntry(n);
-    Z = Z -1050.; // change 1050 to cavity_center
-    if(std::string(process)=="DecayWithSpin"&&(-radius<=X&&X<=radius)&&(-radius<=Y&&Y<=radius)&&(-70<=Z&&Z<=foil)) dtz->Fill(Z*2.,X*1.5); // 2. and 1.5 is for scaling
-    //if(std::string(process)=="DecayWithSpin") dtz->Fill(Z,Y);
+    if(std::string(process)=="DecayWithSpin") dtz->Fill(Z,Y);
   }
   dtz->Draw("Colz");
   dtz->GetXaxis()->SetTitleOffset(1.3);
@@ -124,64 +118,48 @@ TH2D* muonstopping::Vis_stopping_distZ(void){
 }
 
 TTree* muonstopping::GetDecayTree(void){
-  TTree* decaytree = new TTree("decaytree","decay muons");
-  Double_t decaytime, decaypositionx, decaypositiony, decaypositionz;
-  Double_t decaymuon_momentumx, decaymuon_momentumy, decaymuon_momentumz;
-  Double_t positron_momentumx, positron_momentumy, positron_momentumz;
+  TTree* decaytree = new TTree("decaytree","tree of decay muons");
+  Double_t decaytime;
+  std::vector<Double_t> muon_position(3);
+  std::vector<Double_t> muon_momentum(3);
+  std::vector<Double_t> positron_position(3);
+  std::vector<Double_t> positron_momentum(3);
   Double_t positron_energy;
   decaytree->Branch("decaytime",&decaytime,"decaytime/D");
-  decaytree->Branch("decaypositionx",&decaypositionx,"decaypositionx/D");
-  decaytree->Branch("decaypositiony",&decaypositiony,"decaypositiony/D");
-  decaytree->Branch("decaypositionz",&decaypositionz,"decaypositionz/D");
-  decaytree->Branch("decaymuon_momentumx",&decaymuon_momentumx,"decaymuon_momentumx/D");
-  decaytree->Branch("decaymuon_momentumy",&decaymuon_momentumy,"decaymuon_momentumy/D");
-  decaytree->Branch("decaymuon_momentumz",&decaymuon_momentumz,"decaymuon_momentumz/D");
-  decaytree->Branch("positron_positionx",&positron_positionx,"positron_positionx/D");
-  decaytree->Branch("positron_positiony",&positron_positiony,"positron_positiony/D");
-  decaytree->Branch("positron_positionz",&positron_positionz,"positron_positionz/D");
-  decaytree->Branch("positron_momentumx",&positron_momentumx,"positron_momentumx/D");
-  decaytree->Branch("positron_momentumy",&positron_momentumy,"positron_momentumy/D");
-  decaytree->Branch("positron_momentumz",&positron_momentumz,"positron_momentumx/D");
+  decaytree->Branch("muon_position",&muon_position);
+  decaytree->Branch("muon_momentum",&muon_momentum);
+  decaytree->Branch("positron_position",&positron_position);
+  decaytree->Branch("positron_momentum",&positron_momentum);
   decaytree->Branch("positron_energy",&positron_energy,"positron_energy/D");
-  double radius = cavity_radius*1.0e+3; // convert 0.0935 m to 93.5 mm
-  double foil = cavity_foil_position*0.5*1.0e+3; // convert 0.304 m to 152 mm
-  for(int n=0;n<entries;n++){
+  for(int n=0; n<entries; n++){
     tree->GetEntry(n);
-    //if(std::string(process)=="DecayWithSpin"&&(std::string(volume)=="Cavity"||std::string(volume)=="CavityFoil")){
-    Z = Z -1050.;
-    if(std::string(process)=="DecayWithSpin"&&(-radius<=X&&X<=radius)&&(-radius<=Y&&Y<=radius)&&(-70<=Z&&Z<=foil)){
-      Double_t dummyx = X;
-      Double_t dummyy = Y;
-      Double_t dummyz = Z+1050.;
-      decaytime = time;
-      decaypositionx = X*1.5; // 1.5 for scaling
-      decaypositiony = Y*1.5;
-      //decaypositionz = Z-cavity_center;
-      decaypositionz = Z*2.; // 2. for scaling
-      decaymuon_momentumx = Px; // direction
-      decaymuon_momentumy = Py;
-      decaymuon_momentumz = Pz;
-      tree->GetEntry(n+1);
-      positron_positionx = X*1.5;
-      positron_positiony = Y*1.5;
-      position_positionz = (Z-1050.)*2;
-      positron_momentumx = Px; 
-      positron_momentumy = Py;
-      positron_momentumz = Pz;
-      positron_energy = kE; // keV
-      decaytree->Fill();
+    if((std::string(particle)=="mu+"&&std::string(process)=="DecayWithSpin")
+       ||(std::string(particle)=="e+"&&std::string(process)=="initStep")){
+      if(std::string(process)=="DecayWithSpin"
+	 &&(std::string(volume)=="Cavity"||std::string(volume)=="CavityFoil"||std::string(volume)=="CavityFlange"&&std::string(volume)=="TargetGas")){
+	decaytime = time;
+	muon_position[0] = X;
+	muon_position[1] = Y;
+	muon_position[2] = Z;
+	muon_momentum[0] = Px;
+	muon_momentum[1] = Py;
+	muon_momentum[2] = Pz;
+	//std::cout << n << std::endl;
+	tree->GetEntry(n+1);
+	positron_position[0] = X;
+	positron_position[1] = Y;
+	positron_position[2] = Z;
+	if((std::string(particle)=="e+"&&std::string(process)=="initStep")
+	   &&(positron_position[0]==muon_position[0]&&positron_position[1]==muon_position[1]&&positron_position[2]==muon_position[2])){
+	  positron_momentum[0] = Px;
+	  positron_momentum[1] = Py;
+	  positron_momentum[2] = Pz;
+	  positron_energy = kE; // keV
+	}
+	decaytree->Fill();
+      }
     }
   }
   decaytree->Scan("*");
-  /*
-  for(int i=0;i<29093;i++){ // 29093=max step number
-    for(int n=0;n<entries;n++){
-      tree->GetEntry(n);
-      if((ntrack==1)&&(nstep==i)&&(std::string(particle)=="mu+")) number++;
-    }
-    if(number!=0) std::cout << "step:" << i << "\t" << number << std::endl;
-    number=0;
-  }
-  */
   return decaytree;
 }

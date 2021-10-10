@@ -12,7 +12,7 @@
 
 int main(int argc, const char** argv){
   if(argc!=5){
-    std::cout << "argument lists:[TMmode] [PATH/to/magnetic_moment_dist] [PATH/to/Geant4_simulation_result] [PATH/to/Geant4_simulation_enviroment]" << std::endl;
+    std::cout << "argument lists:[./execute.out] [TMmode] [PATH/to/magnetic_moment_dist] [PATH/to/Geant4_simulation_result] [PATH/to/Geant4_simulation_enviroment]" << std::endl;
     return 0;
   }
   //-------------------------muon stopping distribution info 
@@ -20,7 +20,7 @@ int main(int argc, const char** argv){
   run->GetDecayTree();
   
   // if you want to visualize muon stopping distribution       
-  //run->Vis_stopping_distXY(1050.);        
+  //run->Vis_stopping_distXY(1030., 1350.);  
   //run->Vis_stopping_distZ();
   //----------------------------------------------------------------------
 
