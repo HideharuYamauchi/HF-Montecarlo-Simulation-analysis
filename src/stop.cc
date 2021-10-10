@@ -120,12 +120,14 @@ TH2D* muonstopping::Vis_stopping_distZ(void){
 TTree* muonstopping::GetDecayTree(void){
   TTree* decaytree = new TTree("decaytree","tree of decay muons");
   Double_t decaytime;
+  std::string decayvolume;
   std::vector<Double_t> muon_position(3);
   std::vector<Double_t> muon_momentum(3);
   std::vector<Double_t> positron_position(3);
   std::vector<Double_t> positron_momentum(3);
   Double_t positron_energy;
   decaytree->Branch("decaytime",&decaytime,"decaytime/D");
+  decaytree->Branch("decayvolume",&decayvolume);
   decaytree->Branch("muon_position",&muon_position);
   decaytree->Branch("muon_momentum",&muon_momentum);
   decaytree->Branch("positron_position",&positron_position);
@@ -136,21 +138,21 @@ TTree* muonstopping::GetDecayTree(void){
     if((std::string(particle)=="mu+"&&std::string(process)=="DecayWithSpin")
        ||(std::string(particle)=="e+"&&std::string(process)=="initStep")){
       if(std::string(process)=="DecayWithSpin"
-	 &&(std::string(volume)=="Cavity"||std::string(volume)=="CavityFoil"||std::string(volume)=="CavityFlange"&&std::string(volume)=="TargetGas")){
+	 &&(std::string(volume)=="Cavity"||std::string(volume)=="CavityFoil"||std::string(volume)=="CavityFlange"||std::string(volume)=="TargetGas")){
 	decaytime = time;
+	decayvolume = std::string(volume);
 	muon_position[0] = X;
 	muon_position[1] = Y;
 	muon_position[2] = Z;
 	muon_momentum[0] = Px;
 	muon_momentum[1] = Py;
 	muon_momentum[2] = Pz;
-	//std::cout << n << std::endl;
 	tree->GetEntry(n+1);
 	positron_position[0] = X;
 	positron_position[1] = Y;
 	positron_position[2] = Z;
-	if((std::string(particle)=="e+"&&std::string(process)=="initStep")
-	   &&(positron_position[0]==muon_position[0]&&positron_position[1]==muon_position[1]&&positron_position[2]==muon_position[2])){
+	if((std::string(particle)=="e+"&&std::string(process)=="initStep"&&std::string(volume)==decayvolume)
+	   &&(X==muon_position[0]&&Y==muon_position[1]&&Z==muon_position[2]&&time==decaytime)){
 	  positron_momentum[0] = Px;
 	  positron_momentum[1] = Py;
 	  positron_momentum[2] = Pz;
@@ -160,6 +162,7 @@ TTree* muonstopping::GetDecayTree(void){
       }
     }
   }
+  //std::cout << decaytree->GetEntries() << std::endl;
   decaytree->Scan("*");
   return decaytree;
 }
