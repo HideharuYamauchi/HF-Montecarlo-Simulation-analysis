@@ -31,7 +31,7 @@ public:
   magfield(const char* magnetfile, int Mode);
   ~magfield(void){;};
   double GetDistance(double x, double y, double z);
-  double Bfield_value(void);
+  double GetBfieldValue(void);
   void Vis_magfield(double Z);
   TTree* AddMagnetBranch(TTree* decaytree);
   TCanvas* c;
