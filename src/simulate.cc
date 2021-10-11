@@ -3,12 +3,12 @@
 //
 //         Author : Hideharu Yamauchi 2021/9/23
 ////////////////////////////////////////////////////////
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "RF.cc"
-#include "magnet.cc"
 #include "stop.cc"
-//#include "simulator.cc"
+#include "simulator.cc"
 
 int main(int argc, const char** argv){
   if(argc!=5){
@@ -29,7 +29,7 @@ int main(int argc, const char** argv){
   // using copy constructor to initialize default constructor
   //magfield magnet = magfield();
   magfield* magnet = new magfield(argv[2], atol(argv[1]));
-  magnet->AddMagnetBranch(run->GetDecayTree());
+  //magnet->AddMagnetBranch(run->GetDecayTree());
   
   // if you want to visualize magnet field at Z       
   //magnet.Vis_magfield(-25.); 
@@ -49,7 +49,7 @@ int main(int argc, const char** argv){
 
   
   //-------------------------calculation
-  //simulator sim(trees, atol(argv[1]));
+  simulator sim(run->GetDecayTree(), atol(argv[1]), magnet);
 
   // if you want to get state amplitude
   //sim.timedev(double t, RF.Effective(run->Vis_stopping_distXY(1050.)), double delta, double gamma);
@@ -57,7 +57,6 @@ int main(int argc, const char** argv){
   //----------------------------------------------------------------------
 
   //delete RF;
-  delete magnet;
   delete run;
   return 0;
 }

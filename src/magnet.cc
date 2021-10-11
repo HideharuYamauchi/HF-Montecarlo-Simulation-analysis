@@ -15,7 +15,9 @@
 #include <numeric>
 #endif
 
-magfield::magfield(const char* magnetfile, int Mode):moment_coordinate(moment_num,std::vector<double>(3)),moment(moment_num,std::vector<double>(3)),distance(moment_num,std::vector<double>(3)),interval(moment_num),position(3){
+magfield::magfield(const char* magnetfile, int Mode)
+  :moment_coordinate(moment_num,std::vector<double>(3)),moment(moment_num,std::vector<double>(3)),distance(moment_num,std::vector<double>(3)),interval(moment_num),position(3)
+{
   mode = Mode;
   std::ifstream ifs(magnetfile);
   if(ifs.fail()){
@@ -106,7 +108,7 @@ void magfield::Vis_magfield(double Z){ // unit of Z:mm, range: from -152 to +152
   delete dt2;
   delete c;
 }
-
+/*
 TTree* magfield::AddMagnetBranch(TTree* decaytree){
   Double_t magnet_field, b;
   Double_t decaytime, positron_energy;
@@ -127,19 +129,23 @@ TTree* magfield::AddMagnetBranch(TTree* decaytree){
   decaytree->SetBranchAddress("positron_position",&positron_position,&positron_position_branch);
   decaytree->SetBranchAddress("positron_momentum",&positron_momentum,&positron_momentum_branch);
   decaytree->SetBranchAddress("positron_energy",&positron_energy);
-  decaytree->SetBranchStatus("*",1);
+  decaytree->SetBranchStatus("*",0);
+  decaytree->SetBranchStatus("decayvolume",0);
+  decaytree->SetBranchStatus("muon_position",1);
+  decaytree->SetBranchAddress("muon_momentum",0);
+  decaytree->SetBranchStatus("positron_position",0);
+  decaytree->SetBranchAddress("positron_momentum",0);
+  decaytree->SetBranchAddress("positron_energy",0);
   auto magnet_field_Branch = decaytree->Branch("magnet_field",&magnet_field,"magnet_field/D");
   auto coefficientS_Branch = decaytree->Branch("coefficientS",&coefficientS,"coefficientS/D");
   auto coefficientC_Branch = decaytree->Branch("coefficientC",&coefficientC,"coefficientC/D");
   auto b_Branch = decaytree->Branch("b",&b,"b/D");
- 
+  Long64_t tentry;
   for(int n=0; n<10; n++){
-    Long64_t tentry = decaytree->LoadTree(n);
+    tentry = decaytree->LoadTree(n);
     muon_position_branch->GetEntry(tentry);
-    //std::cout << (*muon_position)[2] << std::endl;
-    std::cout << (*muon_position)[0]  <<"\t"<< (*muon_position)[1] <<"\t"<< (*muon_position)[2] <<std::endl;
-    /*   
-    GetDistance((*muon_position)[0], (*muon_position)[1], (*muon_position)[2]);
+    //std::cout << (*muon_position)[0]  <<"\t"<< (*muon_position)[1] <<"\t"<< (*muon_position)[2] <<std::endl;
+    GetDistance((*muon_position)[0], (*muon_position)[1], (*muon_position)[2]-cavity_center);
     magnet_field = (B_ave+GetBfieldValue())*scaling_factor; // scaling magnet field to ~1.7
     magnet_field_Branch->Fill();
     X_temp = magnet_field*(gfactor_j*magnetic_moment_j + gfactor_mu_prime*magnetic_moment_mu)/(plank_const*v_exp);
@@ -154,8 +160,8 @@ TTree* magfield::AddMagnetBranch(TTree* decaytree){
       b = 0.001*0.25*(coefficientS*gfactor_j*magnetic_moment_j - coefficientC*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided;
       b_Branch->Fill();
     }
-    */
   }
-  //decaytree->Scan("*");
+  decaytree->Scan("*");
   return decaytree;  
 }
+*/
