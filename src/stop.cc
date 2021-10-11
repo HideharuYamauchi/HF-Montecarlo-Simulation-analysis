@@ -15,7 +15,10 @@
 #include "TStyle.h"
 #endif
 
-muonstopping::muonstopping(std::string runfile, const char* envfile):tree(nullptr),branchtime(nullptr),branchX(nullptr),branchY(nullptr),branchZ(nullptr),branchPx(nullptr),branchPy(nullptr),branchPz(nullptr),branchkE(nullptr),branchdepE(nullptr),branchtrack(nullptr),branchstep(nullptr),branchcopyno(nullptr){
+muonstopping::muonstopping(std::string runfile, const char* envfile)
+  :tree(nullptr),branchtime(nullptr),branchX(nullptr),branchY(nullptr),branchZ(nullptr),branchPx(nullptr),branchPy(nullptr),branchPz(nullptr),branchkE(nullptr),branchdepE(nullptr),branchtrack(nullptr),
+   branchstep(nullptr),branchcopyno(nullptr)
+{
   TString runfile2 = runfile;
   gStyle->SetPalette(1); // set the color plot
   run_num = runfile.substr(runfile.find("run"), 7); // get the present run number
@@ -117,7 +120,7 @@ TH2D* muonstopping::Vis_stopping_distZ(void){
   return dtz;
 }
 
-TTree* muonstopping::GetDecayTree(void){
+TTree* muonstopping::GetDecayTree(bool treeflag){
   TTree* decaytree = new TTree("decaytree","tree of decay muons");
   Double_t decaytime;
   std::string decayvolume;
@@ -165,6 +168,6 @@ TTree* muonstopping::GetDecayTree(void){
       }
     }
   }
-  //decaytree->Scan("*");
+  if(treeflag==true) decaytree->Scan("*");
   return decaytree;
 }
