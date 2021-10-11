@@ -46,7 +46,7 @@ double magfield::GetDistance(double x, double y, double z){
   return sqrt(pow(x, 2.)+pow(y, 2.)); // mm
 }
 
-double magfield::Bfield_value(void){
+double magfield::GetBfieldValue(void){
   double BvalueZ = 0, total_BvalueZ = 0;
   for(int i=0;i<moment_num;i++){
     BvalueZ = (1.0e-7)*(1/pow(interval[i], 3.))*(3*(moment[i][0]*distance[i][0] + moment[i][1]*distance[i][1] + moment[i][2]*distance[i][2])*distance[i][2]/pow(interval[i], 2.)-moment[i][2]);
@@ -82,8 +82,8 @@ void magfield::Vis_magfield(double Z){ // unit of Z:mm, range: from -152 to +152
   for(int X=-100; X<101; X++){
     for(int Y=-100; Y<101; Y++){      
       if(GetDistance(double(X),double(Y),Z) < cavity_radius*1.0e+3){
-	dt->SetPoint(i, double(X), double(Y), Bfield_value()*1.0e+4); // convert T to Gauss
-        dt2->Fill(X, Y, Bfield_value()*1.0e+4); // convert T to Gauss
+	dt->SetPoint(i, double(X), double(Y), GetBfieldValue()*1.0e+4); // convert T to Gauss
+        dt2->Fill(X, Y, GetBfieldValue()*1.0e+4); // convert T to Gauss
 	i++;
       }
     }
@@ -109,21 +109,38 @@ void magfield::Vis_magfield(double Z){ // unit of Z:mm, range: from -152 to +152
 
 TTree* magfield::AddMagnetBranch(TTree* decaytree){
   Double_t magnet_field, b;
-  Double_t decaytime, decaypositionx, decaypositiony, decaypositionz;
-  double X_temp, coefficientS, coefficientC;
+  Double_t decaytime, positron_energy;
+  std::string* decayvolume = 0;
+  std::vector<Double_t>* muon_position = 0;
+  TBranch* muon_position_branch = 0;
+  std::vector<Double_t>* muon_momentum = 0;
+  TBranch* muon_momentum_branch = 0;
+  std::vector<Double_t>* positron_position = 0;
+  TBranch* positron_position_branch = 0;
+  std::vector<Double_t>* positron_momentum = 0;
+  TBranch* positron_momentum_branch = 0;
+  Double_t X_temp, coefficientS, coefficientC;
   decaytree->SetBranchAddress("decaytime",&decaytime);
-  decaytree->SetBranchAddress("decaypositionx",&decaypositionx);
-  decaytree->SetBranchAddress("decaypositiony",&decaypositiony);
-  decaytree->SetBranchAddress("decaypositionz",&decaypositionz);
+  decaytree->SetBranchAddress("decayvolume",&decayvolume);
+  decaytree->SetBranchAddress("muon_position",&muon_position,&muon_position_branch);
+  decaytree->SetBranchAddress("muon_momentum",&muon_momentum,&muon_momentum_branch);
+  decaytree->SetBranchAddress("positron_position",&positron_position,&positron_position_branch);
+  decaytree->SetBranchAddress("positron_momentum",&positron_momentum,&positron_momentum_branch);
+  decaytree->SetBranchAddress("positron_energy",&positron_energy);
   decaytree->SetBranchStatus("*",1);
   auto magnet_field_Branch = decaytree->Branch("magnet_field",&magnet_field,"magnet_field/D");
   auto coefficientS_Branch = decaytree->Branch("coefficientS",&coefficientS,"coefficientS/D");
   auto coefficientC_Branch = decaytree->Branch("coefficientC",&coefficientC,"coefficientC/D");
   auto b_Branch = decaytree->Branch("b",&b,"b/D");
-  for(int n=0; n<decaytree->GetEntries(); n++){
-    decaytree->GetEntry(n);
-    GetDistance(decaypositionx, decaypositiony, decaypositionz);
-    magnet_field = (B_ave+Bfield_value())*scaling_factor; // scaling magnet field to ~1.7
+ 
+  for(int n=0; n<10; n++){
+    Long64_t tentry = decaytree->LoadTree(n);
+    muon_position_branch->GetEntry(tentry);
+    //std::cout << (*muon_position)[2] << std::endl;
+    std::cout << (*muon_position)[0]  <<"\t"<< (*muon_position)[1] <<"\t"<< (*muon_position)[2] <<std::endl;
+    /*   
+    GetDistance((*muon_position)[0], (*muon_position)[1], (*muon_position)[2]);
+    magnet_field = (B_ave+GetBfieldValue())*scaling_factor; // scaling magnet field to ~1.7
     magnet_field_Branch->Fill();
     X_temp = magnet_field*(gfactor_j*magnetic_moment_j + gfactor_mu_prime*magnetic_moment_mu)/(plank_const*v_exp);
     coefficientS = sqrt(0.5)*sqrt(1-X_temp/sqrt(1+X_temp*X_temp));
@@ -137,6 +154,7 @@ TTree* magfield::AddMagnetBranch(TTree* decaytree){
       b = 0.001*0.25*(coefficientS*gfactor_j*magnetic_moment_j - coefficientC*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided;
       b_Branch->Fill();
     }
+    */
   }
   //decaytree->Scan("*");
   return decaytree;  

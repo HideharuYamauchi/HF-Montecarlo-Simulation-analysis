@@ -17,7 +17,7 @@ int main(int argc, const char** argv){
   }
   //-------------------------muon stopping distribution info 
   muonstopping* run = new muonstopping(argv[3], argv[4]);
-  run->GetDecayTree();
+  //run->GetDecayTree();
   
   // if you want to visualize muon stopping distribution       
   //run->Vis_stopping_distXY(1030., 1350.);  
@@ -28,8 +28,8 @@ int main(int argc, const char** argv){
   //-------------------------superconductive magnet info
   // using copy constructor to initialize default constructor
   //magfield magnet = magfield();
-  //magfield* magnet = new magfield(argv[2], atol(argv[1]));
-  //magnet->AddMagnetBranch(run->GetDecayTree());
+  magfield* magnet = new magfield(argv[2], atol(argv[1]));
+  magnet->AddMagnetBranch(run->GetDecayTree());
   
   // if you want to visualize magnet field at Z       
   //magnet.Vis_magfield(-25.); 
@@ -57,7 +57,7 @@ int main(int argc, const char** argv){
   //----------------------------------------------------------------------
 
   //delete RF;
-  //delete magnet;
+  delete magnet;
   delete run;
   return 0;
 }
