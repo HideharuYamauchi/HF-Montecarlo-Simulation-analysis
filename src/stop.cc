@@ -168,6 +168,6 @@ TTree* muonstopping::GetDecayTree(bool treeflag){
       }
     }
   }
-  if(treeflag==true) decaytree->Scan("*");
+  if(treeflag) decaytree->Scan("*");
   return decaytree;
 }
