@@ -133,7 +133,7 @@ TTree* muonstopping::GetDecayTree(void){
   decaytree->Branch("positron_position",&positron_position);
   decaytree->Branch("positron_momentum",&positron_momentum);
   decaytree->Branch("positron_energy",&positron_energy,"positron_energy/D");
-  for(int n=0; n<entries; n++){
+  for(int n=0;n<entries;n++){
     tree->GetEntry(n);
     if((std::string(particle)=="mu+"&&std::string(process)=="DecayWithSpin")
        ||(std::string(particle)=="e+"&&std::string(process)=="initStep")){
@@ -147,22 +147,24 @@ TTree* muonstopping::GetDecayTree(void){
 	muon_momentum[0] = Px;
 	muon_momentum[1] = Py;
 	muon_momentum[2] = Pz;
-	tree->GetEntry(n+1);
-	positron_position[0] = X;
-	positron_position[1] = Y;
-	positron_position[2] = Z;
-	if((std::string(particle)=="e+"&&std::string(process)=="initStep"&&std::string(volume)==decayvolume)
-	   &&(X==muon_position[0]&&Y==muon_position[1]&&Z==muon_position[2]&&time==decaytime)){
-	  positron_momentum[0] = Px;
-	  positron_momentum[1] = Py;
-	  positron_momentum[2] = Pz;
-	  positron_energy = kE; // keV
+	for(int l=1 ;l<entries-n;l++){
+	  tree->GetEntry(n+l);
+	  if(std::string(particle)=="e+"&&std::string(process)=="initStep"&&std::string(volume)==decayvolume
+	     &&(X==muon_position[0]&&Y==muon_position[1]&&Z==muon_position[2]&&time==decaytime)){
+	    positron_position[0] = X;
+	    positron_position[1] = Y;
+	    positron_position[2] = Z;
+	    positron_momentum[0] = Px;
+	    positron_momentum[1] = Py;
+	    positron_momentum[2] = Pz;
+	    positron_energy = kE; // keV
+	    break;
+	  }
 	}
 	decaytree->Fill();
       }
     }
   }
-  //std::cout << decaytree->GetEntries() << std::endl;
-  decaytree->Scan("*");
+  //decaytree->Scan("*");
   return decaytree;
 }
