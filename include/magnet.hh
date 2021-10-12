@@ -23,8 +23,6 @@ private:
   std::vector<std::vector<double>> distance;
   std::vector<double> interval;
   std::vector<double> position;
-  //const double B_ave = 1.199671277270803; // average field
-  //const double scaling_factor = B_cons/B_ave;
   const double DSV = 300.; // mm
   
 public:
@@ -33,12 +31,13 @@ public:
   double GetDistance(double x, double y, double z);
   double GetBfieldValue(void);
   void Vis_magfield(double Z);
+  TTree* AddMagnetBranch(TTree* decaytree);
   TCanvas* c;
   TPad* center_pad;
   TPad* top_pad;
   TGraph2D* dt;
   TH2D* dt2;
   const Double_t B_ave = 1.199671277270803; // average field
-  const double scaling_factor = B_cons/B_ave;
+  const Double_t scaling_factor = B_cons/B_ave;
 };
 #endif
