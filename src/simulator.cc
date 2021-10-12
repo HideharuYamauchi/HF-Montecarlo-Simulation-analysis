@@ -9,57 +9,35 @@
 #include <stdio.h>
 #include <string>
 #include "../include/simulator.hh"
-#include "magnet.cc"
 #include "TStyle.h"
 #endif
 
-simulator::simulator(TTree* decaytree, int mode, magfield* magnet)
-  :Non(0.),Noff(0.),decayvolume(0), decayvolume_branch(0),muon_position(0),muon_position_branch(0),muon_momentum(0),muon_momentum_branch(0),positron_position(0),positron_position_branch(0)
+simulator::simulator(TTree* decaytree, int mode)
+  :Non(0.),Noff(0.),position(3)
 {
-  std::cout << magnet->B_ave << std::endl;
   Mode = mode;
-  Double_t X_temp, coefficientS, coefficientC;
-  decaytree->SetBranchAddress("decaytime",&decaytime);
-  decaytree->SetBranchAddress("decayvolume",&decayvolume,&decayvolume_branch);
-  decaytree->SetBranchAddress("muon_position",&muon_position,&muon_position_branch);
-  decaytree->SetBranchAddress("muon_momentum",&muon_momentum,&muon_momentum_branch);
-  decaytree->SetBranchAddress("positron_position",&positron_position,&positron_position_branch);
-  decaytree->SetBranchAddress("positron_momentum",&positron_momentum,&positron_momentum_branch);
-  decaytree->SetBranchAddress("positron_energy",&positron_energy);
-  decaytree->SetBranchStatus("*",1);
-  entries = decaytree->GetEntries();
-  /*
-  // add new branches
-  auto magnet_field_Branch = decaytree->Branch("magnet_field",&magnet_field,"magnet_field/D");
-  auto coefficientS_Branch = decaytree->Branch("coefficientS",&coefficientS,"coefficientS/D");
-  auto coefficientC_Branch = decaytree->Branch("coefficientC",&coefficientC,"coefficientC/D");
-  auto b_Branch = decaytree->Branch("b",&b,"b/D");
-  */
+  Double_t X_temp, coefficientS, coefficientC, b;
+
   /*
   Long64_t tentry;
-  for(int n=0; n<10; n++){
+  for(int n=0; n<entries; n++){
     tentry = decaytree->LoadTree(n);
     muon_position_branch->GetEntry(tentry);
-    //magnet->GetDistance((*muon_position)[0], (*muon_position)[1], (*muon_position)[2]-cavity_center);
-    //magnet_field = (magnet->B_ave+magnet->GetBfieldValue())*magnet->scaling_factor; // scaling magnet field to ~1.7
-    std::cout << magnet->GetDistance((*muon_position)[0], (*muon_position)[1], (*muon_position)[2]-cavity_center) << std::endl;
-    //magnet_field_Branch->Fill();
-      
-    X_temp = magnet_field*(gfactor_j*magnetic_moment_j + gfactor_mu_prime*magnetic_moment_mu)/(plank_const*v_exp);
-    coefficientS = sqrt(0.5)*sqrt(1-X_temp/sqrt(1+X_temp*X_temp));                                                                                         
-    coefficientS_Branch->Fill();                                                                                                                                         
+    magnet->GetDistance((*muon_position)[0], (*muon_position)[1], (*muon_position)[2]-cavity_center);
+    
+    field[0] = (magnet->B_ave+magnet->GetBfieldValue())*magnet->scaling_factor; // scaling magnet field to ~1.7
+    X_temp = field[0]*(gfactor_j*magnetic_moment_j + gfactor_mu_prime*magnetic_moment_mu)/(plank_const*v_exp);
+    coefficientS = sqrt(0.5)*sqrt(1-X_temp/sqrt(1+X_temp*X_temp));
     coefficientC = sqrt(0.5)*sqrt(1+X_temp/sqrt(1+X_temp*X_temp));
-    coefficientC_Branch->Fill();
-    if(mode==110){                                                                                                                                                                           
-      b = 0.001*0.25*(coefficientS*gfactor_j*magnetic_moment_j + coefficientC*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided;
-      b_Branch->Fill();                                                                    
-    }else if(mode==210){
-      b = 0.001*0.25*(coefficientS*gfactor_j*magnetic_moment_j - coefficientC*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided;
-      b_Branch->Fill();                                                                                                                                                                           
-    }
+    if(mode==110) b = 0.001*0.25*(coefficientS*gfactor_j*magnetic_moment_j + coefficientC*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided;
+    else if(mode==210) b = 0.001*0.25*(coefficientS*gfactor_j*magnetic_moment_j - coefficientC*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided;
+    RF->GetXY((*muon_position)[0], (*muon_position)[1]);
+    field[1] = RF->TM_mode();
+    field[2] = b*field[1]; // kHz
+    //field_Branch->Fill();
   }
   */
-  decaytree->Scan("*");
+  //decaytree->Scan("*");
   // initial state amplitude from MuSEUM technical note (2.12)
   /*
   if(mode==110){
@@ -72,7 +50,6 @@ simulator::simulator(TTree* decaytree, int mode, magfield* magnet)
   std::cout << "state amplitue(t=0) of 12transition=" << state_amp[0] << "\n"
             << "state amplitue(t=0) of 34transition=" << state_amp[1] << std::endl;
   */
-  delete magnet;
 }
 
 void simulator::timedev(double t, double b, double delta, double gamma, double position[3]){

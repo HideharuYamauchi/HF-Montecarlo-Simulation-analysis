@@ -1,14 +1,14 @@
 ////////////////////////////////////////////////////////
 //   High Field Simulation for MuSUEUM Collaboration
 //
-//         Author : Hideharu Yamauchi 2021/9/23
+//       Author : Hideharu Yamauchi 2021/9/23
 ////////////////////////////////////////////////////////
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "RF.cc"
 #include "stop.cc"
-#include "simulator.cc"
+#include "make_tree.cc"
+//#include "simulator.cc"
 
 int main(int argc, const char** argv){
   if(argc!=5){
@@ -17,19 +17,19 @@ int main(int argc, const char** argv){
   }
   //-------------------------muon stopping distribution info 
   muonstopping* run = new muonstopping(argv[3], argv[4]);
-  //run->GetDecayTree();
+  TTree* tree = run->GetDecayTree(false);
   
   // if you want to visualize muon stopping distribution       
   //run->Vis_stopping_distXY(1030., 1350.);  
   //run->Vis_stopping_distZ();
   //----------------------------------------------------------------------
 
-
+  
   //-------------------------superconductive magnet info
   // using copy constructor to initialize default constructor
   //magfield magnet = magfield();
-  magfield* magnet = new magfield(argv[2], atol(argv[1]));
-  //magnet->AddMagnetBranch(run->GetDecayTree());
+  //magfield* magnet = new magfield(argv[2], atol(argv[1]));
+  // magnet->AddMagnetBranch(tree);
   
   // if you want to visualize magnet field at Z       
   //magnet.Vis_magfield(-25.); 
@@ -38,7 +38,6 @@ int main(int argc, const char** argv){
   
   //--------------------------radio frequency info(TMmode)
   //RFfield* RF = new RFfield(atol(argv[1]));
-  //TTree* trees = RF->AddRFBranch(magnet->AddMagnetBranch(run->GetDecayTree()));
   
   // if you want to visualize RF field
   //RF->Vis_RF();
@@ -47,9 +46,10 @@ int main(int argc, const char** argv){
   //RF->Effective(run->Vis_stopping_distXY(1050.));
   //----------------------------------------------------------------------
 
-  
+  maketree* create = new maketree(tree, atol(argv[1]), "run01");
+
   //-------------------------calculation
-  simulator sim(run->GetDecayTree(), atol(argv[1]), magnet);
+  //simulator sim(tree, atol(argv[1]));
 
   // if you want to get state amplitude
   //sim.timedev(double t, RF.Effective(run->Vis_stopping_distXY(1050.)), double delta, double gamma);
@@ -57,6 +57,7 @@ int main(int argc, const char** argv){
   //----------------------------------------------------------------------
 
   //delete RF;
+  //delete magnet;
   delete run;
   return 0;
 }

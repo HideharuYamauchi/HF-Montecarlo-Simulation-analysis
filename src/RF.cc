@@ -146,7 +146,7 @@ Int_t RFfield::Effective(TH2D* xy_dist){
   delete c;
   return mean;
 }
-
+/*
 TTree* RFfield::AddRFBranch(TTree* decaytree){
   Double_t Effective_RF;
   Double_t RF;
@@ -173,4 +173,5 @@ TTree* RFfield::AddRFBranch(TTree* decaytree){
   //decaytree->Scan("*");
   return decaytree;
 }
+*/
 #endif
