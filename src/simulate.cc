@@ -46,7 +46,7 @@ int main(int argc, const char** argv){
   //RF->Effective(run->Vis_stopping_distXY(1050.));
   //----------------------------------------------------------------------
 
-  maketree* create = new maketree(tree, atol(argv[1]), "run01");
+  maketree* create = new maketree(tree, atol(argv[1]), "run04");
 
   //-------------------------calculation
   //simulator sim(tree, atol(argv[1]));
