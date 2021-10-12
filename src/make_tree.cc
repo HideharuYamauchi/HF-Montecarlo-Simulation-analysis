@@ -39,7 +39,7 @@ maketree::maketree(TTree* decaytree, int mode, std::string run_num)
     Long64_t tentry;
     Int_t entries = decaytree->GetEntries(); std::cout << "total entries is " << entries << std::endl;
     Double_t X_temp, coefficientS, coefficientC, b;
-    for(int n=0; n<20; n++){
+    for(int n=0; n<entries; n++){
       tentry = decaytree->LoadTree(n);
       muon_position_branch->GetEntry(tentry);
       magnet->GetDistance((*muon_position)[0], (*muon_position)[1], (*muon_position)[2]-cavity_center);
@@ -61,7 +61,7 @@ maketree::maketree(TTree* decaytree, int mode, std::string run_num)
       field[2] = b*field[1]; // kHz
       decaytree->Fill();
     }
-    //decaytree->Scan("*");  
+    //decaytree->Scan("*");
   
     file = new TFile(("../data/"+run_num+".root").c_str(),"RECREATE"); //std::string
     if(decaytree->Write()) std::cout  << run_num << ".root is made." << std::endl;
