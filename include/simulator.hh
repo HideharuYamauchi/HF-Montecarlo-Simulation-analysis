@@ -6,30 +6,16 @@
 #if !defined(___header_simulator_)
 #define ___header_simulator_ 1
 
-#include <vector>
 #include "TString.h"
 #include "TTree.h"
 #include "TF1.h"
 #include "HFgeometry.hh"
-#include "magnet.hh"
 #include "TCanvas.h"
+#include <vector>
 
 class simulator{
 private:
-  std::vector<double> position;
-  Double_t magnet_field, RF, b; // std::vector<Double_t> field;
-  Double_t decaytime, positron_energy;
-  std::string* decayvolume;
-  TBranch* decayvolume_branch;
-  std::vector<Double_t>* muon_position;
-  TBranch* muon_position_branch;
-  std::vector<Double_t>* muon_momentum;
-  TBranch* muon_momentum_branch;
-  std::vector<Double_t>* positron_position;
-  TBranch* positron_position_branch;
-  std::vector<Double_t>* positron_momentum;
-  TBranch* positron_momentum_branch;
-  
+  std::vector<Double_t> position;
   double angle;
   double solid_angle;
   double signal;
@@ -44,9 +30,10 @@ private:
 public:
   double Non;
   double Noff;
+  std::vector<Int_t> a;
   double L; // microwave term describe increase of positron counting due to microwave irradiation
   double K; // solid_angle integral and cavity volume integral
-  simulator(TTree* decaytree, int mode, magfield* magnet);
+  simulator(TTree* decaytree, int mode);
   ~simulator(void){std::cout << "finish simulator..." << std::endl;};
   TF1* f1;
   //void GetXYZ(int x, int y, int z);

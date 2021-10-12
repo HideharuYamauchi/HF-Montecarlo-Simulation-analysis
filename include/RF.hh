@@ -6,9 +6,7 @@
 #ifndef ___header_RFfield_
 #define ___header_RFfield_ 1
 
-//#include "TMath.h"
 #include <cmath>
-//#include <math.h>
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
@@ -26,7 +24,7 @@ public:
   double TM_mode(void);
   void Vis_RF(void);
   Int_t Effective(TH2D* xy_dist);
-  TTree* AddRFBranch(TTree* decaytree);
+  //TTree* AddRFBranch(TTree* decaytree);
   
 private:
   TString title;

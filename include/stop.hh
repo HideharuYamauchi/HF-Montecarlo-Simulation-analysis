@@ -60,7 +60,7 @@ public:
   void CreateRootFile(void);
   TH2D* Vis_stopping_distZ(void);
   TH2D* Vis_stopping_distXY(Double_t zpoint1, Double_t zpoint2);
-  TTree* GetDecayTree(bool treeflag);
+  TTree* GetDecayTree(bool scanflag);
   TCanvas* c;
   TCanvas* c2;
 };
