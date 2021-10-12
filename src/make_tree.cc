@@ -3,9 +3,8 @@
 //
 //        Author: Hideharu Yamauchi 2021/10/12
 /////////////////////////////////////////////////////
-
-#ifndef ___class_simulator_
-#define ___class_simulator_ 1
+#ifndef ___class_maketree_
+#define ___class_maketree_ 1
 
 #include "../include/make_tree.hh"
 #include "magnet.cc"
