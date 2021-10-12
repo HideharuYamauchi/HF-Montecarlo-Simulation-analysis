@@ -3,12 +3,16 @@
 //
 //       Author : Hideharu Yamauchi 2021/9/23
 ////////////////////////////////////////////////////////
+#ifndef ___simulation_
+#define ___simulation_ 1
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "stop.cc"
-#include "make_tree.cc"
+//#include "make_tree.cc"
+#include "make_tree2.cc"
 //#include "simulator.cc"
+#endif
 
 int main(int argc, const char** argv){
   if(argc!=5){
@@ -46,7 +50,7 @@ int main(int argc, const char** argv){
   //RF->Effective(run->Vis_stopping_distXY(1050.));
   //----------------------------------------------------------------------
 
-  maketree* create = new maketree(tree, atol(argv[1]), "run04");
+  maketree2* create = new maketree2(tree, atol(argv[1]), "run01"); 
 
   //-------------------------calculation
   //simulator sim(tree, atol(argv[1]));
