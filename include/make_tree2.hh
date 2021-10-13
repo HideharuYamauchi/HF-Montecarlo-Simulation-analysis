@@ -36,6 +36,8 @@ private:
   TBranch* positron_momentum_branch;
   Double_t positron_energy;
   TBranch* positron_energy_branch;
+  Double_t muon_energy;
+  TBranch* muon_energy_branch;
   
 public:
   std::vector<std::string> str_vec;

@@ -30,13 +30,15 @@ public:
   std::vector<Double_t>* muon_position;
   TBranch* muon_position_branch; 
   std::vector<Double_t>* muon_momentum;
-  TBranch* muon_momentum_branch;      
+  TBranch* muon_momentum_branch;
   std::vector<Double_t>* positron_position;
   TBranch* positron_position_branch;
   std::vector<Double_t>* positron_momentum;                    
   TBranch* positron_momentum_branch;
   Double_t positron_energy;
   TBranch* positron_energy_branch;
+  Double_t muon_energy;
+  TBranch* muon_energy_branch;
   std::vector<Double_t> field; // magnet field, RF field, effective RF field
   TBranch* field_branch;
   std::vector<Double_t> state_amp;
