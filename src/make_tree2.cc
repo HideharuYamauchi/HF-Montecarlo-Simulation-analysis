@@ -56,14 +56,14 @@ maketree2::maketree2(TTree* decaytree, int mode, std::string run_num)
       for(int i=0;i<4;i++){
 	if(i==0){
 	  muon_vec[i] = decaytime;
-	  muon_dispersion[i] = 0.;
+	  muon_dispersion[i] = 0.; // energy of decay muon is 0
 	  positron_vec[i] = decaytime;
 	  positron_dispersion[i] = positron_energy;
 	}else if(i!=0){
-	  muon_vec[i] = (*muon_position)[i];
-	  muon_dispersion[i] = (*muon_momentum)[i];
-	  positron_vec[i] = (*positron_position)[i];
-	  positron_dispersion[i] = (*positron_position)[i];
+	  muon_vec[i] = (*muon_position)[i-1];
+	  muon_dispersion[i] = (*muon_momentum)[i-1];
+	  positron_vec[i] = (*positron_position)[i-1];
+	  positron_dispersion[i] = (*positron_momentum)[i-1];
 	}
       }
       magnet->GetDistance((*muon_position)[0], (*muon_position)[1], (*muon_position)[2]-cavity_center);
