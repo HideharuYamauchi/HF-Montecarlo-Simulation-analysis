@@ -12,44 +12,24 @@
 #include "TStyle.h"
 #endif
 
-simulator::simulator(TTree* decaytree, int mode)
-  :Non(0.),Noff(0.),position(3)
+simulator::simulator(const char* rootfile)
+  :Non(0.),Noff(0.),position(3),state_amp(2)
 {
-  Mode = mode;
-  Double_t X_temp, coefficientS, coefficientC, b;
+  treefile = new TFile(rootfile,"");
+  if(!treefile){
+    std::cout << "Error opening " << rootfile << std::endl;
+    exit(-1);
+  }
+  tree = (TTree*)treefile->Get("DecayTree");
+  tree->SetBranchStatus("*", 1);
+  //tree->Scan("*");
+}
 
-  /*
-  Long64_t tentry;
-  for(int n=0; n<entries; n++){
-    tentry = decaytree->LoadTree(n);
-    muon_position_branch->GetEntry(tentry);
-    magnet->GetDistance((*muon_position)[0], (*muon_position)[1], (*muon_position)[2]-cavity_center);
-    
-    field[0] = (magnet->B_ave+magnet->GetBfieldValue())*magnet->scaling_factor; // scaling magnet field to ~1.7
-    X_temp = field[0]*(gfactor_j*magnetic_moment_j + gfactor_mu_prime*magnetic_moment_mu)/(plank_const*v_exp);
-    coefficientS = sqrt(0.5)*sqrt(1-X_temp/sqrt(1+X_temp*X_temp));
-    coefficientC = sqrt(0.5)*sqrt(1+X_temp/sqrt(1+X_temp*X_temp));
-    if(mode==110) b = 0.001*0.25*(coefficientS*gfactor_j*magnetic_moment_j + coefficientC*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided;
-    else if(mode==210) b = 0.001*0.25*(coefficientS*gfactor_j*magnetic_moment_j - coefficientC*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided;
-    RF->GetXY((*muon_position)[0], (*muon_position)[1]);
-    field[1] = RF->TM_mode();
-    field[2] = b*field[1]; // kHz
-    //field_Branch->Fill();
-  }
-  */
-  //decaytree->Scan("*");
-  // initial state amplitude from MuSEUM technical note (2.12)
-  /*
-  if(mode==110){
-    state_amp[0]=0.25*(1+polarization);
-    state_amp[1]=0.25*(1-(pow(coefficientC,2.)-pow(coefficientS,2.))*polarization);
-  }else if(mode==210){
-    state_amp[0]=0.25*(1-polarization);
-    state_amp[1]=0.25*(1+(pow(coefficientC,2.)-pow(coefficientS,2.))*polarization);
-  }
-  std::cout << "state amplitue(t=0) of 12transition=" << state_amp[0] << "\n"
-            << "state amplitue(t=0) of 34transition=" << state_amp[1] << std::endl;
-  */
+simulator::~simulator(void){
+  treefile->Close();
+  //delete tree;
+  delete treefile;
+  std::cout << "finish simulator..." << std::endl;
 }
 
 void simulator::timedev(double t, double b, double delta, double gamma, double position[3]){
