@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "stop.cc"
-//#include "make_tree.cc"
 #include "make_tree2.cc"
 //#include "simulator.cc"
 #endif
@@ -21,7 +20,7 @@ int main(int argc, const char** argv){
   }
   //-------------------------muon stopping distribution info 
   muonstopping* run = new muonstopping(argv[3], argv[4]);
-  TTree* tree = run->GetDecayTree(false);
+  //TTree* tree = run->GetDecayTree(true);
   
   // if you want to visualize muon stopping distribution       
   //run->Vis_stopping_distXY(1030., 1350.);  
@@ -50,10 +49,11 @@ int main(int argc, const char** argv){
   //RF->Effective(run->Vis_stopping_distXY(1050.));
   //----------------------------------------------------------------------
 
+  TTree* tree = run->GetDecayTree(false);
   maketree2* create = new maketree2(tree, atol(argv[1]), "run01"); 
 
   //-------------------------calculation
-  //simulator sim(tree, atol(argv[1]));
+  //simulator* sim = new simulator("../data/run01.root");
 
   // if you want to get state amplitude
   //sim.timedev(double t, RF.Effective(run->Vis_stopping_distXY(1050.)), double delta, double gamma);
@@ -62,6 +62,7 @@ int main(int argc, const char** argv){
 
   //delete RF;
   //delete magnet;
+  //delete sim;
   delete run;
   return 0;
 }

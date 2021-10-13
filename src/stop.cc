@@ -39,7 +39,8 @@ muonstopping::muonstopping(std::string runfile, const char* envfile)
   tree->SetBranchAddress("depE",&depE, &branchdepE);
   tree->SetBranchAddress("track",&ntrack, &branchtrack);
   tree->SetBranchAddress("step",&nstep, &branchstep);
-  tree->SetBranchAddress("copyno",&copyno, branchcopyno);    
+  tree->SetBranchAddress("copyno",&copyno, branchcopyno);
+  tree->SetBranchStatus("*",1);
   entries = tree->GetEntries();
   nbranches = tree->GetListOfBranches()->GetEntriesFast();
 }
@@ -51,7 +52,7 @@ void muonstopping::CreateRootFile(void){
   delete file;
 }
 
-TH2D* muonstopping::Vis_stopping_distXY(Double_t zpoint1, Double_t zpoint2){
+TH2D* muonstopping::Vis_Stopping_DistXY(Double_t zpoint1, Double_t zpoint2){
   TString title_dt = "XY-Distribution";
   TString title_dt2 = "XY-Distribution:" + std::to_string(int(zpoint1)) + "~" + std::to_string(int(zpoint2));
   c = new TCanvas("c","c",900,900);
@@ -101,7 +102,7 @@ TH2D* muonstopping::Vis_stopping_distXY(Double_t zpoint1, Double_t zpoint2){
   return dtxy;
 }
 
-TH2D* muonstopping::Vis_stopping_distZ(void){
+TH2D* muonstopping::Vis_Stopping_DistZ(void){
   TString title_dt = "Z-Distribution";
   c2 = new TCanvas("c2", "c2",1400,900);
   gStyle->SetOptStat(0); // do not set the stat tabel 
@@ -133,9 +134,9 @@ TTree* muonstopping::GetDecayTree(bool scanflag){
   decaytree->Branch("decayvolume",&decayvolume);
   decaytree->Branch("muon_position",&muon_position);
   decaytree->Branch("muon_momentum",&muon_momentum);
+  decaytree->Branch("muon_energy",&muon_energy,"muon_energy/D");
   decaytree->Branch("positron_position",&positron_position);
   decaytree->Branch("positron_momentum",&positron_momentum);
-  //decaytree->Branch("muon_energy",&muon_energy,"muon_energy/D");
   decaytree->Branch("positron_energy",&positron_energy,"positron_energy/D");
   for(int n=0;n<entries;n++){
     tree->GetEntry(n);
@@ -151,7 +152,7 @@ TTree* muonstopping::GetDecayTree(bool scanflag){
 	muon_momentum[0] = Px;
 	muon_momentum[1] = Py;
 	muon_momentum[2] = Pz;
-	//muon_energy = kE;
+	muon_energy = kE;
 	for(int l=1 ;l<entries-n;l++){
 	  tree->GetEntry(n+l);
 	  if(std::string(particle)=="e+"&&std::string(process)=="initStep"&&std::string(volume)==decayvolume

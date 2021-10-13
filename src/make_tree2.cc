@@ -14,8 +14,8 @@
 #endif
 
 maketree2::maketree2(TTree* decaytree, int mode, std::string run_num)
-  : decayvolume(0),decayvolume_branch(0),muon_position(0),muon_position_branch(0),muon_momentum(0),muon_momentum_branch(0),positron_position(0),positron_position_branch(0),positron_momentum(0),
-    positron_momentum_branch(0),positron_energy_branch(0),decaytime_branch(0),
+  : decayvolume(0),decayvolume_branch(0),muon_position(0),muon_position_branch(0),muon_momentum(0),muon_momentum_branch(0),muon_energy_branch(0),positron_position(0),positron_position_branch(0),
+    positron_momentum(0),positron_momentum_branch(0),positron_energy_branch(0),decaytime_branch(0),
     str_vec(4),muon_vec(4),muon_dispersion(4),positron_vec(4),positron_dispersion(4),field(3),state_amp(4),
     str_branch(0),muon_vec_branch(0),muon_dispersion_branch(0),positron_vec_branch(0),positron_dispersion_branch(0),field_branch(0),state_amp_branch(0)
 {
@@ -31,6 +31,7 @@ maketree2::maketree2(TTree* decaytree, int mode, std::string run_num)
     decaytree->SetBranchAddress("decayvolume",&decayvolume,&decayvolume_branch);
     decaytree->SetBranchAddress("muon_position",&muon_position,&muon_position_branch);
     decaytree->SetBranchAddress("muon_momentum",&muon_momentum,&muon_momentum_branch);
+    decaytree->SetBranchAddress("muon_energy",&muon_energy,&muon_energy_branch);
     decaytree->SetBranchAddress("positron_position",&positron_position,&positron_position_branch);
     decaytree->SetBranchAddress("positron_momentum",&positron_momentum,&positron_momentum_branch);
     decaytree->SetBranchAddress("positron_energy",&positron_energy,&positron_energy_branch);
@@ -56,7 +57,7 @@ maketree2::maketree2(TTree* decaytree, int mode, std::string run_num)
       for(int i=0;i<4;i++){
 	if(i==0){
 	  muon_vec[i] = decaytime;
-	  muon_dispersion[i] = 0.; // energy of decay muon is 0
+	  muon_dispersion[i] = muon_energy;
 	  positron_vec[i] = decaytime;
 	  positron_dispersion[i] = positron_energy;
 	}else if(i!=0){
