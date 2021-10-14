@@ -68,5 +68,6 @@ public:
   void Vis_RFPowerHist(void);
   void Vis_FieldHist(void);
   void Vis_PositronEnergyHist(void);
+  void Vis_PositronAngleHist(void);
 };
 #endif
