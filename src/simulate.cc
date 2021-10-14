@@ -25,10 +25,13 @@ int main(int argc, const char** argv){
   //if you want to get the distribution of magnet field
   
   // if you want to visualize the RFpower histgram
-  //run->Vis_RFPowerDist();
+  //run->Vis_RFPowerHist();
 
   // if you want to visualize the magnet field histgram 
-  run->Vis_FieldDist();
+  //run->Vis_FieldHist();
+
+  // if you want to visualize the positron energy histgram
+  //run->Vis_PositronEnergyHist();
   
   // if you want to visualize muon stopping distribution
   //run->Vis_Stopping_DistXY(1030., 1350., true);  

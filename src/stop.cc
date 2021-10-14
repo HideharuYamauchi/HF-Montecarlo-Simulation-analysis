@@ -186,14 +186,14 @@ TTree* muonstopping::GetDecayTree(bool scanflag=false){
   return decaytree;
 }
 
-void muonstopping::Vis_RFPowerDist(void){
+void muonstopping::Vis_RFPowerHist(void){
   RF->GetEffectivePower(Vis_Stopping_DistXY(cavity_upfoil_center,
   					    cavity_downfoil_center,
 					    false)
 			);
 }
 
-void muonstopping::Vis_FieldDist(void){
+void muonstopping::Vis_FieldHist(void){
   TCanvas* c = new TCanvas("c", "c",900,900);
   Double_t set_label_scale = 1.0e+4;
   TH1D* hist = new TH1D("hist","",1000,-0.001*set_label_scale,0.001*set_label_scale);
@@ -212,6 +212,45 @@ void muonstopping::Vis_FieldDist(void){
   Int_t mean = hist->GetMean();
   Int_t stddev = hist->GetStdDev();                                                                                                                                              
   Int_t RMS = hist->GetRMS();                                                                        
+  Int_t entries = hist->GetEntries();
+  delete hist;
+  delete c;
+}
+
+void muonstopping::Vis_PositronEnergyHist(void){
+  TCanvas* c = new TCanvas("c", "c",900,900);
+  TH1D* hist = new TH1D("hist","",54,0.,53.);
+  hist->SetXTitle("Positron Energy [/MeV]");
+  hist->SetYTitle("");
+  std::vector<Double_t> muon_vec(4);
+  for(int k=0; k<entries; k++){
+    tree->GetEntry(k);
+    if(std::string(particle)=="mu+"
+       &&std::string(process)=="DecayWithSpin"
+       &&(std::string(volume)=="Cavity"
+	  ||std::string(volume)=="CavityFoil"
+	  ||std::string(volume)=="CavityFlange"
+	  ||std::string(volume)=="TargetGas")){
+      muon_vec[0] = time;
+      muon_vec[1] = X;
+      muon_vec[2] = Y;
+      muon_vec[3] = Z;
+      for(int l=1 ;l<entries-k;l++){
+          tree->GetEntry(k+l);
+	  if(std::string(particle)=="e+"
+	     &&std::string(process)=="initStep"
+	     &&(time==muon_vec[0]&&X==muon_vec[1]&&Y==muon_vec[2]&&Z==muon_vec[3])){
+	    hist->Fill(kE*1.0e-3);
+	    break;
+	  }// convert keV to MeV
+      }
+    }
+  }
+  hist->Draw();
+  c->SaveAs("../figure/EnergyHist.png");
+  Int_t mean = hist->GetMean();
+  Int_t stddev = hist->GetStdDev();
+  Int_t RMS = hist->GetRMS();
   Int_t entries = hist->GetEntries();
   delete hist;
   delete c;
