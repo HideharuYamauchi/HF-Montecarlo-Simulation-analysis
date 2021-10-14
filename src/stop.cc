@@ -195,19 +195,20 @@ void muonstopping::Vis_RFPowerDist(void){
 
 void muonstopping::Vis_FieldDist(void){
   TCanvas* c = new TCanvas("c", "c",900,900);
-  TH1D* hist = new TH1D("hist","",1000,-0.001,0.001);
-  hist->SetXTitle("B^{ER} [/Gauss]");
+  Double_t set_label_scale = 1.0e+4;
+  TH1D* hist = new TH1D("hist","",1000,-0.001*set_label_scale,0.001*set_label_scale);
+  hist->SetXTitle("B^{ER} #times10^{-4} [/Gauss]");
   hist->SetYTitle("");
   for(int k=0; k<entries; k++){
     tree->GetEntry(k);
     if(std::string(process)=="DecayWithSpin"
        &&(std::string(volume)=="Cavity"||std::string(volume)=="CavityFoil"||std::string(volume)=="CavityFlange"||std::string(volume)=="TargetGas")){
       magnet->GetDistance(X, Y, Z-cavity_center);
-      hist->Fill(magnet->GetBfieldValue()*1.0e+4);
+      hist->Fill(magnet->GetBfieldValue()*1.0e+4*set_label_scale); // 1.0e+4 is for convert Tesla to Gauss 
     }
   }
   hist->Draw();
-  c->SaveAs("../figure/magnetdist.png");
+  c->SaveAs("../figure/MagnetHist.png");
   Int_t mean = hist->GetMean();
   Int_t stddev = hist->GetStdDev();                                                                                                                                              
   Int_t RMS = hist->GetRMS();                                                                        
