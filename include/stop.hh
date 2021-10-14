@@ -65,7 +65,8 @@ public:
   TH2D* Vis_Stopping_DistZ(void);
   TH2D* Vis_Stopping_DistXY(Double_t zpoint1, Double_t zpoint2, bool saveflag);
   TTree* GetDecayTree(bool scanflag);
-  void Vis_RFPowerDist(void);
-  void Vis_FieldDist(void);
+  void Vis_RFPowerHist(void);
+  void Vis_FieldHist(void);
+  void Vis_PositronEnergyHist(void);
 };
 #endif
