@@ -3,17 +3,16 @@
 //
 //        Author: Hideharu Yamauchi 2021/10/13
 /////////////////////////////////////////////////////
-#ifndef ___class_maketree2_
-#define ___class_maketree2_ 1
+#ifndef ___class_muonstopping_
+#define ___class_muonstopping_ 1
 
 #include <stdio.h>
 #include "../include/make_tree2.hh"
 #include "magnet.cc"
 #include "RF.cc"
 #include "TString.h"
-#endif
 
-maketree2::maketree2(TTree* decaytree, int mode, std::string run_num)
+MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
   : decayvolume(0),decayvolume_branch(0),muon_position(0),muon_position_branch(0),muon_momentum(0),muon_momentum_branch(0),muon_energy_branch(0),positron_position(0),positron_position_branch(0),
     positron_momentum(0),positron_momentum_branch(0),positron_energy_branch(0),decaytime_branch(0),
     str_vec(4),muon_vec(4),muon_dispersion(4),positron_vec(4),positron_dispersion(4),field(3),state_amp(4),
@@ -24,8 +23,8 @@ maketree2::maketree2(TTree* decaytree, int mode, std::string run_num)
   else{
     flag = true;
     DecayTree = new TTree("DecayTree","tree of decay muons");
-    RF = new RFfield(mode);
-    magnet = new magfield("../data/BRECON_MOM_20200716_6.txt", mode);
+    RF = new RFFIELD(mode);
+    magnet = new MAGNETFIELD("../data/BRECON_MOM_20200716_6.txt", mode);
       
     decaytree->SetBranchAddress("decaytime",&decaytime,&decaytime_branch);
     decaytree->SetBranchAddress("decayvolume",&decayvolume,&decayvolume_branch);
@@ -94,10 +93,11 @@ maketree2::maketree2(TTree* decaytree, int mode, std::string run_num)
   }
 }
 
-maketree2::~maketree2(void){
+MAKETREE::~MAKETREE(void){
   if(flag){
     delete RF;
     delete magnet;
     delete file;
   }
 }
+#endif

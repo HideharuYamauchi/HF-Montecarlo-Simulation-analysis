@@ -16,7 +16,7 @@
 #include <fstream>
 #include <iostream>
 
-RFfield::RFfield(Int_t Mode)
+RFFIELD::RFFIELD(Int_t Mode)
   : distance(0.), Bfield(0.)
 {
   R__LOAD_LIBRARY(libMathMore);
@@ -37,13 +37,13 @@ RFfield::RFfield(Int_t Mode)
   }
 }
 
-Double_t RFfield::GetXY(int x, int y){
+Double_t RFFIELD::GetXY(int x, int y){
   angle = std::atan2(y, x);
   distance = sqrt(pow(x, 2.0)+pow(y, 2.0))*1.0e-3; // convert mm to m
   return distance*1.0e+3; // convert m to mm
 }
 
-Double_t RFfield::TM_mode(void){
+Double_t RFFIELD::TM_mode(void){
   if(mode==110){
     Bfield=H_coefficient*(pow(gsl_sf_bessel_Jn(2,kc*distance),2.0)+pow(gsl_sf_bessel_J0(kc*distance),2.0)-2*(gsl_sf_bessel_Jn(2,kc*distance))*(gsl_sf_bessel_J0(kc*distance))*std::cos(2*angle));
   }else if(mode==210){
@@ -52,7 +52,7 @@ Double_t RFfield::TM_mode(void){
   return permeability*sqrt(Bfield);
 }
 
-void RFfield::Vis_RF(void){
+void RFFIELD::Vis_RF(void){
   TCanvas* c = new TCanvas("c","c",1600,600);
   gStyle->SetOptStat(0);
   gStyle->SetTitleXOffset(1.5);
@@ -98,7 +98,7 @@ void RFfield::Vis_RF(void){
   delete c;
 }
 
-Double_t RFfield::GetEffectivePower(TH2D* xy_dist){
+Double_t RFFIELD::GetEffectivePower(TH2D* xy_dist){
   TCanvas* c = new TCanvas("c", "c",900,900);
   TH1D* hist = new TH1D("hist",title2,200,0,200);
   hist->SetXTitle("b [/kHz]");

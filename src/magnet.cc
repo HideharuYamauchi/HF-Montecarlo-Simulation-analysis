@@ -13,9 +13,8 @@
 #include <fstream>
 #include <iostream>
 #include <numeric>
-#endif
 
-magfield::magfield(const char* magnetfile, Int_t Mode)
+MAGNETFIELD::MAGNETFIELD(const char* magnetfile, Int_t Mode)
   : moment_coordinate(moment_num,std::vector<double>(3)),moment(moment_num,std::vector<double>(3)),distance(moment_num,std::vector<double>(3)),interval(moment_num),position(3)
 {
   mode = Mode;
@@ -35,7 +34,7 @@ magfield::magfield(const char* magnetfile, Int_t Mode)
 
 //magfield::magfield(const char* magnetfile, int Mode)
 
-Double_t magfield::GetDistance(Double_t x, Double_t y, Double_t z){
+Double_t MAGNETFIELD::GetDistance(Double_t x, Double_t y, Double_t z){
   if(sqrt(pow(x, 2.)+pow(y, 2.)+pow(z, 2.)) < 300.){ 
     position[0] = x*1.0e-3; // convert mm to m
     position[1] = y*1.0e-3;
@@ -50,7 +49,7 @@ Double_t magfield::GetDistance(Double_t x, Double_t y, Double_t z){
   return sqrt(pow(x, 2.)+pow(y, 2.)); // mm
 }
 
-Double_t magfield::GetBfieldValue(void){
+Double_t MAGNETFIELD::GetBfieldValue(void){
   double BvalueZ = 0, total_BvalueZ = 0;
   for(int i=0;i<moment_num;i++){
     BvalueZ = (1.0e-7)*(1/pow(interval[i], 3.))*(3*(moment[i][0]*distance[i][0] + moment[i][1]*distance[i][1] + moment[i][2]*distance[i][2])*distance[i][2]/pow(interval[i], 2.)-moment[i][2]);
@@ -59,7 +58,7 @@ Double_t magfield::GetBfieldValue(void){
   return total_BvalueZ; // Tesla
 }
 
-void magfield::Vis_MagField(double Z){ // unit of Z:mm, range: from -152 to +152
+void MAGNETFIELD::Vis_MagField(double Z){ // unit of Z:mm, range: from -152 to +152
   TString title = "z=" + std::to_string(Z);
   
   TCanvas* c = new TCanvas("c", "c",1600,600);
@@ -105,3 +104,8 @@ void magfield::Vis_MagField(double Z){ // unit of Z:mm, range: from -152 to +152
   delete dt2;
   delete c;
 }
+
+void MAGNETFIELD::GetFieldGif(void){
+  return;
+}
+#endif

@@ -13,7 +13,7 @@
 #include "TString.h"
 #endif
 
-maketree::maketree(TTree* decaytree, int mode, std::string run_num)
+MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
   : decayvolume(0),decayvolume_branch(0),muon_position(0),muon_position_branch(0),muon_momentum(0),muon_momentum_branch(0),positron_position(0),positron_position_branch(0),field(3),field_branch(0),
     positron_energy_branch(0),decaytime_branch(0),state_amp(4),state_amp_branch(0)
 {
@@ -21,8 +21,8 @@ maketree::maketree(TTree* decaytree, int mode, std::string run_num)
   if(gSystem->GetPathInfo(path, info)==0) std::cout << run_num + " is already exist" << std::endl;
   else{
     flag = true;
-    RF = new RFfield(mode);
-    magnet = new magfield("../data/BRECON_MOM_20200716_6.txt", mode);
+    RF = new RFFIELD(mode);
+    magnet = new MAGNETFIELD("../data/BRECON_MOM_20200716_6.txt", mode);
     decaytree->SetBranchAddress("decaytime",&decaytime,&decaytime_branch);
     decaytree->SetBranchAddress("decayvolume",&decayvolume,&decayvolume_branch);
     decaytree->SetBranchAddress("muon_position",&muon_position,&muon_position_branch);
@@ -69,7 +69,7 @@ maketree::maketree(TTree* decaytree, int mode, std::string run_num)
   }
 }
 
-maketree::~maketree(void){
+MAKETREE::~MAKETREE(void){
   if(flag){
     delete RF;
     delete magnet;

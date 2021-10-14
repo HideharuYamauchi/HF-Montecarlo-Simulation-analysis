@@ -15,14 +15,13 @@
 #include "TStyle.h"
 #include "RF.cc"
 #include "magnet.cc"
-#endif
 
-muonstopping::muonstopping(std::string runfile, const char* envfile, Int_t mode)
+STOP::STOP(std::string runfile, const char* envfile, Int_t mode)
   : tree(nullptr),branchtime(nullptr),branchX(nullptr),branchY(nullptr),branchZ(nullptr),branchPx(nullptr),branchPy(nullptr),branchPz(nullptr),branchkE(nullptr),branchdepE(nullptr),branchtrack(nullptr),
     branchstep(nullptr),branchcopyno(nullptr)
 {
-  RF = new RFfield(mode);
-  magnet = new magfield("../data/BRECON_MOM_20200716_6.txt", mode);
+  RF = new RFFIELD(mode);
+  magnet = new MAGNETFIELD("../data/BRECON_MOM_20200716_6.txt", mode);
   TString runfile2 = runfile;
   gStyle->SetPalette(1); // set the color plot
   run_num = runfile.substr(runfile.find("run"), 7); // get the present run number
@@ -49,20 +48,20 @@ muonstopping::muonstopping(std::string runfile, const char* envfile, Int_t mode)
   nbranches = tree->GetListOfBranches()->GetEntriesFast();
 }
 
-muonstopping::~muonstopping(void){
+STOP::~STOP(void){
   delete RF;
   delete magnet;
   delete tree;
 }
 
-void muonstopping::CreateRootFile(void){
+void STOP::CreateRootFile(void){
   file = TFile::Open(run_num+=".root","RECREATE");
   if(tree->Write()) std::cout << run_num << " is made." << std::endl;   
   file->Close();
   delete file;
 }
 
-TH2D* muonstopping::Vis_Stopping_DistXY(Double_t zpoint1, Double_t zpoint2, bool saveflag=true){
+TH2D* STOP::Vis_Stopping_DistXY(Double_t zpoint1, Double_t zpoint2, bool saveflag=true){
   TString title = std::to_string(int(zpoint1)) + "~" + std::to_string(int(zpoint2));
   TCanvas* c = new TCanvas("c","c",900,900);
   TPad* center_pad = new TPad("center_pad","",0.0,0.0,0.5,0.5);
@@ -114,7 +113,7 @@ TH2D* muonstopping::Vis_Stopping_DistXY(Double_t zpoint1, Double_t zpoint2, bool
   return dtxy;
 }
 
-TH2D* muonstopping::Vis_Stopping_DistZ(void){
+TH2D* STOP::Vis_Stopping_DistZ(void){
   TCanvas* c2 = new TCanvas("c2", "c2",1400,900);
   gStyle->SetOptStat(0); // do not set the stat tabel 
   TH2D* dtz = new TH2D("Z-Dist", "", 500, 1000, 1400, 240, -120, 120);
@@ -132,7 +131,7 @@ TH2D* muonstopping::Vis_Stopping_DistZ(void){
   return dtz;
 }
 
-TTree* muonstopping::GetDecayTree(bool scanflag=false){
+TTree* STOP::GetDecayTree(bool scanflag=false){
   TTree* decaytree = new TTree("decaytree","tree of decay muons");
   Double_t decaytime;
   std::string decayvolume;
@@ -186,14 +185,14 @@ TTree* muonstopping::GetDecayTree(bool scanflag=false){
   return decaytree;
 }
 
-void muonstopping::Vis_RFPowerHist(void){
+void STOP::Vis_RFPowerHist(void){
   RF->GetEffectivePower(Vis_Stopping_DistXY(cavity_upfoil_center,
   					    cavity_downfoil_center,
 					    false)
 			);
 }
 
-void muonstopping::Vis_FieldHist(void){
+void STOP::Vis_FieldHist(void){
   TCanvas* c = new TCanvas("c", "c",900,900);
   Double_t set_label_scale = 1.0e+4;
   TH1D* hist = new TH1D("hist","",1000,-0.001*set_label_scale,0.001*set_label_scale);
@@ -217,7 +216,7 @@ void muonstopping::Vis_FieldHist(void){
   delete c;
 }
 
-void muonstopping::Vis_PositronEnergyHist(void){
+void STOP::Vis_PositronEnergyHist(void){
   TCanvas* c = new TCanvas("c", "c",900,900);
   TH1D* hist = new TH1D("hist","",54,0.,53.);
   hist->SetXTitle("Positron Energy [/MeV]");
@@ -256,7 +255,7 @@ void muonstopping::Vis_PositronEnergyHist(void){
   delete c;
 }
 
-void muonstopping::Vis_PositronAngleHist(void){
+void STOP::Vis_PositronAngleHist(void){
   TCanvas* c = new TCanvas("c", "c",900,900);
   TH1D* hist = new TH1D("hist","",360,-1.,1.);
   hist->SetXTitle("cos#theta");
@@ -292,3 +291,4 @@ void muonstopping::Vis_PositronAngleHist(void){
   delete hist;
   delete c;
 }
+#endif

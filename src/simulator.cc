@@ -11,9 +11,8 @@
 #include "../include/simulator.hh"
 #include "RF.cc"
 #include "TStyle.h"
-#endif
 
-simulator::simulator(const char* rootfile)
+SIMULATOR::SIMULATOR(const char* rootfile)
   :Non(0.),Noff(0.)
 {
   treefile = new TFile(rootfile,"");
@@ -23,23 +22,23 @@ simulator::simulator(const char* rootfile)
   }
   tree = (TTree*)treefile->Get("DecayTree");
   tree->SetBranchStatus("*", 1);
-  //tree->Scan("*");
+  tree->Scan("*");
 }
 
-simulator::~simulator(void){
+SIMULATOR::~SIMULATOR(void){
   treefile->Close();
-  //delete tree;
+  //delete tree; // give error!!
   delete treefile;
   std::cout << "finish simulator..." << std::endl;
 }
-
-Double_t simulator::timedev(Double_t delta){
+/*
+Double_t SIMULATOR::timedev(Double_t delta){
   Amplitude[0]=(pow(Amplitude[0],2.)*(pow(std::cos(0.5*gamma*t),2.)+pow((delta/gamma)*std::sin(0.5*gamma*t),2.))+pow(Amplitude[1]*2*b*std::sin(0.5*gamma*t)/gamma,2.)+Amplitude[0]*Amplitude[1]*2*delta*b*pow(std::sin(0.5*gamma*t)/gamma,2.))*std::exp(-muon_life*t);
   Amplitude[1]=(pow(Amplitude[0]*2*b*std::sin(0.5*gamma*t)/gamma,2.)+pow(Amplitude[1],2.)*(pow(std::cos(0.5*gamma*t),2.)+pow(delta*std::sin(0.5*gamma*t)/gamma,2.))-Amplitude[0]*Amplitude[1]*2*delta*b*pow(std::sin(0.5*gamma*t)/gamma,2.))*std::exp(-0.5*muon_life*t);
   return Amplitude[1];
 }
 
-void simulator::Vis_State_Amp(Int_t entry){
+void SIMULATOR::Vis_State_Amp(Int_t entry){
   tree->GetEntry(entry);
   TCanvas* c = new TCanvas("c","c",900,900);
   TF1* f1 = new TF1("amplitude",timedev(),0,30000);
@@ -47,6 +46,7 @@ void simulator::Vis_State_Amp(Int_t entry){
   c->SaveAs("../figure/amplitude.png");
   delete f1;
 }
+*/
 /*
 double simulator::Calculate_g(Double_t Gamma, Double_t t){
   double g = std::cos(Gamma*t)-Gamma*std::sin(Gamma*t)/muon_life;
@@ -77,3 +77,4 @@ double simulator::Calculate_Signal(void){
   return 0;
 }
 */
+#endif
