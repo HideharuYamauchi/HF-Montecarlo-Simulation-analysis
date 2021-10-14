@@ -53,16 +53,15 @@ void muonstopping::CreateRootFile(void){
 }
 
 TH2D* muonstopping::Vis_Stopping_DistXY(Double_t zpoint1, Double_t zpoint2){
-  TString title_dt = "XY-Distribution";
-  TString title_dt2 = "XY-Distribution:" + std::to_string(int(zpoint1)) + "~" + std::to_string(int(zpoint2));
-  c = new TCanvas("c","c",900,900);
+  TString title = std::to_string(int(zpoint1)) + "~" + std::to_string(int(zpoint2));
+  TCanvas* c = new TCanvas("c","c",900,900);
   TPad* center_pad = new TPad("center_pad","",0.0,0.0,0.5,0.5);
   center_pad->Draw();
   TPad* right_pad = new TPad("right_pad","",0.5,0.0,1.0,0.5);
   right_pad->Draw();
   TPad* top_pad = new TPad("top_pad","",0.0,0.5,0.5,1.0);
   top_pad->Draw();
-  TH2D* dtxy = new TH2D("XY-Dist", title_dt, 240, -120, 120, 240, -120, 120);
+  TH2D* dtxy = new TH2D("XY-Dist", "", 240, -120, 120, 240, -120, 120);
   center_pad->cd();
   dtxy->SetXTitle("X [/mm]");
   dtxy->SetYTitle("Y [/mm]");                         
@@ -97,14 +96,13 @@ TH2D* muonstopping::Vis_Stopping_DistXY(Double_t zpoint1, Double_t zpoint2){
   right_pad->SetRightMargin(0.03);
   projdty->Draw("hbar");
   projdty->SetStats(0);
-  c->SaveAs(title_dt2+=".png");
+  c->SaveAs("../figure/"+title+".png");
   delete c;
   return dtxy;
 }
 
 TH2D* muonstopping::Vis_Stopping_DistZ(void){
-  TString title_dt = "Z-Distribution";
-  c2 = new TCanvas("c2", "c2",1400,900);
+  TCanvas* c2 = new TCanvas("c2", "c2",1400,900);
   gStyle->SetOptStat(0); // do not set the stat tabel 
   TH2D* dtz = new TH2D("Z-Dist", "", 500, 1000, 1400, 240, -120, 120);
   dtz->SetXTitle("Position on the beam axis [/mm]");
@@ -116,7 +114,7 @@ TH2D* muonstopping::Vis_Stopping_DistZ(void){
   dtz->Draw("Colz");
   dtz->GetXaxis()->SetTitleOffset(1.3);
   dtz->GetYaxis()->SetTitleOffset(1.2);
-  c2->SaveAs(title_dt+=".png");
+  c2->SaveAs("../figure/Z-Distribution.png");
   delete c2;
   return dtz;
 }
