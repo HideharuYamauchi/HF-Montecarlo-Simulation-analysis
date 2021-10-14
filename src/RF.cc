@@ -41,12 +41,6 @@ Double_t RFfield::GetXY(int x, int y){
   return distance*1.0e+3; // convert m to mm
 }
 
-Double_t RFfield::GetXY(double x, double y){
-  angle = std::atan2(y, x);
-  distance = sqrt(pow(x, 2.0)+pow(y, 2.0))*1.0e-3; // convert mm to m
-  return distance*1.0e+3; // convert m to mm
-}
-
 Double_t RFfield::TM_mode(void){
   if(mode==110){
     Bfield=H_coefficient*(pow(gsl_sf_bessel_Jn(2,kc*distance),2.0)+pow(gsl_sf_bessel_J0(kc*distance),2.0)-2*(gsl_sf_bessel_Jn(2,kc*distance))*(gsl_sf_bessel_J0(kc*distance))*std::cos(2*angle));
@@ -61,18 +55,13 @@ void RFfield::Vis_RF(void){
   gStyle->SetOptStat(0);
   gStyle->SetTitleXOffset(1.5);
   gStyle->SetTitleYOffset(2);
-  center_pad = new TPad("center_pad", "center_pad",0.5,0,1.0,1.0);  
+  TPad* center_pad = new TPad("center_pad", "center_pad",0.5,0,1.0,1.0);  
   center_pad->Draw();
-  top_pad = new TPad("top_pad", "top_pad",0,0,0.5,1.0);
+  TPad* top_pad = new TPad("top_pad", "top_pad",0,0,0.5,1.0);
   top_pad->Draw();
-  dt = new TGraph2D();
-  if(mode==110) {
-    dt->SetTitle("TM110_1; X [/mm]; Y [/mm]; B [/T]");
-    dt2 = new TH2D("dt", "TM110_2",201,-100.0 , 100.0 ,201, -100.0, 100.0);
-  }else if(mode==210) {
-    dt->SetTitle("TM210_1; X [/mm]; Y [/mm]; B [/T]");
-    dt2 = new TH2D("dt", "TM210_2",201,-100.0 , 100.0 ,201, -100.0, 100.0);
-  }
+  TGraph2D* dt = new TGraph2D();
+  dt->SetTitle(title+"_1; X [/mm]; Y [/mm]; B [/T]");
+  TH2D* dt2 = new TH2D("dt2", title+"_2",201,-100.0 , 100.0 ,201, -100.0, 100.0);
   dt->GetXaxis()->SetTitleOffset(2.0);
   dt2->SetXTitle("X [/mm]");
   dt2->SetYTitle("Y [/mm]");
@@ -86,7 +75,7 @@ void RFfield::Vis_RF(void){
         dt2->Fill(xx,yy,TM_mode());                  
         i++;                                                                          
       }                        
-    }                                                
+    }                          
   }
   top_pad->cd();
   gStyle->SetPalette(1);                                                                        
@@ -99,7 +88,7 @@ void RFfield::Vis_RF(void){
   center_pad->SetRightMargin(0.2);
   dt2->Draw("colz");
   dt2->GetZaxis()->SetTitleOffset(1.3);
-  c->SaveAs(title+=".png");
+  c->SaveAs("../figure/"+title+".png");
   delete dt;
   delete dt2;
   delete center_pad;
@@ -109,7 +98,7 @@ void RFfield::Vis_RF(void){
 
 Int_t RFfield::Effective(TH2D* xy_dist){
   TCanvas* c = new TCanvas("c", "c",900,900);
-  hist = new TH1D("hist",title2,200,0,200);
+  TH1D* hist = new TH1D("hist",title2,200,0,200);
   hist->SetXTitle("b [/kHz]");
   hist->SetYTitle("");
   
@@ -137,7 +126,7 @@ Int_t RFfield::Effective(TH2D* xy_dist){
   }
   */
   hist->Draw();
-  c->SaveAs(title2+=".png");
+  c->SaveAs("../figure/"+title2+".png");
   Int_t mean = hist->GetMean();
   Int_t stddev = hist->GetStdDev();
   Int_t RMS = hist->GetRMS();
