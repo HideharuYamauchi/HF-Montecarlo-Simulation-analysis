@@ -23,7 +23,7 @@ maketree2::maketree2(TTree* decaytree, int mode, std::string run_num)
   if(gSystem->GetPathInfo(path, info)==0) std::cout << run_num + " is already exist" << std::endl;
   else{
     flag = true;
-    DecayTree = new TTree("DecayTree","tree of decay muons in KrGas");
+    DecayTree = new TTree("DecayTree","tree of decay muons");
     RF = new RFfield(mode);
     magnet = new magfield("../data/BRECON_MOM_20200716_6.txt", mode);
       

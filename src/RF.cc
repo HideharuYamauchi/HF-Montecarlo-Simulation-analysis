@@ -16,7 +16,9 @@
 #include <fstream>
 #include <iostream>
 
-RFfield::RFfield(int Mode):distance(0.), Bfield(0.){
+RFfield::RFfield(Int_t Mode)
+  : distance(0.), Bfield(0.)
+{
   R__LOAD_LIBRARY(libMathMore);
   mode = Mode;
   title = "TM" + std::to_string(mode);
@@ -96,7 +98,7 @@ void RFfield::Vis_RF(void){
   delete c;
 }
 
-Int_t RFfield::Effective(TH2D* xy_dist){
+Double_t RFfield::GetEffectivePower(TH2D* xy_dist){
   TCanvas* c = new TCanvas("c", "c",900,900);
   TH1D* hist = new TH1D("hist",title2,200,0,200);
   hist->SetXTitle("b [/kHz]");
