@@ -240,9 +240,9 @@ void muonstopping::Vis_PositronEnergyHist(void){
 	  if(std::string(particle)=="e+"
 	     &&std::string(process)=="initStep"
 	     &&(time==muon_vec[0]&&X==muon_vec[1]&&Y==muon_vec[2]&&Z==muon_vec[3])){
-	    hist->Fill(kE*1.0e-3);
+	    hist->Fill(kE*1.0e-3); // convert keV to MeV 
 	    break;
-	  }// convert keV to MeV
+	  }
       }
     }
   }
@@ -252,6 +252,43 @@ void muonstopping::Vis_PositronEnergyHist(void){
   Int_t stddev = hist->GetStdDev();
   Int_t RMS = hist->GetRMS();
   Int_t entries = hist->GetEntries();
+  delete hist;
+  delete c;
+}
+
+void muonstopping::Vis_PositronAngleHist(void){
+  TCanvas* c = new TCanvas("c", "c",900,900);
+  TH1D* hist = new TH1D("hist","",360,-1.,1.);
+  hist->SetXTitle("cos#theta");
+  hist->SetYTitle("");
+  std::vector<Double_t> muon_vec(4);
+  Double_t cos_theta;
+  for(int k=0; k<entries; k++){
+    tree->GetEntry(k);
+    if(std::string(particle)=="mu+"
+       &&std::string(process)=="DecayWithSpin"
+       &&(std::string(volume)=="Cavity"
+          ||std::string(volume)=="CavityFoil"
+          ||std::string(volume)=="CavityFlange"
+          ||std::string(volume)=="TargetGas")){
+      muon_vec[0] = time;
+      muon_vec[1] = X;
+      muon_vec[2] = Y;
+      muon_vec[3] = Z;
+      for(int l=1 ;l<entries-k;l++){
+          tree->GetEntry(k+l);
+          if(std::string(particle)=="e+"
+             &&std::string(process)=="initStep"
+             &&(time==muon_vec[0]&&X==muon_vec[1]&&Y==muon_vec[2]&&Z==muon_vec[3])){
+	    cos_theta = Pz/std::sqrt((pow(Px,2.) + pow(Py,2.) + pow(Pz,2.)));
+            hist->Fill(cos_theta);                                                                                                                           
+            break;
+          }
+      }
+    }
+  }
+  hist->Draw();
+  c->SaveAs("../figure/AngleHist.png");
   delete hist;
   delete c;
 }
