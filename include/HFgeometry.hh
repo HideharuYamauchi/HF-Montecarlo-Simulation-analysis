@@ -74,6 +74,7 @@ const double cavity_radial_thickness = 0.015; //m
 double cavity_power[2] = {8., 10.}; // same with liu exp
 double Q_value[2] = {14000., 20000.};  // same with liu exp
 const double cavity_length = 0.27; // m
+const double G4cavity_length = 244.; // mm
 const double cavity_flange_length = 0.031; // m, up=down, 0.013+0.009+0.009
 const double cavity_foil_position = 0.304; // =304mm
 const double cavity_volume = cavity_foil_position*pow(cavity_radius, 2.)*pi; 
@@ -83,8 +84,8 @@ const double cavity_foil_thickness = 25*1.0e-6; // m
 const double cavity_center = Magnet_center-overhang_thickness*0.5; // mm, 1200-25*0.5 = 1187.5 mm
 const double cavity_upflange_center = cavity_center-(cavity_flange_length+cavity_length)*0.5; // 1187.5-(44+244)*0.5= 1043.5
 const double cavity_downflange_center = cavity_center+(cavity_flange_length+cavity_length)*0.5; // 1187.5+(44+244)*0.5= 1331.5
-const double cavity_upfoil_center = cavity_center-26.-cavity_length*0.5; // 1187.5-26-244*0.5= 1039.5
-const double cavity_downfoil_center = cavity_center+26.+cavity_length*0.5; // 1187.5+26+244*0.5= 1335.5
+const double cavity_upfoil_center = cavity_center-26.-G4cavity_length*0.5; // 1187.5-26-244*0.5= 1039.5
+const double cavity_downfoil_center = cavity_center+26.+G4cavity_length*0.5; // 1187.5+26+244*0.5= 1335.5
   
 //------------Positron counter---------------
 const double counter_sizeXY = 240.; // mm

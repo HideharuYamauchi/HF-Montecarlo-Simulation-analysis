@@ -15,6 +15,8 @@
 #include "TTree.h"
 #include "TH2.h"
 #include "TCanvas.h"
+#include "RF.hh"
+#include "magnet.hh"
 
 class muonstopping{
 private:
@@ -51,15 +53,19 @@ private:
   TBranch** branchcopyno;
   Int_t copyno;
   TString run_num;
+  RFfield* RF;
+  magfield* magnet;
   
 public:
   Int_t entries;
   Int_t nbranches;
-  muonstopping(std::string runfile, const char* envfile);
-  ~muonstopping(void){delete tree;}
+  muonstopping(std::string runfile, const char* envfile, Int_t mode);
+  ~muonstopping(void);
   void CreateRootFile(void);
   TH2D* Vis_Stopping_DistZ(void);
-  TH2D* Vis_Stopping_DistXY(Double_t zpoint1, Double_t zpoint2);
+  TH2D* Vis_Stopping_DistXY(Double_t zpoint1, Double_t zpoint2, bool saveflag);
   TTree* GetDecayTree(bool scanflag);
+  void Vis_RFPowerDist(void);
+  void Vis_FieldDist(void);
 };
 #endif

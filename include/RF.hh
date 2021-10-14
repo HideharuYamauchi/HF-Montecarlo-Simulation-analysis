@@ -17,17 +17,17 @@
 
 class RFfield{
 public:
-  RFfield(int Mode);
+  RFfield(Int_t Mode);
   ~RFfield(void){;};
   Double_t GetXY(int x, int y);
   Double_t TM_mode(void);
   void Vis_RF(void);
-  Int_t Effective(TH2D* xy_dist);
+  Double_t GetEffectivePower(TH2D* xy_dist);
   
 private:
   TString title;
   TString title2;
-  int mode;
+  Int_t mode;
   const Double_t e = 8.854187817e-12; // dielectric constant for krypton
   const Double_t C = 2.99792458e+8; // speed of light
   const Double_t permeability = pi*4e-7; // permeability for krypton

@@ -17,7 +17,7 @@
 class magfield{
 private:
   const int moment_num = 3602;
-  int mode;
+  Int_t mode;
   std::vector<std::vector<double>> moment_coordinate;
   std::vector<std::vector<double>> moment;
   std::vector<std::vector<double>> distance;
@@ -26,17 +26,12 @@ private:
   const double DSV = 300.; // mm
   
 public:
-  magfield(const char* magnetfile, int Mode);
+  magfield(const char* magnetfile, Int_t Mode);
   ~magfield(void){;};
-  double GetDistance(double x, double y, double z);
-  double GetBfieldValue(void);
-  void Vis_magfield(double Z);
-  //TTree* AddMagnetBranch(TTree* decaytree);
-  TCanvas* c;
-  TPad* center_pad;
-  TPad* top_pad;
-  TGraph2D* dt;
-  TH2D* dt2;
+  Double_t GetDistance(Double_t x, Double_t y, Double_t z);
+  Double_t GetBfieldValue(void);
+  void Vis_MagField(double Z);
+  //Double_t GetEffectiveField(TBranch* branch);
   const Double_t B_ave = 1.199671277270803; // average field
   const Double_t scaling_factor = B_cons/B_ave;
 };
