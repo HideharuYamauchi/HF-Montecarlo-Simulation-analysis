@@ -61,7 +61,5 @@ public:
   TH2D* Vis_Stopping_DistZ(void);
   TH2D* Vis_Stopping_DistXY(Double_t zpoint1, Double_t zpoint2);
   TTree* GetDecayTree(bool scanflag);
-  TCanvas* c;
-  TCanvas* c2;
 };
 #endif
