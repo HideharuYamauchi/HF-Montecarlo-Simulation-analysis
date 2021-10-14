@@ -15,10 +15,10 @@
 #include "TStyle.h"
 #include "HFgeometry.hh"
 
-class RFfield{
+class RFFIELD{
 public:
-  RFfield(Int_t Mode);
-  ~RFfield(void){;};
+  RFFIELD(Int_t Mode);
+  ~RFFIELD(void){;};
   Double_t GetXY(int x, int y);
   Double_t TM_mode(void);
   void Vis_RF(void);

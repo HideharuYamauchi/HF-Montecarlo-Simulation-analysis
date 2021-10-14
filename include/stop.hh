@@ -18,7 +18,7 @@
 #include "RF.hh"
 #include "magnet.hh"
 
-class muonstopping{
+class STOP{
 private:
   TFile* file;
   TTree* tree;
@@ -53,14 +53,14 @@ private:
   TBranch** branchcopyno;
   Int_t copyno;
   TString run_num;
-  RFfield* RF;
-  magfield* magnet;
+  RFFIELD* RF;
+  MAGNETFIELD* magnet;
   
 public:
   Int_t entries;
   Int_t nbranches;
-  muonstopping(std::string runfile, const char* envfile, Int_t mode);
-  ~muonstopping(void);
+  STOP(std::string runfile, const char* envfile, Int_t mode);
+  ~STOP(void);
   void CreateRootFile(void);
   TH2D* Vis_Stopping_DistZ(void);
   TH2D* Vis_Stopping_DistXY(Double_t zpoint1, Double_t zpoint2, bool saveflag);

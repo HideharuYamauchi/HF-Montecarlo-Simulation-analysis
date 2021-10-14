@@ -14,7 +14,7 @@
 #include "TGraph2D.h"
 #include "TStyle.h"
 
-class magfield{
+class MAGNETFIELD{
 private:
   const int moment_num = 3602;
   Int_t mode;
@@ -26,12 +26,12 @@ private:
   const double DSV = 300.; // mm
   
 public:
-  magfield(const char* magnetfile, Int_t Mode);
-  ~magfield(void){;};
+  MAGNETFIELD(const char* magnetfile, Int_t Mode);
+  ~MAGNETFIELD(void){;};
   Double_t GetDistance(Double_t x, Double_t y, Double_t z);
   Double_t GetBfieldValue(void);
   void Vis_MagField(double Z);
-  //Double_t GetEffectiveField(TBranch* branch);
+  void GetFieldGif(void);
   const Double_t B_ave = 1.199671277270803; // average field
   const Double_t scaling_factor = B_cons/B_ave;
 };

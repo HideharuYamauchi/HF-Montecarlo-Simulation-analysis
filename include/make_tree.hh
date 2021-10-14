@@ -14,10 +14,10 @@
 #include "TFile.h"
 #include "TSystem.h"
 
-class maketree{
+class MAKETREE{
 private:
-  magfield* magnet;
-  RFfield* RF;
+  MAGNETFIELD* magnet;
+  RFFIELD* RF;
   TFile* file;
   FileStat_t info;
   bool flag;
@@ -43,7 +43,7 @@ public:
   TBranch* field_branch;
   std::vector<Double_t> state_amp;
   TBranch* state_amp_branch;
-  maketree(TTree* decaytree, int mode, std::string run_num);
-  ~maketree(void);
+  MAKETREE(TTree* decaytree, int mode, std::string run_num);
+  ~MAKETREE(void);
 };
 #endif

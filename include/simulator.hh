@@ -7,6 +7,7 @@
 #define ___header_simulator_ 1
 
 #include "TString.h"
+#include "TFile.h"
 #include "TTree.h"
 #include "TF1.h"
 #include "HFgeometry.hh"
@@ -15,7 +16,7 @@
 #include "TCanvas.h"
 #include <vector>
 
-class simulator{
+class SIMULATOR{
 private:
   TFile* treefile;
   TTree* tree;
@@ -35,10 +36,10 @@ public:
   Double_t Amplitude[2];
   double L; // microwave term describe increase of positron counting due to microwave irradiation
   double K; // solid_angle integral and cavity volume integral
-  simulator(const char* rootfile);
-  ~simulator(void);
-  Double_t* timedev(Double_t delta);
-  void Vis_State_Amp(Int_t entry);
+  SIMULATOR(const char* rootfile);
+  ~SIMULATOR(void);
+  //Double_t* timedev(Double_t delta);
+  //void Vis_State_Amp(Int_t entry);
   //double ConventionalSignal(double power, double detuning, double position[3]);
   //double OldMuoniumSignal(double power, double detuning, double position[3], Double_t windowopen, Double_t windowclose);
   //double Calculate_Signal(void);
