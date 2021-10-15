@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #if !defined(___header_geometry_)
-#define ___header_geometry_ 1 
+#define ___header_geometry_ 1
 #include "TMath.h"
 #include <math.h>
 
@@ -89,9 +89,23 @@ const double cavity_downfoil_center = cavity_center+26.+G4cavity_length*0.5; // 
   
 //------------Positron counter---------------
 const double counter_sizeXY = 240.; // mm
-const double positron_counterU = 300.; 
-const double positron_counterD = 340.;
-const double counter_couver_thickness = 2.; 
+const double counter_counterU = 300.; 
+const double counter_counterD = 340.;
+const double counter_thickness = 3.; // mm
+
+const double DetectorU_center = Magnet_center+counter_centerU; // 1200 + 300 = 1500
+const double DetectorD_center = Magnet_center+counter_centerD; // 1200 + 340 = 1540
+
+//------------Aluminum Couver---------------
+const double couver_sizeXY = counter_sizeXY; // thickness is same with counter_couver_thickness
+const double counter_couver_thickness = 2.; // mm
+
+const double AlCouverU_center = Magnet_center+counter_centerU-(counter_thickness+counter_couver_thickness)*0.5; // 1200+300-(3+2)*0.5=1497.5  
+const double AlCouverD_center = Magnet_center+counter_centerD-(counter_thickness+counter_couver_thickness)*0.5; // 1200+340-(3+2)*0.5=1537.5
+
+//------------Silicon counter---------------
+const double silicon_centerU = 245.; // mm
+const double silicon_centerD = 265.; // mm
 
 //------Beam window kapton foil;G4 setting--------
 const double kapton_diameter = 300.;
@@ -99,8 +113,8 @@ const double kapton_thickness = 0.075; // 0.075*0.5 = 0.0375
 const double kapton_center = -500.0;
 const double kapton_position = Magnet_center+kapton_center; // 700 mm
 
-const double beam_vacuum_region = Magnet_center+kapton_center+(G4WorldSizeZ-kapton_thickness)*0.5; // 1200-500+(3600-0.075)*0.5=700+1800-0.0325=2499.9675 mm
-const double beam_vacuum_region_center = (beam_vacuum_region-G4WorldSizeZ)*0.5; // 1249.98375-1800 = -550.01625 mm
+const double beam_vacuum_region = Magnet_center+kapton_center+(G4WorldSizeZ-kapton_thickness)*0.5; // 1200 - 500 + (3600-0.075)*0.5 = 700+1800-0.0325=2499.9675 mm
+const double beam_vacuum_region_center = (beam_vacuum_region-G4WorldSizeZ)*0.5; // 1249.98375 - 1800 = -550.01625 mm
 const double beam_vacuum_region_end = beam_vacuum_region_center+beam_vacuum_region*0.5; // -550.01625 + 1249.98375 = 699.9675 mm
 
 //------Beam Profile Monitor;G4 setting---------
@@ -111,5 +125,4 @@ const double bpm_positionD = kapton_center+10.; // -490 mm
 
 const double upbpm_center = Magnet_center+bpm_positionU; // 1200-495 = 705 mm
 const double downbpm_center = Magnet_center+bpm_positionD; // 1200-490 = 710 mm
-
 #endif
