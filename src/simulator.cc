@@ -17,7 +17,7 @@
 
 SIMULATOR::SIMULATOR(const char* rootfile)
   : myStringVec(0),myMuonVec(0),myMuonDispersion(0),myPositronVec(0),myPositronDispersion(0),myField(0),myAmp(0),
-    Non(0), scan_range(400), scan_points(40), scan_step(scan_range/scan_points)
+    Non(0), scan_range(400), scan_points(40), scan_step(scan_range/scan_points), signal(0.)
 {
   std::string myString(rootfile);
   run_num = myString.substr(myString.find("run"), myString.find(".root")-myString.find("run"));
@@ -69,6 +69,7 @@ Double_t SIMULATOR::ConventionalSignal(Double_t power, Double_t detuning){
   Double_t Gamma_square = pow(detuning, 2.)+4*pow(power, 2.); // MuSEUM technical note (2.50)
   L = 2*pow(power, 2.)/(Gamma_square + pow(gamma, 2.));
   K = 1;
+  std::cout << "probability:" << L*K << std::endl;
   return L*K;
 }
 
@@ -79,6 +80,7 @@ Double_t SIMULATOR::OldMuoniumSignal(Double_t power, Double_t detuning, Double_t
 			-std::exp(-muon_life*windowclose)*(1-Calculate_g(sqrt(Gamma_square), windowopen)*pow(muon_life,2.)/(Gamma_square+pow(muon_life,2.)))
 			)/Gamma_square;
   K = 1;
+  std::cout << "probability:" << L*K << std::endl;
   return L*K;
 }
 
@@ -101,34 +103,36 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
       std::cout << "How many minutes for one point:" << std::endl;
       std::cin >> minutes;
     }
-  }while(method!='c'||method!='C'||method!='o'||method!='O'||method!='0'||method!='1'&&minutes<0);
+  }while((method!='c'&&method!='C'&&method!='o'&&method!='O'&&method!='0'&&method!='1')||minutes<0);
   
   gates = 1500*minutes*0.5; //60(sec)*25(gates/sec) = 1500 gates for one minute, 0.5 is for beam off
-  std::cout << gates << " is for BeamOn." << std::endl;
-
+  std::cout << gates << " is for BeamOn." << "\n"
+	    << 1500*minutes-gates << " is for BeamOff." << std::endl;
+  
   for(int w=0; w<scan_points; w++){
     detuning = -1*scan_range*0.5 + scan_step*w;
     std::cout << "START detuning " << detuning << "[/kHz]..." << std::endl;
-    for(int p=0; p<gates; p++){
+    for(int p=0; p<10/*gates*/; p++){ // BEAM ON
       if((p+1)%7500==0) std::cout << "Elapsed Time since detuning "<< detuning << "[/kHz] starts: " << minutes*0.5+5*(p+1)/7500 << "[mins]" << std::endl;
-      for(int i=0; i<entries; i++){
+      for(int i=0; i<10/*entries*/; i++){
 	myTree->GetEntry(i);
 	if(method=='c'||method=='C'||method=='0') signal += ConventionalSignal((*myField)[2], detuning);
 	else if(method=='o'||method=='O'||method=='1') signal += OldMuoniumSignal((*myField)[2], // power
 										  detuning,
 										  3.12*ppm, // windowopen 3.12 or 6.92, same with liu
 										  4.07*ppm); // windowclose 4.07 or 7.87, same with liu
+	std::cout << "SIGNAL INTENSITY:" << signal << std::endl; 
       }
     }
-    std::cout << "TOTAL ELAPSED TIME OF RUN START: " << (w+1)*minutes/60  << "[hours]" << std::endl;
+    std::cout << "TOTAL ELAPSED TIME SINCE RUN START: " << (w+1)*minutes/60  << "[hours]" << std::endl;
     error = (Non/Noff)*TMath::Sqrt(1.0/Non+1.0/Noff);
-    curve->SetPoint(w, detuning, signal);
-    curve->SetPointError(w, 0, error);
+    //curve->SetPoint(w, detuning, signal);
+    //curve->SetPointError(w, 0, error);
   }
   curve->GetXaxis()->SetTitle("Frequency Detuning [/kHz]");
   curve->GetYaxis()->SetTitle("Signal");
-  curve->Draw("AP");
-  c->SaveAs(("../figure/"+run_num+".png").c_str());
+  //curve->Draw("AP");
+  //c->SaveAs(("../figure/"+run_num+".png").c_str());
   delete curve;
   delete c;
 }
