@@ -8,6 +8,7 @@
 
 int main(int argc, const char** argv){
   SIMULATOR* sim = new SIMULATOR(argv[1]);
+  sim->CalculateSignal();
 
   delete sim;
   return 0;
