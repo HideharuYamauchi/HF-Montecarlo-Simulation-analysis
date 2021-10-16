@@ -12,36 +12,44 @@
 #include "TF1.h"
 #include "HFgeometry.hh"
 #include "RF.hh" // for omega
-#include "magnet.hh"
-#include "TCanvas.h"
 #include <vector>
 
 class SIMULATOR{
 private:
-  TFile* treefile;
-  TTree* tree;
-  double angle;
-  double solid_angle;
-  double signal;
-  int scan_range = 200; // kHz
-  int scan_points = 40; // scan points, same with liu
-  const double gamma = 1/muon_life; // muon's natural width
-  int entries;
-  //double Calculate_g(Double_t Gamma, Double_t t);
+  TFile* myFile;
+  TTree* myTree;
+  std::vector<std::string>* myStringVec;
+  std::vector<Double_t>* myMuonVec;
+  std::vector<Double_t>* myMuonDispersion;
+  std::vector<Double_t>* myPositronVec;
+  std::vector<Double_t>* myPositronDispersion;
+  std::vector<Double_t>* myField;
+  std::vector<Double_t>* myAmp;
+  Double_t signal;
+  Int_t scan_range; // kHz
+  Int_t scan_points; // same with liu
+  Double_t scan_step; //10 kHz
+  const Double_t gamma = 1/muon_life; // muon's natural width
+  Int_t entries;
+  std::string run_num;
   
 public:
-  Double_t Calculate_EnergySplit();
+  //Double_t Calculate_EnergySplit(void);
   Double_t Non;
   Double_t Noff;
   Double_t Amplitude[2];
-  double L; // microwave term describe increase of positron counting due to microwave irradiation
-  double K; // solid_angle integral and cavity volume integral
+  Double_t L; // microwave term describe increase of positron counting due to microwave irradiation
+  Double_t K; // solid_angle integral and cavity volume integral
   SIMULATOR(const char* rootfile);
   ~SIMULATOR(void);
   //Double_t* timedev(Double_t delta);
   //void Vis_State_Amp(Int_t entry);
-  //double ConventionalSignal(double power, double detuning, double position[3]);
-  //double OldMuoniumSignal(double power, double detuning, double position[3], Double_t windowopen, Double_t windowclose);
-  //double Calculate_Signal(void);
+
+  Double_t Calculate_g(Double_t Gamma, Double_t t);
+  Double_t ConventionalSignal(Double_t power, Double_t detuning);
+  Double_t OldMuoniumSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t windowclose);
+  void CalculateSignal(Int_t minutes);
+  
+  //Double_t* CalculateSolid(std::vector<Double_t> pos);
 };
 #endif

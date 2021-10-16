@@ -76,9 +76,9 @@ double Q_value[2] = {14000., 20000.};  // same with liu exp
 const double cavity_length = 0.27; // m
 const double G4cavity_length = 244.; // mm
 const double cavity_flange_length = 0.031; // m, up=down, 0.013+0.009+0.009
-const double cavity_foil_position = 0.304; // =304mm
+const double cavity_foil_position = 0.304; // =304 mm
 const double cavity_volume = cavity_foil_position*pow(cavity_radius, 2.)*pi; 
-const double cavity_foil_thickness = 25*1.0e-6; // m
+const double cavity_foil_thickness = 25*1.0e-3; // mm
 
 // G4 setting
 const double cavity_center = Magnet_center-overhang_thickness*0.5; // mm, 1200-25*0.5 = 1187.5 mm
@@ -89,8 +89,8 @@ const double cavity_downfoil_center = cavity_center+26.+G4cavity_length*0.5; // 
   
 //------------Positron counter---------------
 const double counter_sizeXY = 240.; // mm
-const double counter_counterU = 300.; 
-const double counter_counterD = 340.;
+const double counter_centerU = 300.; 
+const double counter_centerD = 340.;
 const double counter_thickness = 3.; // mm
 
 const double DetectorU_center = Magnet_center+counter_centerU; // 1200 + 300 = 1500
