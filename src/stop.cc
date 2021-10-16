@@ -257,7 +257,7 @@ void STOP::Vis_PositronEnergyHist(void){
 
 void STOP::Vis_PositronAngleHist(void){
   TCanvas* c = new TCanvas("c", "c",900,900);
-  TH1D* hist = new TH1D("hist","",360,-1.,1.);
+  TH1D* hist = new TH1D("hist","",180,-1.,1.);
   hist->SetXTitle("cos#theta");
   hist->SetYTitle("");
   std::vector<Double_t> muon_vec(4);
