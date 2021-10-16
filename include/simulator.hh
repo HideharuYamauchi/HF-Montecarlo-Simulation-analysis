@@ -32,24 +32,23 @@ private:
   const Double_t gamma = 1/muon_life; // muon's natural width
   Int_t entries;
   std::string run_num;
+  std::vector<Double_t> position;
   
 public:
-  //Double_t Calculate_EnergySplit(void);
   Double_t Non;
   Double_t Noff;
+  Double_t signal;
   Double_t Amplitude[2];
-  Double_t L; // microwave term describe increase of positron counting due to microwave irradiation
-  Double_t K; // solid_angle integral and cavity volume integral
+  Double_t L;
   SIMULATOR(const char* rootfile);
   ~SIMULATOR(void);
   //Double_t* timedev(Double_t delta);
   //void Vis_State_Amp(Int_t entry);
-
+  //Double_t Calculate_EnergySplit(void);
+  Double_t CalculateAngle(void);
   Double_t Calculate_g(Double_t Gamma, Double_t t);
-  Double_t ConventionalSignal(Double_t power, Double_t detuning);
-  Double_t OldMuoniumSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t windowclose);
+  Double_t ConventionalSignal(Double_t power, Double_t detuning, Double_t positron_energy);
+  Double_t OldMuoniumSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t windowclose, Double_t positron_energy);
   void CalculateSignal(Int_t minutes);
-  
-  //Double_t* CalculateSolid(std::vector<Double_t> pos);
 };
 #endif

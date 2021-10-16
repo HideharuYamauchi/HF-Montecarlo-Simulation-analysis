@@ -45,7 +45,7 @@ const double beam_x_sigma = 34.; // mm
 const double beam_y_sigma = 30.; // mm
 
 const double muon_mass = 105.6583755; // MeV/c^2
-const double positron_max_momentum = 52.83; // MeV/c
+const double positron_max_energy = 53.32 // MeV
 
 // Geant4 setting 
 const double Magnet_center = 1200.; // mm
