@@ -16,7 +16,7 @@
 const double pi = TMath::Pi();
 const double magnet_center = 1.2; // m
 const double muon_life = 2.1969811*1.0e-6; // s
-const double v_exp = 4463302776; // from liu's experiment
+const double v_exp = 4463302776; // from 1999's liu
 const double plank_const = 6.626070040e-34;
 const double plank_const_divided = 1.054571800e-34; // h-bar
 const double a = 7.2973525693e-3; // fine structure
@@ -45,7 +45,7 @@ const double beam_x_sigma = 34.; // mm
 const double beam_y_sigma = 30.; // mm
 
 const double muon_mass = 105.6583755; // MeV/c^2
-const double positron_max_energy = 53.32 // MeV
+const double positron_max_energy = 53.32; // MeV
 
 // Geant4 setting 
 const double Magnet_center = 1200.; // mm

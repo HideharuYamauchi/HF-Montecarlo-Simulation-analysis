@@ -9,6 +9,7 @@
 #include "TString.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TBranch.h"
 #include "TF1.h"
 #include "HFgeometry.hh"
 #include "RF.hh" // for omega
@@ -25,7 +26,8 @@ private:
   std::vector<Double_t>* myPositronDispersion;
   std::vector<Double_t>* myField;
   std::vector<Double_t>* myAmp;
-  Double_t signal;
+  std::vector<Double_t> angle_vec;
+  TBranch* AngleBranch;
   Int_t scan_range; // kHz
   Int_t scan_points; // same with liu
   Double_t scan_step; //10 kHz
@@ -39,16 +41,20 @@ public:
   Double_t Noff;
   Double_t signal;
   Double_t Amplitude[2];
+  Double_t solidangle;
+  Double_t cos_solidangle;
+  Double_t y; // positron_energy/positron_max_energy;
+  Double_t A[2]={0.};
   Double_t L;
   SIMULATOR(const char* rootfile);
   ~SIMULATOR(void);
-  //Double_t* timedev(Double_t delta);
+  //void timedev(Double_t delta, const char* mode);
   //void Vis_State_Amp(Int_t entry);
   //Double_t Calculate_EnergySplit(void);
-  Double_t CalculateAngle(void);
+  void CalculateAngle(void);
   Double_t Calculate_g(Double_t Gamma, Double_t t);
-  Double_t ConventionalSignal(Double_t power, Double_t detuning, Double_t positron_energy);
-  Double_t OldMuoniumSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t windowclose, Double_t positron_energy);
+  Double_t ConventionalSignal(Double_t power, Double_t detuning, Double_t windowopen);
+  Double_t OldMuoniumSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t windowclose);
   void CalculateSignal(Int_t minutes);
 };
 #endif
