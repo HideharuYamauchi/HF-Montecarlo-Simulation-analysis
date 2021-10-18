@@ -26,15 +26,16 @@ private:
   std::vector<Double_t>* myPositronDispersion;
   std::vector<Double_t>* myField;
   std::vector<Double_t>* myAmp;
-  std::vector<Double_t> angle_vec;
-  TBranch* AngleBranch;
+  std::vector<Double_t>* myAngleVec;
   Int_t scan_range; // kHz
   Int_t scan_points; // same with liu
   Double_t scan_step; //10 kHz
-  const Double_t gamma = 1/muon_life; // muon's natural width
+  const Double_t gamma = (1/muon_life)*1.0e-3; // muon's natural width, 1.0e-3 is for convert Hz to kHz
   Int_t entries;
   std::string run_num;
   std::vector<Double_t> position;
+#if !defined(___header_simulator_)
+#define ___header_simulator_ 1
   TBranch* myStringVec_branch;
   TBranch* myMuonVec_branch;
   TBranch* myMuonDispersionVec_branch;
@@ -42,6 +43,8 @@ private:
   TBranch* myPositronDispersionVec_branch;
   TBranch* myField_branch;
   TBranch* myAmp_branch;
+  TBranch* AngleBranch;
+#endif
   
 public:
   Double_t Non;
