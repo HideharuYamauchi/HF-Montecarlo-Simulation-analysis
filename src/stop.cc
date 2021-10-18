@@ -291,4 +291,19 @@ void STOP::Vis_PositronAngleHist(void){
   delete hist;
   delete c;
 }
+
+void STOP::Vis_PositronEnergyAtDetector(void){
+  TCanvas* c = new TCanvas("c", "c",900,900);
+  TH1D* hist = new TH1D("hist","",54,0.,53.);
+  hist->SetXTitle("Positron Energy At Detector[/MeV]");
+  hist->SetYTitle("");
+  for(int k=0; k<entries; k++){
+    tree->GetEntry(k);
+    if(std::string(particle)=="e+"&&std::string(volume)=="Detector") hist->Fill(kE*1.0e-3);
+  }
+  hist->Draw();
+  c->SaveAs("../figure/PositronEnergyAtDetector.png");
+  delete hist;
+  delete c;
+}
 #endif

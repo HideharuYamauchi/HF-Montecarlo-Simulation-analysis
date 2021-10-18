@@ -25,6 +25,7 @@ int main(int argc, const char** argv){
 
   // if you want to visualize the positron energy histgram
   //run->Vis_PositronEnergyHist();
+  run->Vis_PositronEnergyAtDetector();
 
   // if you want to visualize the positron angle histgram 
   //run->Vis_PositronAngleHist();
