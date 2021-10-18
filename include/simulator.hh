@@ -35,6 +35,13 @@ private:
   Int_t entries;
   std::string run_num;
   std::vector<Double_t> position;
+  TBranch* myStringVec_branch;
+  TBranch* myMuonVec_branch;
+  TBranch* myMuonDispersionVec_branch;
+  TBranch* myPositronVec_branch;
+  TBranch* myPositronDispersionVec_branch;
+  TBranch* myField_branch;
+  TBranch* myAmp_branch;
   
 public:
   Double_t Non;

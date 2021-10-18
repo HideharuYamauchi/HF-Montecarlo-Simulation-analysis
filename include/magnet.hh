@@ -26,7 +26,7 @@ private:
   const double DSV = 300.; // mm
   
 public:
-  MAGNETFIELD(const char* magnetfile, Int_t Mode);
+  MAGNETFIELD(Int_t Mode);
   ~MAGNETFIELD(void){;};
   Double_t GetDistance(Double_t x, Double_t y, Double_t z);
   Double_t GetBfieldValue(void);
