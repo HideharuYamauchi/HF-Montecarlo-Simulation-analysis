@@ -54,7 +54,13 @@ public:
   TBranch* field_branch;
   std::vector<Double_t> state_amp;
   TBranch* state_amp_branch;
+  std::vector<Double_t> angle_vec;
+  TBranch* angle_branch;
+  std::vector<Double_t> position;
   MAKETREE(TTree* decaytree, int mode, std::string run_num);
   ~MAKETREE(void);
+  void CalculateAngle(void);
+  Double_t cos_solidangle;
+  Double_t solidangle;
 };
 #endif
