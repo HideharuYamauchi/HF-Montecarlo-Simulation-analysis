@@ -62,7 +62,7 @@ public:
   void CalculateAngle(void);
   Double_t Calculate_g(Double_t Gamma, Double_t t);
   Double_t ConventionalSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t cos_solid_angle, Double_t solid_angle);
-  Double_t OldMuoniumSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t windowclose, Double_t cos_solid_angle, Double_t solid_angle);
+  Double_t OldMuoniumSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t windowclose, Double_t cos_solid_angle, Double_t solid_angle, bool flag);
   void CalculateSignal(Int_t minutes);
 };
 #endif
