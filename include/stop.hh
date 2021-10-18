@@ -69,5 +69,6 @@ public:
   void Vis_FieldHist(void);
   void Vis_PositronEnergyHist(void);
   void Vis_PositronAngleHist(void);
+  void Vis_PositronEnergyAtDetector(void);
 };
 #endif
