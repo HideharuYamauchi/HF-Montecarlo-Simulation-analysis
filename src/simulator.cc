@@ -44,7 +44,8 @@ SIMULATOR::SIMULATOR(const char* rootfile)
   myTree->SetBranchAddress("Angle",&myAngleVec);
   entries = myTree->GetEntries();
   Noff = entries;
-  /*
+#ifndef ___header_simulator_
+#define ___header_simulator_ 1
   AngleBranch = myTree->Branch("Angle", &angle_vec);
   
   for(int i=0; i<entries; i++){
@@ -60,7 +61,7 @@ SIMULATOR::SIMULATOR(const char* rootfile)
   myTree->Write("", TObject::kOverwrite);
   myTree->Print();
   myTree->Scan("*");
-  */
+#endif
 }
 
 SIMULATOR::~SIMULATOR(void){
@@ -134,11 +135,11 @@ Double_t SIMULATOR::ConventionalSignal(Double_t power, Double_t detuning, Double
   
   Double_t probability
     = A[0]*(cos_solid_angle)*(polarization*L)/((A[0]*(cos_solid_angle)*polarization+A[1]*(solid_angle))*(0-std::exp(-1*gamma*windowopen)));
-  //std::cout << "probability:" << probability << std::endl;
+  if(false) std::cout << "probability:" << probability << std::endl;
   return probability;
 }
 
-Double_t SIMULATOR::OldMuoniumSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t windowclose, Double_t cos_solid_angle, Double_t solid_angle){
+Double_t SIMULATOR::OldMuoniumSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t windowclose, Double_t cos_solid_angle, Double_t solid_angle, bool flag){
   Double_t Gamma_square = pow(detuning, 2.)+4*pow(power, 2.); // MuSEUM technical note (2.50)
   Double_t L = 2*pow(power, 2.)*(
 				 std::exp(-1*gamma*windowopen)*(1-Calculate_g(sqrt(Gamma_square), windowopen)*pow(gamma,2.)/(Gamma_square+pow(gamma,2.)))
@@ -146,8 +147,8 @@ Double_t SIMULATOR::OldMuoniumSignal(Double_t power, Double_t detuning, Double_t
 				 )/Gamma_square;
 
   Double_t probability
-    = A[0]*(cos_solid_angle)*(-1*polarization*L)/((A[0]*(cos_solid_angle)*polarization+A[1]*(solid_angle))*(std::exp(-1*gamma*windowclose)-std::exp(-1*gamma*windowopen)));
-  //std::cout << "probability:" << probability << std::endl;
+    = A[0]*(cos_solid_angle)*(polarization*L)/((A[0]*(cos_solid_angle)*polarization+A[1]*(solid_angle))*(std::exp(-1*gamma*windowclose)-std::exp(-1*gamma*windowopen)));
+  if(flag) std::cout << "probability:" << probability << std::endl;
   return probability;
 }
 
@@ -181,13 +182,13 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
 	    << std::string(40, '*') << "\n"
 	    << "RUN START: " << ctime(&t) << std::endl;
   
-  for(int w=0; w<1/*scan_points*/; w++){
+  for(int w=0; w<scan_points; w++){
     Non = 0;
     Noff = entries;
     detuning = -1*scan_range*0.5 + scan_step*w;
     std::cout << "START detuning " << detuning << "[/kHz]..." << "\n"
 	      << "Elapsed Time since detuning "<< detuning << "[/kHz] starts...." << std::endl;
-    for(int p=0; p<1/*gates*/; p++){
+    for(int p=0; p<gates; p++){
       if((p+1)%7500==0) std::cout << minutes*0.5+5*(p+1)/7500 << "[mins]" << std::endl;
       for(int i=0; i<entries; i++){
 	myTree->GetEntry(i);
@@ -205,7 +206,8 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
 										 3.12*ppm, // windowopen 3.12 or 6.92, same with liu
 										 4.07*ppm, // windowclose 4.07 or 7.87, same with liu
 										 (*myAngleVec)[0], // cos_solid_angle
-										 (*myAngleVec)[1]); // solid_angle
+										 (*myAngleVec)[1], // solid_angle
+										 false); // show the value
 	}
       }
     }
