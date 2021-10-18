@@ -1,47 +1,74 @@
 /////////////////////////////////////////////////////
 //   High field simulation for MuSEUM Collaboration
 //
-//        Author: Hideharu Yamauchi 2021/10/12
+//        Author: Hideharu Yamauchi 2021/10/13
 /////////////////////////////////////////////////////
-#ifndef ___class_maketree_
-#define ___class_maketree_ 1
-
 #include <stdio.h>
-#include "../include/make_tree.hh"
+#include "../include/make_tree2.hh"
+
+#ifndef ___class_muonstopping_
+#define ___class_muonstopping_ 1
 #include "magnet.cc"
 #include "RF.cc"
-#include "TString.h"
 #endif
 
+#include "TString.h"
+
 MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
-  : decayvolume(0),decayvolume_branch(0),muon_position(0),muon_position_branch(0),muon_momentum(0),muon_momentum_branch(0),positron_position(0),positron_position_branch(0),field(3),field_branch(0),
-    positron_energy_branch(0),decaytime_branch(0),state_amp(4),state_amp_branch(0)
+  : decayvolume(0),decayvolume_branch(0),muon_position(0),muon_position_branch(0),muon_momentum(0),muon_momentum_branch(0),muon_energy_branch(0),positron_position(0),positron_position_branch(0),
+    positron_momentum(0),positron_momentum_branch(0),positron_energy_branch(0),decaytime_branch(0),
+    str_vec(4),muon_vec(4),muon_dispersion(4),positron_vec(4),positron_dispersion(4),field(3),state_amp(4),
+    str_branch(0),muon_vec_branch(0),muon_dispersion_branch(0),positron_vec_branch(0),positron_dispersion_branch(0),field_branch(0),state_amp_branch(0)
 {
-  TString path = "../data/" + run_num + ".root";  
+  TString path = "../data/" + run_num + ".root";
+  TString MODE;
+  TString ATM;
+  TString KEL;
   if(gSystem->GetPathInfo(path, info)==0) std::cout << run_num + " is already exist" << std::endl;
   else{
     flag = true;
+    MODE = "TM"+std::to_string(mode)+"mode";
+    ATM = "1*atmosphere";
+    KEL = "300*kelvin";
+    DecayTree = new TTree("DecayTree",MODE+":"+ATM+":"+KEL);
     RF = new RFFIELD(mode);
-    magnet = new MAGNETFIELD("../data/BRECON_MOM_20200716_6.txt", mode);
+    magnet = new MAGNETFIELD(mode);
+      
     decaytree->SetBranchAddress("decaytime",&decaytime,&decaytime_branch);
     decaytree->SetBranchAddress("decayvolume",&decayvolume,&decayvolume_branch);
     decaytree->SetBranchAddress("muon_position",&muon_position,&muon_position_branch);
     decaytree->SetBranchAddress("muon_momentum",&muon_momentum,&muon_momentum_branch);
+    decaytree->SetBranchAddress("muon_energy",&muon_energy,&muon_energy_branch);
     decaytree->SetBranchAddress("positron_position",&positron_position,&positron_position_branch);
     decaytree->SetBranchAddress("positron_momentum",&positron_momentum,&positron_momentum_branch);
     decaytree->SetBranchAddress("positron_energy",&positron_energy,&positron_energy_branch);
     decaytree->SetBranchStatus("*",1);
     
     // add new branch
-    decaytree->Branch("field",&field);
-    decaytree->Branch("state_amp",&state_amp);
+    DecayTree->Branch("muon_vec",&muon_vec);
+    DecayTree->Branch("muon_dispersion",&muon_dispersion);
+    DecayTree->Branch("positron_vec",&positron_vec);
+    DecayTree->Branch("positron_dispersion",&positron_dispersion);
+    DecayTree->Branch("field",&field);
+    DecayTree->Branch("state_amp",&state_amp);
   
-    Long64_t tentry;
-    Int_t entries = decaytree->GetEntries(); std::cout << "total entries is " << entries << std::endl;
+    Int_t entries = decaytree->GetEntries();
     Double_t X_temp, coefficientS, coefficientC, b;
     for(int n=0; n<entries; n++){
-      tentry = decaytree->LoadTree(n);
-      muon_position_branch->GetEntry(tentry);
+      decaytree->GetEntry(n);
+      for(int i=0;i<4;i++){
+	if(i==0){
+	  muon_vec[i] = decaytime;
+	  muon_dispersion[i] = muon_energy;
+	  positron_vec[i] = decaytime;
+	  positron_dispersion[i] = positron_energy;
+	}else if(i!=0){
+	  muon_vec[i] = (*muon_position)[i-1];
+	  muon_dispersion[i] = (*muon_momentum)[i-1];
+	  positron_vec[i] = (*positron_position)[i-1];
+	  positron_dispersion[i] = (*positron_momentum)[i-1];
+	}
+      }
       magnet->GetDistance((*muon_position)[0], (*muon_position)[1], (*muon_position)[2]-cavity_center);
       field[0] = (magnet->B_ave + magnet->GetBfieldValue())*magnet->scaling_factor; // scaling magnet field to ~1.7
       X_temp = field[0]*(gfactor_j*magnetic_moment_j + gfactor_mu_prime*magnetic_moment_mu)/(plank_const*v_exp);
@@ -59,12 +86,12 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
       RF->GetXY((*muon_position)[0], (*muon_position)[1]);
       field[1] = RF->TM_mode();
       field[2] = b*field[1]; // kHz
-      decaytree->Fill();
+      DecayTree->Fill();
     }
     //decaytree->Scan("*");
   
     file = new TFile(("../data/"+run_num+".root").c_str(),"RECREATE"); //std::string
-    if(decaytree->Write()) std::cout  << run_num << ".root is made." << std::endl;
+    if(DecayTree->Write()) std::cout  << run_num << ".root is made." << std::endl;
     file->Close();
   }
 }

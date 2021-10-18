@@ -6,15 +6,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "stop.cc"
-#include "make_tree2.cc"
+#include "make_tree.cc"
 
 int main(int argc, const char** argv){
-  if(argc!=5){
-    std::cout << "argument lists:[./execute.out] [TMmode] [PATH/to/magnetic_moment_dist] [PATH/to/Geant4_simulation_result] [PATH/to/Geant4_simulation_enviroment]" << std::endl;
+  if(argc!=4){
+    std::cout << "argument lists:[./execute.out] [TMmode] [PATH/to/Geant4_simulation_result] [PATH/to/Geant4_simulation_enviroment]" << std::endl;
     return 0;
   }
   //-------------------------muon stopping distribution info 
-  STOP* run = new STOP(argv[3], argv[4], atol(argv[1]));
+  STOP* run = new STOP(argv[2], argv[3], atol(argv[1]));
   //TTree* tree = run->GetDecayTree();
   
   // if you want to visualize the RFpower histgram
@@ -25,7 +25,7 @@ int main(int argc, const char** argv){
 
   // if you want to visualize the positron energy histgram
   //run->Vis_PositronEnergyHist();
-  run->Vis_PositronEnergyAtDetector();
+  //run->Vis_PositronEnergyAtDetector();
 
   // if you want to visualize the positron angle histgram 
   //run->Vis_PositronAngleHist();
@@ -36,7 +36,7 @@ int main(int argc, const char** argv){
 
     
   //-------------------------superconductive magnet info
-  //MAGNETFIELD* magnet = new MAGNETFIELD(argv[2], atol(argv[1]));
+  //MAGNETFIELD* magnet = new MAGNETFIELD(atol(argv[1]));
   
   // if you want to visualize magnet field at Z       
   //magnet->Vis_MagField(-75.);
@@ -48,9 +48,8 @@ int main(int argc, const char** argv){
   // if you want to visualize RF field
   //RFFIELD->Vis_RF();
   
-
-  //TTree* tree = run->GetDecayTree(false);
-  //MAKETREE* create = new MAKETREE(tree, atol(argv[1]), "run01");
+  TTree* tree = run->GetDecayTree(false);
+  MAKETREE* create = new MAKETREE(tree, atol(argv[1]), "run03");
   
   delete run;
   return 0;

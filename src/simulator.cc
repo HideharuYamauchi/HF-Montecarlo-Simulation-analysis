@@ -18,7 +18,8 @@
 
 SIMULATOR::SIMULATOR(const char* rootfile)
   : myStringVec(0),myMuonVec(0),myMuonDispersion(0),myPositronVec(0),myPositronDispersion(0),myField(0),myAmp(0),AngleBranch(0),
-    Non(0), scan_range(400), scan_points(40), scan_step(scan_range/scan_points), signal(0.), position(3), angle_vec(2), cos_solidangle(0.), solidangle(0.)
+    Non(0), scan_range(400), scan_points(40), scan_step(scan_range/scan_points), signal(0.), position(3), angle_vec(2), cos_solidangle(0.), solidangle(0.),
+    myStringVec_branch(0),myMuonVec_branch(0),myMuonDispersionVec_branch(0),myPositronVec_branch(0),myPositronDispersionVec_branch(0),myField_branch(0),myAmp_branch(0)
 {
   std::string myString(rootfile);
   run_num = myString.substr(myString.find("run"), myString.find(".root")-myString.find("run"));
@@ -30,7 +31,7 @@ SIMULATOR::SIMULATOR(const char* rootfile)
   }
   
   myTree = (TTree*)myFile->Get("DecayTree");
-  myTree->SetBranchAddress("str_vec",&myStringVec);
+  //myTree->SetBranchAddress("str_vec",&myStringVec);
   myTree->SetBranchAddress("muon_vec",&myMuonVec);
   myTree->SetBranchAddress("muon_dispersion",&myMuonDispersion);
   myTree->SetBranchAddress("positron_vec",&myPositronVec);
@@ -41,20 +42,19 @@ SIMULATOR::SIMULATOR(const char* rootfile)
   Noff = entries;
 
   AngleBranch = myTree->Branch("Angle", &angle_vec);
-  
-  for(int i=0; i<10/*entries*/; i++){
+ 
+  for(int i=0; i<1000/*entries*/; i++){
     myTree->GetEntry(i);
-    position[0] = (*myPositronVec)[1];                                                                                   
+    position[0] = (*myPositronVec)[1];                                                              
     position[1] = (*myPositronVec)[2];
     position[2] = (*myPositronVec)[3];
-    cos_solidangle = 0.;
-    solidangle = 0.;
     CalculateAngle();
     angle_vec[0] = cos_solidangle;
     angle_vec[1] = solidangle;
     AngleBranch->Fill();
   }
-  myTree->Scan("*");
+  myTree->Print();
+  //myTree->Scan("*");
 }
 
 SIMULATOR::~SIMULATOR(void){
@@ -85,10 +85,12 @@ void SIMULATOR::CalculateAngle(){
   Double_t norm;
   std::vector<Double_t> distance(3);
   std::vector<Double_t> basic_vector(3);
-
-  for(int i=0; i<240; i++){ // get detector's xposition
+  cos_solidangle = 0.;
+  solidangle = 0.;
+  
+  for(int i=0; i<240; i++){ // get detector's x position
     x = -119.5+i;  
-    for(int n=0; n<240; n++){ // get detector's yposition
+    for(int n=0; n<240; n++){ // get detector's y position
       y = 119.5-n;
       
       distance[0] = x-position[0];
@@ -104,8 +106,8 @@ void SIMULATOR::CalculateAngle(){
 
       if(0<=r&&r<=cavity_radius*1.e+3){ // discriminate projection position is on cavity foil or not
 	R = sqrt(pow(distance[0],2.)+pow(distance[1],2.)+pow(distance[2],2.));
-	cos_solidangle += (distance[2]/R)*DetectorD_center*pow(pow(R,2.),-1.5); // cos_solid_angle
-	solidangle += DetectorD_center*pow(pow(R,2.),-1.5); // solid_angle
+	cos_solidangle += (distance[2]/R)*DetectorD_center*pow(pow(R,2.),-1.5);
+	solidangle += DetectorD_center*pow(pow(R,2.),-1.5);
       }
       else if(cavity_radius*1.e+3<r){
 	cos_solidangle += 0.;
@@ -113,7 +115,6 @@ void SIMULATOR::CalculateAngle(){
       }
     }
   }
-  //std::cout << "cos_solid_angle:" << angle_vec[0] << "\t" << "angle_solid:" <<  angle_vec[1] << std::endl;
 }
 
 Double_t SIMULATOR::Calculate_g(Double_t Gamma, Double_t t){
@@ -171,6 +172,7 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
   gates = 1500*minutes*0.5; // 60(sec)*25(gates/sec) = 1500 gates for one minute, 0.5 is for beam off
   std::cout << gates << " is for BeamOn." << "\n"
 	    << 1500*minutes-gates << " is for BeamOff." << "\n"
+	    << std::string(40, '*') << "\n"
 	    << "RUN START: " << ctime(&t) << std::endl;
   
   for(int w=0; w<scan_points; w++){
@@ -207,7 +209,7 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
     curve->SetPoint(w, detuning, signal);
     curve->SetPointError(w, 0, error);
   }
-  std::cout << "RUN FINISH: " << ctime(&t) << std::endl;
+  std::cout << "RUN FINISH: " << ctime(&t) << "\n" << std::string(40, '*') << std::endl;
   curve->GetXaxis()->SetTitle("Frequency Detuning [/kHz]");
   curve->GetYaxis()->SetTitle("Signal");
   curve->GetYaxis()->SetTitleOffset(1.4);

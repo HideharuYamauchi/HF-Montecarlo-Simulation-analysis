@@ -14,11 +14,11 @@
 #include <iostream>
 #include <numeric>
 
-MAGNETFIELD::MAGNETFIELD(const char* magnetfile, Int_t Mode)
+MAGNETFIELD::MAGNETFIELD(Int_t Mode)
   : moment_coordinate(moment_num,std::vector<double>(3)),moment(moment_num,std::vector<double>(3)),distance(moment_num,std::vector<double>(3)),interval(moment_num),position(3)
 {
   mode = Mode;
-  std::ifstream ifs(magnetfile);
+  std::ifstream ifs("../data/BRECON_MOM_20200716_6.txt");
   if(ifs.fail()){
     std::cout << "Failed to open the magnet file..." << std::endl;
     std::exit(EXIT_FAILURE);

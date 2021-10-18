@@ -3,13 +3,15 @@
 //
 //        Author: Hideharu Yamauchi 2021/10/13
 /////////////////////////////////////////////////////
-#ifndef ___class_muonstopping_
-#define ___class_muonstopping_ 1
-
 #include <stdio.h>
 #include "../include/make_tree2.hh"
+
+#ifndef ___class_muonstopping_
+#define ___class_muonstopping_ 1
 #include "magnet.cc"
 #include "RF.cc"
+#endif
+
 #include "TString.h"
 
 MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
@@ -24,7 +26,7 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
     flag = true;
     DecayTree = new TTree("DecayTree","tree of decay muons");
     RF = new RFFIELD(mode);
-    magnet = new MAGNETFIELD("../data/BRECON_MOM_20200716_6.txt", mode);
+    magnet = new MAGNETFIELD(mode);
       
     decaytree->SetBranchAddress("decaytime",&decaytime,&decaytime_branch);
     decaytree->SetBranchAddress("decayvolume",&decayvolume,&decayvolume_branch);
@@ -50,9 +52,15 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
     for(int n=0; n<entries; n++){
       decaytree->GetEntry(n);
       str_vec[0] = *decayvolume;
-      str_vec[1] = "TM"+std::to_string(mode)+"mode";
-      str_vec[2] = "1*atmosphere";
-      str_vec[3] = "300*kelvin";
+      if(n==0){
+	str_vec[1] = "TM"+std::to_string(mode)+"mode";
+	str_vec[2] = "1*atmosphere";
+	str_vec[3] = "300*kelvin";
+      }else if(n!=0){
+	str_vec[1] = "";
+	str_vec[2] = "";
+	str_vec[3] = "";
+      }
       for(int i=0;i<4;i++){
 	if(i==0){
 	  muon_vec[i] = decaytime;
@@ -100,4 +108,3 @@ MAKETREE::~MAKETREE(void){
     delete file;
   }
 }
-#endif

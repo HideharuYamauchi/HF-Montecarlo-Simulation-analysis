@@ -21,7 +21,7 @@ STOP::STOP(std::string runfile, const char* envfile, Int_t mode)
     branchstep(nullptr),branchcopyno(nullptr)
 {
   RF = new RFFIELD(mode);
-  magnet = new MAGNETFIELD("../data/BRECON_MOM_20200716_6.txt", mode);
+  magnet = new MAGNETFIELD(mode);
   TString runfile2 = runfile;
   gStyle->SetPalette(1); // set the color plot
   run_num = runfile.substr(runfile.find("run"), 7); // get the present run number
