@@ -18,7 +18,7 @@
 
 SIMULATOR::SIMULATOR(const char* rootfile)
   : myStringVec(0),myMuonVec(0),myMuonDispersion(0),myPositronVec(0),myPositronDispersion(0),myField(0),myAmp(0),AngleBranch(0),
-    Non(0), scan_range(400), scan_points(40), scan_step(scan_range/scan_points), signal(0.), position(3), angle_vec(2), cos_solidangle(0.), solidangle(0.),
+    Non(0), scan_range(400), scan_points(40), scan_step(scan_range/scan_points), signal(0.), position(3), angle_vec(0), cos_solidangle(0.), solidangle(0.),
     myStringVec_branch(0),myMuonVec_branch(0),myMuonDispersionVec_branch(0),myPositronVec_branch(0),myPositronDispersionVec_branch(0),myField_branch(0),myAmp_branch(0)
 {
   std::string myString(rootfile);
@@ -38,12 +38,13 @@ SIMULATOR::SIMULATOR(const char* rootfile)
   myTree->SetBranchAddress("positron_dispersion",&myPositronDispersion);
   myTree->SetBranchAddress("field",&myField);
   myTree->SetBranchAddress("state_amp",&myAmp);
+  myTree->SetBranchAddress("Angle",&angle_vec);
   entries = myTree->GetEntries();
   Noff = entries;
-
+  /*
   AngleBranch = myTree->Branch("Angle", &angle_vec);
- 
-  for(int i=0; i<1000/*entries*/; i++){
+  
+  for(int i=0; i<entries; i++){
     myTree->GetEntry(i);
     position[0] = (*myPositronVec)[1];                                                              
     position[1] = (*myPositronVec)[2];
@@ -53,8 +54,10 @@ SIMULATOR::SIMULATOR(const char* rootfile)
     angle_vec[1] = solidangle;
     AngleBranch->Fill();
   }
+  myTree->Write("", TObject::kOverwrite);
   myTree->Print();
-  //myTree->Scan("*");
+  */
+  myTree->Scan("*");
 }
 
 SIMULATOR::~SIMULATOR(void){

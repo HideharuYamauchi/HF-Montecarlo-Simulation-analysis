@@ -12,8 +12,8 @@ g++ ${GSL_INCLUDE_PATH} ${ROOT_INCLUDE_PATH} resonance.cc -o resonance.out ${GSL
 echo "compile complete..."
 echo "now execute..."
 
-#./execute.out 210 /home/hideharu/position/result/pos/run0011.dat /home/hideharu/position/result/pos/environment_run0011.dat
-./resonance.out ../data/run03.root
+#./execute.out 110 /home/hideharu/position/result/pos/run0011.dat /home/hideharu/position/result/pos/environment_run0011.dat
+./resonance.out ../data/run02.root
 
 
 # -o option is for set the name of binary

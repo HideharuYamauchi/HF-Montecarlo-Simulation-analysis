@@ -4,7 +4,7 @@
 //        Author: Hideharu Yamauchi 2021/10/13
 /////////////////////////////////////////////////////
 #include <stdio.h>
-#include "../include/make_tree2.hh"
+#include "../include/make_tree.hh"
 
 #ifndef ___class_muonstopping_
 #define ___class_muonstopping_ 1
@@ -17,8 +17,8 @@
 MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
   : decayvolume(0),decayvolume_branch(0),muon_position(0),muon_position_branch(0),muon_momentum(0),muon_momentum_branch(0),muon_energy_branch(0),positron_position(0),positron_position_branch(0),
     positron_momentum(0),positron_momentum_branch(0),positron_energy_branch(0),decaytime_branch(0),
-    str_vec(4),muon_vec(4),muon_dispersion(4),positron_vec(4),positron_dispersion(4),field(3),state_amp(4),
-    str_branch(0),muon_vec_branch(0),muon_dispersion_branch(0),positron_vec_branch(0),positron_dispersion_branch(0),field_branch(0),state_amp_branch(0)
+    str_vec(4),muon_vec(4),muon_dispersion(4),positron_vec(4),positron_dispersion(4),field(3),state_amp(4),angle_vec(2),position(3),
+    str_branch(0),muon_vec_branch(0),muon_dispersion_branch(0),positron_vec_branch(0),positron_dispersion_branch(0),field_branch(0),state_amp_branch(0),angle_branch(0)
 {
   TString path = "../data/" + run_num + ".root";
   TString MODE;
@@ -51,6 +51,7 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
     DecayTree->Branch("positron_dispersion",&positron_dispersion);
     DecayTree->Branch("field",&field);
     DecayTree->Branch("state_amp",&state_amp);
+    DecayTree->Branch("Angle", &angle_vec);
   
     Int_t entries = decaytree->GetEntries();
     Double_t X_temp, coefficientS, coefficientC, b;
@@ -86,6 +87,13 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
       RF->GetXY((*muon_position)[0], (*muon_position)[1]);
       field[1] = RF->TM_mode();
       field[2] = b*field[1]; // kHz
+      position[0] = (*muon_position)[0];
+      position[1] = (*muon_position)[1];
+      position[2] = (*muon_position)[2];
+      CalculateAngle();
+      angle_vec[0] = cos_solidangle;
+      angle_vec[1] = solidangle;
+      if(n%1000==0) std::cout << "Present Entry: " << n << std::endl;
       DecayTree->Fill();
     }
     //decaytree->Scan("*");
@@ -101,5 +109,45 @@ MAKETREE::~MAKETREE(void){
     delete RF;
     delete magnet;
     delete file;
+  }
+}
+
+void MAKETREE::CalculateAngle(){
+  Double_t x = -119.5, y = 119.5;
+  Double_t ratio = (DetectorD_center-position[2])/(cavity_downfoil_center-position[2]);
+  std::vector<Double_t> positron_at_foil(2);
+  Double_t r, R;
+  Double_t norm;
+  std::vector<Double_t> distance(3);
+  std::vector<Double_t> basic_vector(3);
+  cos_solidangle = 0.;
+  solidangle = 0.;
+
+  for(int i=0; i<240; i++){ // get detector's x position
+    x = -119.5+i;
+    for(int n=0; n<240; n++){ // get detector's y position
+      y = 119.5-i;
+      
+      distance[0] = x-position[0];
+      distance[1] = y-position[1];
+      distance[2] = DetectorD_center-position[2];
+      norm = sqrt(pow(distance[0],2.) + pow(distance[1],2.) + pow(distance[2],2.));
+      basic_vector[0] = distance[0]/norm;
+      basic_vector[1] = distance[1]/norm;
+      basic_vector[2] = distance[2]/norm;
+      positron_at_foil[0] = position[0]+basic_vector[0]*ratio;
+      positron_at_foil[1] = position[1]+basic_vector[1]*ratio;
+      r = sqrt(pow(positron_at_foil[0],2.)+pow(positron_at_foil[1],2.));
+
+      if(0<=r&&r<=cavity_radius*1.e+3){ // discriminate projection position is on cavity foil or not
+        R = sqrt(pow(distance[0],2.)+pow(distance[1],2.)+pow(distance[2],2.));
+        cos_solidangle += (distance[2]/R)*DetectorD_center*pow(pow(R,2.),-1.5);
+        solidangle += DetectorD_center*pow(pow(R,2.),-1.5);
+      }
+      else if(cavity_radius*1.e+3<r){
+        cos_solidangle += 0.;
+        solidangle += 0.;
+      }
+    }
   }
 }
