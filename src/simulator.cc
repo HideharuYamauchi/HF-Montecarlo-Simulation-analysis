@@ -17,9 +17,12 @@
 #include "TGraphErrors.h"
 
 SIMULATOR::SIMULATOR(const char* rootfile)
-  : myStringVec(0),myMuonVec(0),myMuonDispersion(0),myPositronVec(0),myPositronDispersion(0),myField(0),myAmp(0),AngleBranch(0),
-    Non(0), scan_range(400), scan_points(40), scan_step(scan_range/scan_points), signal(0.), position(3), angle_vec(0), cos_solidangle(0.), solidangle(0.),
-    myStringVec_branch(0),myMuonVec_branch(0),myMuonDispersionVec_branch(0),myPositronVec_branch(0),myPositronDispersionVec_branch(0),myField_branch(0),myAmp_branch(0)
+  : myStringVec(0),myMuonVec(0),myMuonDispersion(0),myPositronVec(0),myPositronDispersion(0),myField(0),myAmp(0),myAngleVec(0),
+    Non(0), scan_range(400), scan_points(40), scan_step(scan_range/scan_points), signal(0.), position(3), cos_solidangle(0.), solidangle(0.)
+#ifndef ___header_simulator_
+#define ___header_simulator_ 1
+  ,myStringVec_branch(0),myMuonVec_branch(0),myMuonDispersionVec_branch(0),myPositronVec_branch(0),myPositronDispersionVec_branch(0),myField_branch(0),myAmp_branch(0),AngleBranch(0)
+#endif
 {
   std::string myString(rootfile);
   run_num = myString.substr(myString.find("run"), myString.find(".root")-myString.find("run"));
@@ -38,7 +41,7 @@ SIMULATOR::SIMULATOR(const char* rootfile)
   myTree->SetBranchAddress("positron_dispersion",&myPositronDispersion);
   myTree->SetBranchAddress("field",&myField);
   myTree->SetBranchAddress("state_amp",&myAmp);
-  myTree->SetBranchAddress("Angle",&angle_vec);
+  myTree->SetBranchAddress("Angle",&myAngleVec);
   entries = myTree->GetEntries();
   Noff = entries;
   /*
@@ -56,8 +59,8 @@ SIMULATOR::SIMULATOR(const char* rootfile)
   }
   myTree->Write("", TObject::kOverwrite);
   myTree->Print();
-  */
   myTree->Scan("*");
+  */
 }
 
 SIMULATOR::~SIMULATOR(void){
@@ -178,12 +181,13 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
 	    << std::string(40, '*') << "\n"
 	    << "RUN START: " << ctime(&t) << std::endl;
   
-  for(int w=0; w<scan_points; w++){
+  for(int w=0; w<1/*scan_points*/; w++){
     Non = 0;
+    Noff = entries;
     detuning = -1*scan_range*0.5 + scan_step*w;
     std::cout << "START detuning " << detuning << "[/kHz]..." << "\n"
 	      << "Elapsed Time since detuning "<< detuning << "[/kHz] starts...." << std::endl;
-    for(int p=0; p<gates; p++){
+    for(int p=0; p<1/*gates*/; p++){
       if((p+1)%7500==0) std::cout << minutes*0.5+5*(p+1)/7500 << "[mins]" << std::endl;
       for(int i=0; i<entries; i++){
 	myTree->GetEntry(i);
@@ -194,25 +198,27 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
 	  if(method=='c'||method=='C'||method=='0') Non += ConventionalSignal((*myField)[2], // power
 									      detuning,
 									      0., // windowopen 
-									      angle_vec[0], // cos_solid_angle
-									      angle_vec[1]); // solid_angle
+									      (*myAngleVec)[0], // cos_solid_angle
+									      (*myAngleVec)[1]); // solid_angle
 	  else if(method=='o'||method=='O'||method=='1') Non += OldMuoniumSignal((*myField)[2], // power
 										 detuning,
 										 3.12*ppm, // windowopen 3.12 or 6.92, same with liu
 										 4.07*ppm, // windowclose 4.07 or 7.87, same with liu
-										 angle_vec[0], // cos_solid_angle
-										 angle_vec[1]); // solid_angle
+										 (*myAngleVec)[0], // cos_solid_angle
+										 (*myAngleVec)[1]); // solid_angle
 	}
       }
     }
+    Noff = gates*Noff;
     signal = Non/Noff-1;
-    std::cout << "SIGNAL INTENSITY:" << signal
+    std::cout << "Non: " << Non << "\t" << "Noff: " << Noff << "\n" 
+	      << "SIGNAL INTENSITY(=Non/Noff-1): " << signal << "\n"
 	      << "TOTAL ELAPSED TIME SINCE RUN START: " << std::fixed << std::setprecision(6) << (w+1)*minutes/60  << "[hours] \n" << std::endl;
     error = (Non/Noff)*TMath::Sqrt(1.0/Non+1.0/Noff);
     curve->SetPoint(w, detuning, signal);
     curve->SetPointError(w, 0, error);
   }
-  std::cout << "RUN FINISH: " << ctime(&t) << "\n" << std::string(40, '*') << std::endl;
+  std::cout << "RUN FINISH: " << ctime(&t) << std::string(40, '*') << std::endl;
   curve->GetXaxis()->SetTitle("Frequency Detuning [/kHz]");
   curve->GetYaxis()->SetTitle("Signal");
   curve->GetYaxis()->SetTitleOffset(1.4);
