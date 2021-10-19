@@ -55,6 +55,7 @@ public:
   Double_t A[2]={0.};
   Double_t cos_solidangle;
   Double_t solidangle;
+  Double_t y; // positron_energy/positron_max_energy
   std::string myTreeTitle;
   std::string tree_TMmode;
   std::string tree_Pressure;
