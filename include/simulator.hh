@@ -50,10 +50,14 @@ public:
   Double_t Non;
   Double_t Noff;
   Double_t signal;
+  Double_t power_mean;
   Double_t Amplitude[2];
   Double_t A[2]={0.};
   Double_t cos_solidangle;
   Double_t solidangle;
+  std::string tree_TMmode;
+  std::string tree_Pressure;
+  std::string tree_Temperature;
   SIMULATOR(const char* rootfile);
   ~SIMULATOR(void);
   //void timedev(Double_t delta, const char* mode);
@@ -61,7 +65,7 @@ public:
   //Double_t Calculate_EnergySplit(void);
   void CalculateAngle(void);
   Double_t Calculate_g(Double_t Gamma, Double_t t);
-  Double_t ConventionalSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t cos_solid_angle, Double_t solid_angle);
+  Double_t ConventionalSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t cos_solid_angle, Double_t solid_angle, bool flag);
   Double_t OldMuoniumSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t windowclose, Double_t cos_solid_angle, Double_t solid_angle, bool flag);
   void CalculateSignal(Int_t minutes);
 };
