@@ -3,7 +3,7 @@
 //
 //        Author:  Hideharu Yamauchi 2021/09/18 
 ////////////////////////////////////////////////////////
-#if !defined(___header_simulator_)
+#ifndef ___header_simulator_
 #define ___header_simulator_ 1
 
 #include "TString.h"
@@ -34,8 +34,8 @@ private:
   Int_t entries;
   std::string run_num;
   std::vector<Double_t> position;
-#if !defined(___header_simulator_)
-#define ___header_simulator_ 1
+  
+#ifndef ___header_simulator_
   TBranch* myStringVec_branch;
   TBranch* myMuonVec_branch;
   TBranch* myMuonDispersionVec_branch;
@@ -55,6 +55,7 @@ public:
   Double_t A[2]={0.};
   Double_t cos_solidangle;
   Double_t solidangle;
+  std::string myTreeTitle;
   std::string tree_TMmode;
   std::string tree_Pressure;
   std::string tree_Temperature;
@@ -67,6 +68,6 @@ public:
   Double_t Calculate_g(Double_t Gamma, Double_t t);
   Double_t ConventionalSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t cos_solid_angle, Double_t solid_angle, bool flag);
   Double_t OldMuoniumSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t windowclose, Double_t cos_solid_angle, Double_t solid_angle, bool flag);
-  void CalculateSignal(Int_t minutes);
+  void CalculateSignal(Int_t minutes, bool maketreeflag);
 };
 #endif
