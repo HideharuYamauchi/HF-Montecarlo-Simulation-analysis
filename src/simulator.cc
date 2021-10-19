@@ -65,9 +65,9 @@ SIMULATOR::SIMULATOR(const char* rootfile)
   std::string myTreeName = myTree->GetName();
   myTreeTitle = myTree->GetTitle();
   tree_TMmode = myTreeTitle.substr(myTreeTitle.find("TM"), 5);
-  tree_Pressure = myTreeTitle.substr(myTreeTitle.find("atmosphere")-2, 12);
+  tree_Pressure = myTreeTitle.substr(myTreeTitle.find("atmosphere")-4, 14);
   tree_Temperature = myTreeTitle.substr(myTreeTitle.find("kelvin")-4, 10);
-
+  
   for(int i=0; i<entries; i++){
     myTree->GetEntry(i);
     power_mean += (*myField)[2];
@@ -143,9 +143,10 @@ Double_t SIMULATOR::Calculate_g(Double_t Gamma, Double_t t){
 Double_t SIMULATOR::ConventionalSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t cos_solid_angle, Double_t solid_angle, bool flag){
   Double_t Gamma_square = 4*pow(pi,2.)*pow(detuning, 2.)+4*pow(power, 2.); // MuSEUM technical note (2.50)
   Double_t L = 2*pow(power, 2.)/(Gamma_square + pow(gamma, 2.));
+
+  Double_t probability;
+  probability = A[0]*(cos_solid_angle)*(polarization*L)/((A[0]*(cos_solid_angle)*polarization+A[1]*(solid_angle))*(0-std::exp(-1*gamma*windowopen)));
   
-  Double_t probability
-    = A[0]*(cos_solid_angle)*(polarization*L)/((A[0]*(cos_solid_angle)*polarization+A[1]*(solid_angle))*(0-std::exp(-1*gamma*windowopen)));
   if(flag) std::cout << "probability:" << probability << "\t"
 		     << "energy:" << y << std::endl;
   return probability;
@@ -158,8 +159,9 @@ Double_t SIMULATOR::OldMuoniumSignal(Double_t power, Double_t detuning, Double_t
 				 -std::exp(-1*gamma*windowclose)*(1-Calculate_g(sqrt(Gamma_square), windowclose)*pow(gamma,2.)/(Gamma_square+pow(gamma,2.)))
 				 )/Gamma_square;
 
-  Double_t probability
-    = A[0]*(cos_solid_angle)*(polarization*L)/((A[0]*(cos_solid_angle)*polarization+A[1]*(solid_angle))*(std::exp(-1*gamma*windowclose)-std::exp(-1*gamma*windowopen)));
+  Double_t probability;
+  probability  = A[0]*(cos_solid_angle)*(polarization*L)/((A[0]*(cos_solid_angle)*polarization+A[1]*(solid_angle))*(std::exp(-1*gamma*windowclose)-std::exp(-1*gamma*windowopen)));
+  
   if(flag) std::cout << "probability:" << probability << "\t"
 		     << "energy:" << y << std::endl;
   return probability;
@@ -173,7 +175,6 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20, bool maketreeflag=false){
   TGraphErrors* curve = new TGraphErrors();
 #endif
   time_t t = time(NULL);
-  //Double_t y; // positron_energy/positron_max_energy
   Double_t detuning;
   Double_t error;
   Double_t ppm = 1.0e-6;

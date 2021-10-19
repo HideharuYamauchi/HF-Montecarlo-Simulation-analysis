@@ -28,7 +28,7 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
   else{
     flag = true;
     MODE = "TM"+std::to_string(mode)+"mode";
-    ATM = "1*atmosphere";
+    ATM = "1.0*atmosphere";
     KEL = "300*kelvin";
     DecayTree = new TTree("DecayTree",MODE+":"+ATM+":"+KEL);
     RF = new RFFIELD(mode);
@@ -126,7 +126,7 @@ void MAKETREE::CalculateAngle(){
   for(int i=0; i<240; i++){ // get detector's x position
     x = -119.5+i;
     for(int n=0; n<240; n++){ // get detector's y position
-      y = 119.5-i;
+      y = 119.5-n;
       
       distance[0] = x-position[0];
       distance[1] = y-position[1];
@@ -141,8 +141,8 @@ void MAKETREE::CalculateAngle(){
 
       if(0<=r&&r<=cavity_radius*1.e+3){ // discriminate projection position is on cavity foil or not
         R = sqrt(pow(distance[0],2.)+pow(distance[1],2.)+pow(distance[2],2.));
-        cos_solidangle += (distance[2]/R)*DetectorD_center*pow(pow(R,2.),-1.5);
-        solidangle += DetectorD_center*pow(pow(R,2.),-1.5);
+        cos_solidangle += (distance[2]/R)*distance[2]*pow(pow(R,2.),-1.5);
+        solidangle += distance[2]*pow(pow(R,2.),-1.5);
       }
       else if(cavity_radius*1.e+3<r){
         cos_solidangle += 0.;
