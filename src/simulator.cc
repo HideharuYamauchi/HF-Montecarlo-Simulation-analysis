@@ -20,7 +20,6 @@ SIMULATOR::SIMULATOR(const char* rootfile)
   : myStringVec(0),myMuonVec(0),myMuonDispersion(0),myPositronVec(0),myPositronDispersion(0),myField(0),myAmp(0),myAngleVec(0),
     Non(0), scan_range(400), scan_points(40), scan_step(scan_range/scan_points), signal(0.), position(3), cos_solidangle(0.), solidangle(0.)
 #ifndef ___header_simulator_
-#define ___header_simulator_ 1
   ,myStringVec_branch(0),myMuonVec_branch(0),myMuonDispersionVec_branch(0),myPositronVec_branch(0),myPositronDispersionVec_branch(0),myField_branch(0),myAmp_branch(0),AngleBranch(0)
 #endif
 {
@@ -34,7 +33,9 @@ SIMULATOR::SIMULATOR(const char* rootfile)
   }
   
   myTree = (TTree*)myFile->Get("DecayTree");
-  //myTree->SetBranchAddress("str_vec",&myStringVec);
+#ifndef ___header_simulator_
+  myTree->SetBranchAddress("str_vec",&myStringVec);
+#endif
   myTree->SetBranchAddress("muon_vec",&myMuonVec);
   myTree->SetBranchAddress("muon_dispersion",&myMuonDispersion);
   myTree->SetBranchAddress("positron_vec",&myPositronVec);
@@ -43,9 +44,7 @@ SIMULATOR::SIMULATOR(const char* rootfile)
   myTree->SetBranchAddress("state_amp",&myAmp);
   myTree->SetBranchAddress("Angle",&myAngleVec);
   entries = myTree->GetEntries();
-  Noff = entries;
 #ifndef ___header_simulator_
-#define ___header_simulator_ 1
   AngleBranch = myTree->Branch("Angle", &angle_vec);
   
   for(int i=0; i<entries; i++){
@@ -129,18 +128,18 @@ Double_t SIMULATOR::Calculate_g(Double_t Gamma, Double_t t){
   return g;
 }
 
-Double_t SIMULATOR::ConventionalSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t cos_solid_angle, Double_t solid_angle){
-  Double_t Gamma_square = pow(detuning, 2.)+4*pow(power, 2.); // MuSEUM technical note (2.50)
+Double_t SIMULATOR::ConventionalSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t cos_solid_angle, Double_t solid_angle, bool flag){
+  Double_t Gamma_square = 4*pow(pi,2.)*pow(detuning, 2.)+4*pow(power, 2.); // MuSEUM technical note (2.50)
   Double_t L = 2*pow(power, 2.)/(Gamma_square + pow(gamma, 2.));
   
   Double_t probability
     = A[0]*(cos_solid_angle)*(polarization*L)/((A[0]*(cos_solid_angle)*polarization+A[1]*(solid_angle))*(0-std::exp(-1*gamma*windowopen)));
-  if(false) std::cout << "probability:" << probability << std::endl;
+  if(flag) std::cout << "probability:" << probability << std::endl;
   return probability;
 }
 
 Double_t SIMULATOR::OldMuoniumSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t windowclose, Double_t cos_solid_angle, Double_t solid_angle, bool flag){
-  Double_t Gamma_square = pow(detuning, 2.)+4*pow(power, 2.); // MuSEUM technical note (2.50)
+  Double_t Gamma_square = 4*pow(pi,2.)*pow(detuning, 2.)+4*pow(power, 2.); // MuSEUM technical note (2.50)
   Double_t L = 2*pow(power, 2.)*(
 				 std::exp(-1*gamma*windowopen)*(1-Calculate_g(sqrt(Gamma_square), windowopen)*pow(gamma,2.)/(Gamma_square+pow(gamma,2.)))
 				 -std::exp(-1*gamma*windowclose)*(1-Calculate_g(sqrt(Gamma_square), windowclose)*pow(gamma,2.)/(Gamma_square+pow(gamma,2.)))
@@ -158,7 +157,6 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
   gPad->SetRightMargin(0.03); // let the figure more right 
   TGraphErrors* curve = new TGraphErrors();
   
-  char date[64];
   time_t t = time(NULL);
   Double_t y; // positron_energy/positron_max_energy
   Double_t detuning;
@@ -177,18 +175,18 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
   }while((method!='c'&&method!='C'&&method!='o'&&method!='O'&&method!='0'&&method!='1')||minutes<0);
   
   gates = 1500*minutes*0.5; // 60(sec)*25(gates/sec) = 1500 gates for one minute, 0.5 is for beam off
-  std::cout << gates << " is for BeamOn." << "\n"
-	    << 1500*minutes-gates << " is for BeamOff." << "\n"
+  std::cout << gates << "[/pulse] is for BeamOn." << "\n"
+	    << 1500*minutes-gates << "[/pulse] is for BeamOff." << "\n"
 	    << std::string(40, '*') << "\n"
 	    << "RUN START: " << ctime(&t) << std::endl;
   
-  for(int w=0; w<scan_points; w++){
+  for(int w=0; w<1/*scan_points*/; w++){
     Non = 0;
-    Noff = entries;
+    Noff = 0;
     detuning = -1*scan_range*0.5 + scan_step*w;
     std::cout << "START detuning " << detuning << "[/kHz]..." << "\n"
 	      << "Elapsed Time since detuning "<< detuning << "[/kHz] starts...." << std::endl;
-    for(int p=0; p<gates; p++){
+    for(int p=0; p<1/*gates*/; p++){
       if((p+1)%7500==0) std::cout << minutes*0.5+5*(p+1)/7500 << "[mins]" << std::endl;
       for(int i=0; i<entries; i++){
 	myTree->GetEntry(i);
@@ -196,36 +194,55 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
 	  y = (*myPositronDispersion)[0]*1.0e-3/positron_max_energy;
 	  A[0] = 2*y-1;
 	  A[1] = 3-2*y;
-	  if(method=='c'||method=='C'||method=='0') Non += ConventionalSignal((*myField)[2], // power
-									      detuning,
-									      0., // windowopen 
-									      (*myAngleVec)[0], // cos_solid_angle
-									      (*myAngleVec)[1]); // solid_angle
-	  else if(method=='o'||method=='O'||method=='1') Non += OldMuoniumSignal((*myField)[2], // power
-										 detuning,
-										 3.12*ppm, // windowopen 3.12 or 6.92, same with liu
-										 4.07*ppm, // windowclose 4.07 or 7.87, same with liu
-										 (*myAngleVec)[0], // cos_solid_angle
-										 (*myAngleVec)[1], // solid_angle
-										 false); // show the value
+	  if(method=='c'||method=='C'||method=='0'){
+	    Non += ConventionalSignal((*myField)[2], // power
+				      detuning, // frequency detune
+				      0., // windowopen 
+				      (*myAngleVec)[0], // cos_solid_angle
+				      (*myAngleVec)[1], // solid_angle
+				      false); // show the value
+	    Noff++;
+	  }
+	  else if(method=='o'||method=='O'||method=='1'){
+	    Non += OldMuoniumSignal((*myField)[2], // power
+				    detuning, // frequency detune
+				    3.12*ppm, // windowopen 3.12 or 6.92, same with liu
+				    4.07*ppm, // windowclose 4.07 or 7.87, same with liu
+				    (*myAngleVec)[0], // cos_solid_angle
+				    (*myAngleVec)[1], // solid_angle
+				    false); // show the value
+	    Noff++;
+	  }
 	}
       }
     }
-    Noff = gates*Noff;
     signal = Non/Noff-1;
-    std::cout << "Non: " << Non << "\t" << "Noff: " << Noff << "\n" 
-	      << "SIGNAL INTENSITY(=Non/Noff-1): " << signal << "\n"
+    std::cout << "Non: " << Non << "\t" << "Noff: " << Noff << "\t" << "SIGNAL INTENSITY(=Non/Noff-1): " << signal << "\n"
 	      << "TOTAL ELAPSED TIME SINCE RUN START: " << std::fixed << std::setprecision(6) << (w+1)*minutes/60  << "[hours] \n" << std::endl;
     error = (Non/Noff)*TMath::Sqrt(1.0/Non+1.0/Noff);
     curve->SetPoint(w, detuning, signal);
     curve->SetPointError(w, 0, error);
   }
+  t = time(NULL);
   std::cout << "RUN FINISH: " << ctime(&t) << std::string(40, '*') << std::endl;
   curve->GetXaxis()->SetTitle("Frequency Detuning [/kHz]");
   curve->GetYaxis()->SetTitle("Signal");
   curve->GetYaxis()->SetTitleOffset(1.4);
   curve->Draw("AP");
+  /*
+  TF1 *f1 = new TF1("f1"," [0]+[4]*2*[1]*[1]/(4*TMath::Pi()*TMath::Pi()*(x-[3])*(x-[3])+4*[1]*[1]+[2]*[2]) ",-200,200);
+  f1->SetParameter(0, 0); //offset
+  f1->SetParameter(1, 220); // b12
+  //f1->SetParameter(1, b34); // b34
+  f1->SetParameter(2, gammat); //gamma
+  f1->SetParameter(3, 0); //center                                                                                                                                                                     
+  f1->SetParameter(4, K); //scaling
+  f1->SetParNames("Offset", "b (kHz)", "#gamma (s^{-1})", "Center", "Scaling");
+  
   c->SaveAs(("../figure/"+run_num+".png").c_str());
+  
+  delete f1;
+  */
   delete curve;
   delete c;
 }
