@@ -15,11 +15,10 @@
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TGraphErrors.h"
-#include "TNamed.h"
 
 SIMULATOR::SIMULATOR(const char* rootfile)
   : myStringVec(0),myMuonVec(0),myMuonDispersion(0),myPositronVec(0),myPositronDispersion(0),myField(0),myAmp(0),myAngleVec(0),
-    Non(0), scan_range(400), scan_points(40), scan_step(scan_range/scan_points), signal(0.), position(3), cos_solidangle(0.), solidangle(0.), power_mean(0.)
+    Non(0), scan_range(400), scan_step(10), scan_points(scan_range/scan_step+1), signal(0.), position(3), cos_solidangle(0.), solidangle(0.), power_mean(0.)
 #ifndef ___header_simulator_
   ,myStringVec_branch(0),myMuonVec_branch(0),myMuonDispersionVec_branch(0),myPositronVec_branch(0),myPositronDispersionVec_branch(0),myField_branch(0),myAmp_branch(0),AngleBranch(0)
 #endif
@@ -64,7 +63,7 @@ SIMULATOR::SIMULATOR(const char* rootfile)
 #endif
 
   std::string myTreeName = myTree->GetName();
-  std::string myTreeTitle = myTree->GetTitle();
+  myTreeTitle = myTree->GetTitle();
   tree_TMmode = myTreeTitle.substr(myTreeTitle.find("TM"), 5);
   tree_Pressure = myTreeTitle.substr(myTreeTitle.find("atmosphere")-2, 12);
   tree_Temperature = myTreeTitle.substr(myTreeTitle.find("kelvin")-4, 10);
@@ -164,12 +163,13 @@ Double_t SIMULATOR::OldMuoniumSignal(Double_t power, Double_t detuning, Double_t
   return probability;
 }
 
-void SIMULATOR::CalculateSignal(Int_t minutes=20){
+void SIMULATOR::CalculateSignal(Int_t minutes=20, bool maketreeflag=false){
   TCanvas* c = new TCanvas("c","c", 900, 900);
   c->SetGrid();
-  gPad->SetRightMargin(0.03); // let the figure more right 
+  gPad->SetRightMargin(0.03); // let the figure more right
+#ifndef ___header_simulator_
   TGraphErrors* curve = new TGraphErrors();
-  
+#endif
   time_t t = time(NULL);
   Double_t y; // positron_energy/positron_max_energy
   Double_t detuning;
@@ -190,13 +190,25 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
   gates = 1500*minutes*0.5; // 60(sec)*25(gates/sec) = 1500 gates for one minute, 0.5 is for beam off
   std::cout << gates << "[/pulse] is for BeamOn." << "\n"
 	    << 1500*minutes-gates << "[/pulse] is for BeamOff." << "\n"
-	    << std::string(40, '*') << "\n"
+	    << std::string(50, '*') << "\n"
 	    << "RUN START: " << ctime(&t) << std::endl;
+
+  Double_t detune_x[scan_points] = {0.};
+  Double_t signal_y[scan_points] = {0.};
+  Double_t ex[scan_points] = {0.};
+  Double_t ey[scan_points] = {0.};
   
-  for(int w=0; w<1/*scan_points*/; w++){
+  for(int w=0;
+      w<1; // do the half resonance for save time(21 points)
+#ifndef ___header_simulator_
+      w<scan_points; // do the full resonance(40 points)
+#endif
+      w++){
     Non = 0;
     Noff = 0;
     detuning = -1*scan_range*0.5 + scan_step*w;
+    detune_x[w] = detuning;
+    detune_x[scan_points-1-w] = -1*detuning;
     std::cout << "START detuning " << detuning << "[/kHz]..." << "\n"
 	      << "Elapsed Time since detuning "<< detuning << "[/kHz] starts...." << std::endl;
     for(int p=0; p<1/*gates*/; p++){
@@ -230,19 +242,52 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
       }
     }
     signal = Non/Noff-1;
+    signal_y[w] = signal;
+    signal_y[scan_points-1-w] = signal;
+    signal = Non/Noff-1;
     std::cout << "Non: " << Non << "\t" << "Noff: " << Noff << "\t" << "SIGNAL INTENSITY(=Non/Noff-1): " << signal << "\n"
 	      << "TOTAL ELAPSED TIME SINCE RUN START: " << std::fixed << std::setprecision(6) << (w+1)*minutes/60  << "[hours] \n" << std::endl;
     error = (Non/Noff)*TMath::Sqrt(1.0/Non+1.0/Noff);
+    ey[w] = error;
+    ey[scan_points-1-w] = -1*error;
+#ifndef ___header_simulator_
     curve->SetPoint(w, detuning, signal);
     curve->SetPointError(w, 0, error);
+#endif
   }
+  
   t = time(NULL);
-  std::cout << "RUN FINISH: " << ctime(&t) << std::string(40, '*') << std::endl;
+  std::cout << "RUN FINISH: " << ctime(&t) << std::string(50, '*') << std::endl;
+  
+  if(maketreeflag){
+    TFile* resonancefile = TFile::Open(("../data/"+run_num+"resonance.root").c_str(),"RECREATE");
+    TTree* resonancetree = new TTree("resonance", myTreeTitle.c_str());
+    Double_t DETUNE;
+    Double_t SIGNAL;
+    Double_t XERROR;
+    Double_t YERROR;
+    resonancetree->Branch("DETUNE", &DETUNE, "DETUNE/D");
+    resonancetree->Branch("SIGNAL", &SIGNAL, "SIGNAL/D");
+    resonancetree->Branch("XERROR", &XERROR, "XERROR/D");
+    resonancetree->Branch("YERROR", &YERROR, "YERROR/D");
+ 
+    for(int i=0; i<scan_points; i++){
+      DETUNE = detune_x[scan_points];
+      SIGNAL = signal_y[scan_points];
+      XERROR = 0.;
+      YERROR = ey[scan_points];
+      resonancetree->Fill();
+    }
+    if(resonancetree->Write()) std::cout  << run_num+"resonance.root is made." << std::endl;
+    resonancefile->Close();
+  }
+  
+  TGraphErrors* curve = new TGraphErrors(scan_points, detune_x, signal_y, ex, ey);
   curve->GetXaxis()->SetTitle("Frequency Detuning [/kHz]");
   curve->GetYaxis()->SetTitle("Signal");
   curve->GetYaxis()->SetTitleOffset(1.4);
   curve->Draw("AP");
-  
+  /*
   TF1* f1 = new TF1("f1"," [0]+[4]*2*[1]*[1]/(4*TMath::Pi()*TMath::Pi()*(x-[3])*(x-[3])+4*[1]*[1]+[2]*[2]) ",-200,200);
   f1->SetParameter(0, 0); // offset
   if(tree_TMmode=="TM110") f1->SetParameter(1, power_mean); // b12 for TM110
@@ -253,9 +298,10 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
   f1->SetParNames("Offset", "b [/kHz]", "#gamma (s^{-1})", "Center", "Scaling");
 
   curve->Fit("f1","EM", "", -200, 200);
+  */
   c->SaveAs(("../figure/"+run_num+tree_TMmode+tree_Pressure+".png").c_str());
   
-  delete f1;
+  //delete f1;
   delete curve;
   delete c;
 }
