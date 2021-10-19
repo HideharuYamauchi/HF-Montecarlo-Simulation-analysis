@@ -23,3 +23,6 @@ To calculate and analysis the muon stopping distribution in the RFcavity Using G
 
 5. simulator.cc and simulator.hh.<br>
 To calculate the effective microwave distribution by superposition of RF field and muons distribution.
+
+Hint for ROOT.<br>
+if you have the error; no matching function for call to "~".
