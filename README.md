@@ -25,4 +25,4 @@ To calculate and analysis the muon stopping distribution in the RFcavity Using G
 To calculate the effective microwave distribution by superposition of RF field and muons distribution.
 
 Hint for ROOT.<br>
-if you have the error; no matching function for call to "~".
+if you have the error; no matching function for call to "~". this mean your declaration of function is not true. Especially pay attention to the type of initial values.
