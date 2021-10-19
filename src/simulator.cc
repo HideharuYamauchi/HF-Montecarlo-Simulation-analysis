@@ -18,7 +18,7 @@
 
 SIMULATOR::SIMULATOR(const char* rootfile)
   : myStringVec(0),myMuonVec(0),myMuonDispersion(0),myPositronVec(0),myPositronDispersion(0),myField(0),myAmp(0),myAngleVec(0),
-    Non(0), scan_range(400), scan_step(10), scan_points(scan_range/scan_step+1), signal(0.), position(3), cos_solidangle(0.), solidangle(0.), power_mean(0.)
+    Non(0), scan_range(400), scan_step(10), scan_points(41), signal(0.), position(3), cos_solidangle(0.), solidangle(0.), power_mean(0.)
 #ifndef ___header_simulator_
   ,myStringVec_branch(0),myMuonVec_branch(0),myMuonDispersionVec_branch(0),myPositronVec_branch(0),myPositronDispersionVec_branch(0),myField_branch(0),myAmp_branch(0),AngleBranch(0)
 #endif
@@ -146,7 +146,8 @@ Double_t SIMULATOR::ConventionalSignal(Double_t power, Double_t detuning, Double
   
   Double_t probability
     = A[0]*(cos_solid_angle)*(polarization*L)/((A[0]*(cos_solid_angle)*polarization+A[1]*(solid_angle))*(0-std::exp(-1*gamma*windowopen)));
-  if(flag) std::cout << "probability:" << probability << std::endl;
+  if(flag) std::cout << "probability:" << probability << "\t"
+		     << "energy:" << y << std::endl;
   return probability;
 }
 
@@ -159,7 +160,8 @@ Double_t SIMULATOR::OldMuoniumSignal(Double_t power, Double_t detuning, Double_t
 
   Double_t probability
     = A[0]*(cos_solid_angle)*(polarization*L)/((A[0]*(cos_solid_angle)*polarization+A[1]*(solid_angle))*(std::exp(-1*gamma*windowclose)-std::exp(-1*gamma*windowopen)));
-  if(flag) std::cout << "probability:" << probability << std::endl;
+  if(flag) std::cout << "probability:" << probability << "\t"
+		     << "energy:" << y << std::endl;
   return probability;
 }
 
@@ -171,7 +173,7 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20, bool maketreeflag=false){
   TGraphErrors* curve = new TGraphErrors();
 #endif
   time_t t = time(NULL);
-  Double_t y; // positron_energy/positron_max_energy
+  //Double_t y; // positron_energy/positron_max_energy
   Double_t detuning;
   Double_t error;
   Double_t ppm = 1.0e-6;
@@ -190,13 +192,13 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20, bool maketreeflag=false){
   gates = 1500*minutes*0.5; // 60(sec)*25(gates/sec) = 1500 gates for one minute, 0.5 is for beam off
   std::cout << gates << "[/pulse] is for BeamOn." << "\n"
 	    << 1500*minutes-gates << "[/pulse] is for BeamOff." << "\n"
-	    << std::string(50, '*') << "\n"
+	    << std::string(60, '*') << "\n"
 	    << "RUN START: " << ctime(&t) << std::endl;
 
-  Double_t detune_x[scan_points] = {0.};
-  Double_t signal_y[scan_points] = {0.};
-  Double_t ex[scan_points] = {0.};
-  Double_t ey[scan_points] = {0.};
+  Double_t detune_x[scan_points];
+  Double_t signal_y[scan_points];
+  Double_t ex[scan_points];
+  Double_t ey[scan_points];
   
   for(int w=0;
       w<1; // do the half resonance for save time(21 points)
@@ -213,7 +215,7 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20, bool maketreeflag=false){
 	      << "Elapsed Time since detuning "<< detuning << "[/kHz] starts...." << std::endl;
     for(int p=0; p<1/*gates*/; p++){
       if((p+1)%7500==0) std::cout << minutes*0.5+5*(p+1)/7500 << "[mins]" << std::endl;
-      for(int i=0; i<entries; i++){
+      for(int i=0; i<50/*entries*/; i++){
 	myTree->GetEntry(i);
 	if(35<=(*myPositronDispersion)[0]*1.0e-3){ // cut positrons below threshold energy, 35 MeV for liu
 	  y = (*myPositronDispersion)[0]*1.0e-3/positron_max_energy;
@@ -225,7 +227,7 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20, bool maketreeflag=false){
 				      0., // windowopen 
 				      (*myAngleVec)[0], // cos_solid_angle
 				      (*myAngleVec)[1], // solid_angle
-				      false); // show the value
+				      true); // show the value
 	    Noff++;
 	  }
 	  else if(method=='o'||method=='O'||method=='1'){
@@ -257,7 +259,7 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20, bool maketreeflag=false){
   }
   
   t = time(NULL);
-  std::cout << "RUN FINISH: " << ctime(&t) << std::string(50, '*') << std::endl;
+  std::cout << "RUN FINISH: " << ctime(&t) << std::string(60, '*') << std::endl;
   
   if(maketreeflag){
     TFile* resonancefile = TFile::Open(("../data/"+run_num+"resonance.root").c_str(),"RECREATE");
@@ -287,7 +289,7 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20, bool maketreeflag=false){
   curve->GetYaxis()->SetTitle("Signal");
   curve->GetYaxis()->SetTitleOffset(1.4);
   curve->Draw("AP");
-  /*
+  
   TF1* f1 = new TF1("f1"," [0]+[4]*2*[1]*[1]/(4*TMath::Pi()*TMath::Pi()*(x-[3])*(x-[3])+4*[1]*[1]+[2]*[2]) ",-200,200);
   f1->SetParameter(0, 0); // offset
   if(tree_TMmode=="TM110") f1->SetParameter(1, power_mean); // b12 for TM110
@@ -296,12 +298,11 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20, bool maketreeflag=false){
   f1->SetParameter(3, 0); // center                                                                                                                                                                     
   f1->SetParameter(4, 1); // scaling
   f1->SetParNames("Offset", "b [/kHz]", "#gamma (s^{-1})", "Center", "Scaling");
-
-  curve->Fit("f1","EM", "", -200, 200);
-  */
-  c->SaveAs(("../figure/"+run_num+tree_TMmode+tree_Pressure+".png").c_str());
   
-  //delete f1;
+  //curve->Fit("f1","EM", "", -200, 200);
+  c->SaveAs(("../figure/"+run_num+":"+tree_TMmode+":"+tree_Pressure+".png").c_str());
+  
+  delete f1;
   delete curve;
   delete c;
 }
