@@ -15,10 +15,11 @@
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TGraphErrors.h"
+#include "TNamed.h"
 
 SIMULATOR::SIMULATOR(const char* rootfile)
   : myStringVec(0),myMuonVec(0),myMuonDispersion(0),myPositronVec(0),myPositronDispersion(0),myField(0),myAmp(0),myAngleVec(0),
-    Non(0), scan_range(400), scan_points(40), scan_step(scan_range/scan_points), signal(0.), position(3), cos_solidangle(0.), solidangle(0.)
+    Non(0), scan_range(400), scan_points(40), scan_step(scan_range/scan_points), signal(0.), position(3), cos_solidangle(0.), solidangle(0.), power_mean(0.)
 #ifndef ___header_simulator_
   ,myStringVec_branch(0),myMuonVec_branch(0),myMuonDispersionVec_branch(0),myPositronVec_branch(0),myPositronDispersionVec_branch(0),myField_branch(0),myAmp_branch(0),AngleBranch(0)
 #endif
@@ -44,9 +45,9 @@ SIMULATOR::SIMULATOR(const char* rootfile)
   myTree->SetBranchAddress("state_amp",&myAmp);
   myTree->SetBranchAddress("Angle",&myAngleVec);
   entries = myTree->GetEntries();
+  
 #ifndef ___header_simulator_
   AngleBranch = myTree->Branch("Angle", &angle_vec);
-  
   for(int i=0; i<entries; i++){
     myTree->GetEntry(i);
     position[0] = (*myPositronVec)[1];                                                              
@@ -61,6 +62,18 @@ SIMULATOR::SIMULATOR(const char* rootfile)
   myTree->Print();
   myTree->Scan("*");
 #endif
+
+  std::string myTreeName = myTree->GetName();
+  std::string myTreeTitle = myTree->GetTitle();
+  tree_TMmode = myTreeTitle.substr(myTreeTitle.find("TM"), 5);
+  tree_Pressure = myTreeTitle.substr(myTreeTitle.find("atmosphere")-2, 12);
+  tree_Temperature = myTreeTitle.substr(myTreeTitle.find("kelvin")-4, 10);
+
+  for(int i=0; i<entries; i++){
+    myTree->GetEntry(i);
+    power_mean += (*myField)[2];
+  }
+  power_mean = power_mean/entries;
 }
 
 SIMULATOR::~SIMULATOR(void){
@@ -229,20 +242,20 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
   curve->GetYaxis()->SetTitle("Signal");
   curve->GetYaxis()->SetTitleOffset(1.4);
   curve->Draw("AP");
-  /*
-  TF1 *f1 = new TF1("f1"," [0]+[4]*2*[1]*[1]/(4*TMath::Pi()*TMath::Pi()*(x-[3])*(x-[3])+4*[1]*[1]+[2]*[2]) ",-200,200);
-  f1->SetParameter(0, 0); //offset
-  f1->SetParameter(1, 220); // b12
-  //f1->SetParameter(1, b34); // b34
-  f1->SetParameter(2, gammat); //gamma
-  f1->SetParameter(3, 0); //center                                                                                                                                                                     
-  f1->SetParameter(4, K); //scaling
-  f1->SetParNames("Offset", "b (kHz)", "#gamma (s^{-1})", "Center", "Scaling");
   
-  c->SaveAs(("../figure/"+run_num+".png").c_str());
+  TF1* f1 = new TF1("f1"," [0]+[4]*2*[1]*[1]/(4*TMath::Pi()*TMath::Pi()*(x-[3])*(x-[3])+4*[1]*[1]+[2]*[2]) ",-200,200);
+  f1->SetParameter(0, 0); // offset
+  if(tree_TMmode=="TM110") f1->SetParameter(1, power_mean); // b12 for TM110
+  else if(tree_TMmode=="TM210") f1->SetParameter(1, power_mean); // b34 for TM210
+  f1->SetParameter(2, gamma); // gamma
+  f1->SetParameter(3, 0); // center                                                                                                                                                                     
+  f1->SetParameter(4, 1); // scaling
+  f1->SetParNames("Offset", "b [/kHz]", "#gamma (s^{-1})", "Center", "Scaling");
+
+  curve->Fit("f1","EM", "", -200, 200);
+  c->SaveAs(("../figure/"+run_num+tree_TMmode+tree_Pressure+".png").c_str());
   
   delete f1;
-  */
   delete curve;
   delete c;
 }
