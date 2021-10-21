@@ -12,7 +12,6 @@
 #include "TBranch.h"
 #include "TF1.h"
 #include "HFgeometry.hh"
-#include "RF.hh" // for omega
 #include <vector>
 
 class SIMULATOR{
@@ -33,7 +32,6 @@ private:
   const Double_t gamma = (1/muon_life)*1.0e-3; // muon's natural width, 1.0e-3 is for convert Hz to kHz
   Int_t entries;
   std::string run_num;
-  std::vector<Double_t> position;
   
 #ifndef ___header_simulator_
   TBranch* myStringVec_branch;
@@ -51,10 +49,8 @@ public:
   Double_t Noff;
   Double_t signal;
   Double_t power_mean;
-  Double_t Amplitude[2];
-  Double_t A[2]={0.};
-  Double_t cos_solidangle;
-  Double_t solidangle;
+  Double_t Amplitude[4] = {0.};
+  Double_t A[2] = {0.};
   Double_t y; // positron_energy/positron_max_energy
   std::string myTreeTitle;
   std::string tree_TMmode;
@@ -62,13 +58,10 @@ public:
   std::string tree_Temperature;
   SIMULATOR(const char* rootfile);
   ~SIMULATOR(void);
-  //void timedev(Double_t delta, const char* mode);
-  //void Vis_State_Amp(Int_t entry);
-  //Double_t Calculate_EnergySplit(void);
-  void CalculateAngle(void);
-  Double_t Calculate_g(Double_t Gamma, Double_t t);
+  Double_t TimeDev(Double_t t, Double_t detune);
+  //void Vis_StateAmp(Double_t detune);
   Double_t ConventionalSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t cos_solid_angle, Double_t solid_angle, bool flag);
   Double_t OldMuoniumSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t windowclose, Double_t cos_solid_angle, Double_t solid_angle, bool flag);
-  void CalculateSignal(Int_t minutes, bool maketreeflag);
+  void CalculateSignal(Int_t minutes);
 };
 #endif
