@@ -8,7 +8,7 @@
 
 int main(int argc, const char** argv){
   SIMULATOR* sim = new SIMULATOR(argv[1]);
-  //sim->CalculateSignal();
+  sim->CalculateSignal();
   //sim->Vis_StateAmp(0.);
 
   delete sim;
