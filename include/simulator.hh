@@ -30,6 +30,7 @@ private:
   Int_t scan_points; // same with liu
   Double_t scan_step; //10 kHz
   const Double_t gamma = (1/muon_life)*1.0e-3; // muon's natural width, 1.0e-3 is for convert Hz to kHz
+  const Double_t threshold;
   Int_t entries;
   std::string run_num;
   
@@ -47,8 +48,12 @@ private:
 public:
   Double_t Non;
   Double_t Noff;
+  Double_t Pon;
+  Double_t Poff;
   Double_t signal;
   Double_t power_mean;
+  Double_t cos_solid_angle_mean;
+  Double_t solid_angle_mean;
   Double_t Amplitude[4] = {0.};
   Double_t A[2] = {0.};
   Double_t y; // positron_energy/positron_max_energy
