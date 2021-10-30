@@ -33,18 +33,7 @@ private:
   const Double_t threshold;
   Int_t entries;
   std::string run_num;
-  
-#ifndef ___header_simulator_
-  TBranch* myStringVec_branch;
-  TBranch* myMuonVec_branch;
-  TBranch* myMuonDispersionVec_branch;
-  TBranch* myPositronVec_branch;
-  TBranch* myPositronDispersionVec_branch;
-  TBranch* myField_branch;
-  TBranch* myAmp_branch;
-  TBranch* AngleBranch;
-#endif
-  
+    
 public:
   Double_t Non;
   Double_t Noff;
