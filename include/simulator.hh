@@ -29,10 +29,14 @@ private:
   Int_t scan_range; // kHz
   Int_t scan_points; // same with liu
   Double_t scan_step; //10 kHz
+  Int_t minutes;
   const Double_t gamma = (1/muon_life)*1.0e-3; // muon's natural width, 1.0e-3 is for convert Hz to kHz
   const Double_t threshold;
   Int_t entries;
   std::string run_num;
+  char method; // conventional method or oldmuonium method
+  Int_t plot_method;
+  char fit_gamma;
     
 public:
   Double_t Non;
@@ -45,17 +49,24 @@ public:
   Double_t solid_angle_mean;
   Double_t Amplitude[4] = {0.};
   Double_t A[2] = {0.};
+  Double_t detected;
   Double_t y; // positron_energy/positron_max_energy
   std::string myTreeTitle;
   std::string tree_TMmode;
   std::string tree_Pressure;
   std::string tree_Temperature;
-  SIMULATOR(const char* rootfile);
+  Double_t Sim_FWHM;
+  Double_t The_FWHM;
+  Double_t Sim_Height;
+  Double_t The_Height;
+  Double_t center_error;
+  SIMULATOR(const char* rootfile, Int_t run_time);
   ~SIMULATOR(void);
   Double_t TimeDev(Double_t t, Double_t detune);
   //void Vis_StateAmp(Double_t detune);
   Double_t ConventionalSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t cos_solid_angle, Double_t solid_angle, bool flag);
   Double_t OldMuoniumSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t windowclose, Double_t cos_solid_angle, Double_t solid_angle, bool flag);
-  void CalculateSignal(Int_t minutes);
+  void CalculateSignal(bool FWHM_falg, Double_t bp, Double_t start, Double_t end);
+  void CalculateFWHM(void);
 };
 #endif
