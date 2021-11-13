@@ -14,16 +14,18 @@
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TGraphErrors.h"
+#include "TMultiGraph.h"
 #include "TAxis.h"
 #include "TRandom3.h"
 
-SIMULATOR::SIMULATOR(const char* rootfile)
+SIMULATOR::SIMULATOR(const char* rootfile, Int_t run_time=20)
   : myMuonVec(0),myMuonDispersion(0),myPositronVec(0),myPositronDispersion(0),myField(0),myAmp(0),myAngleVec(0),
     Non(0), scan_range(800), scan_step(10), scan_points(81), signal(0), power_mean(0), threshold(35.), solid_angle_mean(0), cos_solid_angle_mean(0)
 {
   gStyle->SetOptFit(1111);
   std::string myString(rootfile);
   run_num = myString.substr(myString.find("run"), myString.find(".root")-myString.find("run"));
+  minutes = run_time;
   
   myFile = new TFile(rootfile,"");
   if(!myFile){
@@ -76,6 +78,22 @@ SIMULATOR::SIMULATOR(const char* rootfile)
 	    << "Amplitude of |2> = " <<	Amplitude[1] << "\n"
 	    << "Amplitude of |3> = " <<	Amplitude[2] << "\n"
 	    << "Amplitude of |4> = " <<	Amplitude[3] << std::endl;
+
+  do{
+    std::cout << "Conventional[c/C] or OldMuonium[o/O]:" << std::endl;
+    std::cin >> method;
+  }while((method!='c'&&method!='C'&&method!='o'&&method!='O')||minutes<0);
+  
+  do{
+    std::cout << "Choose the plot method:" << std::endl;
+    std::cin >> plot_method;
+  }while(plot_method!=1 && plot_method!=2);
+  
+  do{ // use gamma as free parameter or not
+    std::cout << "Fitting using gamma? [y/Y]or[n/N]:";
+    std::cin >> fit_gamma;
+  }while(fit_gamma!='y'&&fit_gamma!='Y'&&fit_gamma!='n'&&fit_gamma!='N');
+
 }
 
 SIMULATOR::~SIMULATOR(void){
@@ -148,7 +166,12 @@ Double_t SIMULATOR::OldMuoniumSignal(Double_t power, Double_t detuning, Double_t
   return sig;
 }
 
-void SIMULATOR::CalculateSignal(Int_t minutes=20){
+void SIMULATOR::CalculateSignal(bool FWHM_falg=false, Double_t bp=0., Double_t start=6.5, Double_t end=7.5){
+  //
+  // start = 3.12, 6.92 second                                                                                                                                                                     
+  // end = 4.07, 7.87 second
+  //
+  
   TCanvas* c = new TCanvas("c","c", 1000, 900);
   c->SetGrid();
   gPad->SetRightMargin(0.03); // let the figure more right
@@ -160,34 +183,18 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
   time_t t = time(NULL);
   Double_t detuning;
   Double_t error;
-  Double_t ppm = 1.0e-6;
-  char method;
   Int_t gates;
-  Double_t normalization;
+  Double_t normalization;  
+  TRandom3* gRandom = new TRandom3(time(NULL));
   
-  gRandom = new TRandom3(time(NULL));
-  
-  do{
-    std::cout << "Conventional[c/C] or OldMuonium[o/O]:" << std::endl;
-    std::cin >> method;
-  }while((method!='c'&&method!='C'&&method!='o'&&method!='O')||minutes<0);
-
-  Double_t start;
-  Double_t end;
   std::string start_str;
   std::string end_str;
   if(method=='o'||method=='O'){
-    start = 9.; // 3.12, 6.92 , second
-    end = 10.; // 4.07, 7.87, second
-    start_str = std::to_string(start);
-    end_str = std::to_string(end);
+    start_str = std::to_string(start) + "e-3";
+    end_str = std::to_string(end) + "e-3";
+    std::cout << "window open time;" << start_str << "[/ms]\n"
+	      << "window close time:" << end_str << "[/ms]" << std::endl;
   }else if(method=='c'||method=='C') start = 0.;
-  
-  Int_t plot_method;
-  do{
-    std::cout << "Choose the plot method:" << std::endl;
-    std::cin >> plot_method;
-  }while(plot_method!=1 && plot_method!=2);
   
   gates = 1500*minutes*0.5; // 60(sec)*25(gates/sec) = 1500 gates for one minute, 0.5 is for beam off
   std::cout << gates << "[/pulse] is for BeamOn." << "\n"
@@ -205,31 +212,47 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
     signal = 0;
     normalization = 0;
     detuning = -1*scan_range*0.5 + scan_step*w;
-    std::cout << "START detuning " << detuning << "[/kHz]..." << std::endl;
+    if(FWHM_falg==false) std::cout << "START detuning " << detuning << "[/kHz]..." << std::endl;
     for(int i=0; i<entries; i++){
       myTree->GetEntry(i);
       if(threshold<=(*myPositronDispersion)[0]*1.0e-3){ // cut positrons below threshold energy, 35 MeV for liu
 	y = (*myPositronDispersion)[0]*1.0e-3/positron_max_energy;
 	A[0] = 2*y-1;
 	A[1] = 3-2*y;
-	if(method=='c'||method=='C'){
+	if((method=='c'||method=='C')&&FWHM_falg==false){
 	  signal += ConventionalSignal((*myField)[2], // power
-				    detuning, // frequency detune
-				    start, // windowopen 
-				    (*myAngleVec)[0], // cos_solid_angle
-				    (*myAngleVec)[1], // solid_angle
-				    false); // show the value
+				       detuning, // frequency detune
+				       start, // windowopen 
+				       (*myAngleVec)[0], // cos_solid_angle
+				       (*myAngleVec)[1], // solid_angle
+				       false); // show the value
 	  normalization++;
-	}
-	else if(method=='o'||method=='O'){
+	}else if((method=='c'||method=='C')&&FWHM_falg==true){
+	  signal += ConventionalSignal(bp, // power
+                                       detuning, // frequency detune
+                                       start, // windowopen
+                                       (*myAngleVec)[0], // cos_solid_angle
+                                       (*myAngleVec)[1], // solid_angle                                                                             
+                                       false); // show the value
+          normalization++;
+	}else if((method=='o'||method=='O')&&FWHM_falg==false){
 	  signal += OldMuoniumSignal((*myField)[2], // power
-				  detuning, // frequency detune
-				  start*ppm*1.0e+3, // windowopen, 1.0e+3 is for convert s to ms
-				  end*ppm*1.0e+3, // windowclose 
-				  (*myAngleVec)[0], // cos_solid_angle
-				  (*myAngleVec)[1], // solid_angle
-				  false); // show the value
+				     detuning, // frequency detune
+				     start*1.0e-3, // windowopen, 1.0e-3 is for convert us to ms
+				     end*1.0e-3, // windowclose 
+				     (*myAngleVec)[0], // cos_solid_angle
+				     (*myAngleVec)[1], // solid_angle
+				     false); // show the value
 	  normalization++;
+	}else if((method=='o'||method=='O')&&FWHM_falg==true){
+	  signal += OldMuoniumSignal(bp, // power
+                                     detuning, // frequency detune
+                                     start*1.0e-3, // windowopen, 1.0e-3 is for convert us to ms
+                                     end*1.0e-3, // windowclose
+                                     (*myAngleVec)[0], // cos_solid_angle
+                                     (*myAngleVec)[1], // solid_angle
+                                     false); // show the value
+          normalization++;
 	}
       }
     }
@@ -247,13 +270,13 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
 
     if(plot_method==2){
       for(int p=0; p<gates; p++){
-	Non += gRandom->Gaus(Pon, TMath::Sqrt(Poff));
+	Non += gRandom->Gaus(Pon, TMath::Sqrt(Pon));
 	Noff += gRandom->Gaus(Poff, TMath::Sqrt(Poff));
       }
       signal = Non/Noff-1;
+      //detected = Non;
       error = (Non/Noff)*TMath::Sqrt(1.0/Non+1.0/Noff);
-    }
-    
+    }    
     curve->SetPoint(w, detuning, signal);
     curve->SetPointError(w, 0, error);
   }
@@ -265,14 +288,6 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
   curve->GetYaxis()->SetTitle("Signal");
   curve->GetYaxis()->SetTitleOffset(1.4);
   curve->Draw("AP");
-
-  // Fitting use gamma                                                                                                                                                   
-  char fit_gamma;
-  do{
-    std::cout << "Fitting using gamma? [y/Y]or[n/N]:";
-    std::cin >> fit_gamma;
-  }while(fit_gamma!='y'&&fit_gamma!='Y'&&fit_gamma!='n'&&fit_gamma!='N');
-
   
   if((fit_gamma=='y'||fit_gamma=='Y') && (method=='c'||method=='c'))
     f1 = new TF1("f1","[0]+[3]*2*[1]*[1]/(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]+[4]*[4])", -scan_range*0.5, scan_range*0.5);
@@ -280,29 +295,31 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
     std::string fit_no_con = "[0]+[3]*2*[1]*[1]/(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]+"+std::to_string(gamma)+'*'+std::to_string(gamma)+')';
     f1 = new TF1("f1", fit_no_con.c_str(), -scan_range*0.5, scan_range*0.5);
   }else if((method=='o'||method=='O') && (fit_gamma=='n'||fit_gamma=='N')){
-    std::string fit_no_old = "([0]+[3]*2*[1]*[1]*(TMath::Exp(-" + std::to_string(gamma) + '*';
-    std::string fit_no_old2 = "e-3)*(1-(TMath::Cos((TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]))*"; // e-3 is for convert us to ms 
-    std::string fit_no_old3 = "e-3)-(TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]))*TMath::Sin((TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]))*";
-    std::string fit_no_old4 = "e-3)/"+std::to_string(gamma)+")*"+std::to_string(gamma)+'*'+std::to_string(gamma)+"/(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]+"+std::to_string(gamma)+'*'+std::to_string(gamma)+"))-TMath::Exp(-"+std::to_string(gamma)+'*';
-    std::string fit_no_old5 = "e-3)*(1-(TMath::Cos(TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1])*";
-    std::string fit_no_old6 = "e-3)-TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1])*TMath::Sin(TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1])*";
-    std::string fit_no_old7 = "e-3)/"+std::to_string(gamma)+")*"+std::to_string(gamma)+'*'+std::to_string(gamma)+"/(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]+"+std::to_string(gamma)+'*'+std::to_string(gamma)+")))/(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1])";
-    std::string fit_no_old8 = ")/(TMath::Exp(-"+std::to_string(gamma)+'*'+start_str+"e-3"+")-TMath::Exp(-"+std::to_string(gamma)+'*'+end_str+"e-3"+"))";
+    std::string fit_no_old = "[0]+([3]*2*[1]*[1]*(TMath::Exp(-" + std::to_string(gamma) + '*';
+    std::string fit_no_old2 = ")*(1-(TMath::Cos((TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]))*";
+    std::string fit_no_old3 = ")-(TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]))*TMath::Sin((TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]))*";
+    std::string fit_no_old4 = ")/"+std::to_string(gamma)+")*"+std::to_string(gamma)+'*'+std::to_string(gamma)+"/(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]+"+std::to_string(gamma)+'*'+std::to_string(gamma)+"))-TMath::Exp(-"+std::to_string(gamma)+'*';
+    std::string fit_no_old5 = ")*(1-(TMath::Cos(TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1])*";
+    std::string fit_no_old6 = ")-TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1])*TMath::Sin(TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1])*";
+    std::string fit_no_old7 = ")/"+std::to_string(gamma)+")*"+std::to_string(gamma)+'*'+std::to_string(gamma)+"/(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]+"+std::to_string(gamma)+'*'+std::to_string(gamma)+")))/(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1])";
+    std::string fit_no_old8 = ")/(TMath::Exp(-"+std::to_string(gamma)+'*'+start_str+")-TMath::Exp(-"+std::to_string(gamma)+'*'+end_str+"))";
     f1 = new TF1("f1",(fit_no_old+start_str+fit_no_old2+start_str+fit_no_old3+start_str+fit_no_old4
 		       +end_str+fit_no_old5+end_str+fit_no_old6+end_str+fit_no_old7+fit_no_old8).c_str(),-scan_range*0.5,scan_range*0.5);
+    
   }else if((method=='o'||method=='O') && (fit_gamma=='y'||fit_gamma=='Y')){
-    std::string fit_yes_old = "([0]+[3]*2*[1]*[1]*(TMath::Exp(-[4]*"+start_str+"e-3";
-    std::string fit_yes_old2 = ")*(1-(TMath::Cos((TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]))*"+start_str+"e-3";
-    std::string fit_yes_old3 = ")-(TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]))*TMath::Sin((TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]))*"+start_str+"e-3";
-    std::string fit_yes_old4 = ")/[4])*[4]*[4]/(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]+[4]*[4])) - TMath::Exp(-[4]*"+end_str+"e-3";
-    std::string fit_yes_old5 = ")*(1-(TMath::Cos(TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1])*"+end_str+"e-3";
-    std::string fit_yes_old6 = ")-TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1])*TMath::Sin(TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1])*"+end_str+"e-3";
+    std::string fit_yes_old = "([0]+[3]*2*[1]*[1]*(TMath::Exp(-[4]*"+start_str;
+    std::string fit_yes_old2 = ")*(1-(TMath::Cos((TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]))*"+start_str;
+    std::string fit_yes_old3 = ")-(TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]))*TMath::Sin((TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]))*"+start_str;
+    std::string fit_yes_old4 = ")/[4])*[4]*[4]/(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]+[4]*[4])) - TMath::Exp(-[4]*"+end_str;
+    std::string fit_yes_old5 = ")*(1-(TMath::Cos(TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1])*"+end_str;
+    std::string fit_yes_old6 = ")-TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1])*TMath::Sin(TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1])*"+end_str;
     std::string fit_yes_old7 = ")/[4])*[4]*[4]/(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1]+[4]*[4])))/(4*TMath::Pi()*TMath::Pi()*(x-[2])*(x-[2])+4*[1]*[1])";
-    std::string fit_yes_old8 = ")/(TMath::Exp(-[4]*"+start_str+"e-3"+")-TMath::Exp(-[4]*"+end_str+"e-3"+"))";
+    std::string fit_yes_old8 = ")/(TMath::Exp(-[4]*"+start_str+")-TMath::Exp(-[4]*"+end_str+"))";
     f1 = new TF1("f1", (fit_yes_old+fit_yes_old2+fit_yes_old3+fit_yes_old4+fit_yes_old5+fit_yes_old6+fit_yes_old7+fit_yes_old8).c_str(), -scan_range*0.5, scan_range*0.5);
   }
    
   f1->FixParameter(0, 0); // offset
+  //f1->SetParameter(0, 0); 
   f1->SetParameter(1, power_mean); // microwave power
   f1->SetParameter(2, 0); // center                                                                                                                                                               
   f1->SetParameter(3, 1); // scaling
@@ -316,27 +333,43 @@ void SIMULATOR::CalculateSignal(Int_t minutes=20){
   curve->Fit("f1","EM", "", -scan_range*0.5, scan_range*0.5);
 
   // Serach FWHM
+  Double_t fit_power = f1->GetParameter("b [/kHz]");
+  Double_t fit_offset = f1->GetParameter("Offset");
+  Double_t fit_Scaling = f1->GetParameter("Scaling");
+  Double_t fit_gamma_para;
+  if(fit_gamma==true) fit_gamma_para = f1->GetParameter("#gamma [/kHz]");
+  center_error = f1->GetParError(2);
+  
+  if(FWHM_falg) std::cout << "Input Microwave power:" << bp << "[/kHz]" << std::endl;
+  else std::cout << "Fitting Microwave power:" << fit_power << "[/kHz]" << std::endl;
+  
   std::cout << std::string(60, '*') << std::endl;
   Double_t HM_left = f1->GetX(0.5*f1->GetMaximum(), -scan_range*0.5, 0.);
   Double_t HM_right = f1->GetX(0.5*f1->GetMaximum(), 0., scan_range*0.5);
-  std::cout << "Full Width At Half Maximum(FWHM):" << HM_right - HM_left << "[/kHz]" << "\n"
-	    << "Maximum Signal:" << f1->GetMaximum() << std::endl;
-  
-  Double_t fit_power = f1->GetParameter("b [/kHz]");
-  Double_t fit_scaling = f1->GetParameter("Scaling");
-  if((method=='c'||method=='C') && (fit_gamma=='y'||fit_gamma=='Y')){
-    Double_t fit_gamma = f1->GetParameter("#gamma [/kHz]");
-    std::cout << "Theoritical FWHM:" << fit_scaling*sqrt(4*pow(fit_power,2.)+pow(fit_gamma,2.))/pi << "[/kHz]" << std::endl;
-  }else if((method=='c'||method=='C') && (fit_gamma=='n'||fit_gamma=='N'))
-    std::cout << "Theoritical FWHM:" << fit_scaling*sqrt(4*pow(fit_power,2.)+pow(gamma,2.))/pi << "[/kHz]" << std::endl;
-  else if((method=='o'||method=='O') && (fit_gamma=='y'||fit_gamma=='Y')){
-    Double_t fit_gamma = f1->GetParameter("#gamma [/kHz]");
-    std::cout << "Theoritical FWHM:" << fit_scaling*sqrt(4*pow(fit_power,2.)+pow(fit_gamma,2.))/pi << "[/kHz]" << std::endl;
+  Sim_FWHM = HM_right - HM_left;
+
+  Sim_Height = f1->GetMaximum()/fit_Scaling;
+  std::cout << "Simulation FWHM:" << Sim_FWHM << "[/kHz]" << "\n"
+	    << "Simulation Signal Height:" << Sim_Height << std::endl;
+
+  if(method=='c'||method=='C'){
+    The_FWHM = sqrt(4*pow(bp,2.)+pow(gamma,2.))/pi;
+    The_Height = 2*pow(bp, 2.)/(4*pow(bp,2.)+pow(gamma,2.));
+    std::cout << "Theoritical FWHM:" << The_FWHM << "[/kHz]" << "\n"
+	      << "Theoritiacl Singal Height:" << The_Height << std::endl;
+  }else if(method=='o'||method=='O'){
+    The_FWHM = sqrt(pow(1/(start*1.0e-3),2.)-pow(bp/pi,2.));
+    The_Height = 0.5*(1-std::cos(2*bp*start*1.0e-3));
+    std::cout << "Theoritical FWHM:" << The_FWHM << "[/kHz]" << "\n"
+	      << "Theoritiacl Singal Height:" << The_Height << std::endl;
   }
-  
-  if(method=='c'||method=='C') c->SaveAs(("../figure/"+run_num+":"+tree_TMmode+":"+tree_Pressure+":"+"conventional"+".png").c_str());
-  else if(method=='o'||method=='O') c->SaveAs(("../figure/"+run_num+":"+tree_TMmode+":"+tree_Pressure+":"+"oldmuonium"+".png").c_str());
-  
+ 
+  if((method=='c'||method=='C')&&FWHM_falg==false) c->SaveAs(("../figure/"+run_num+":"+tree_TMmode+":"+tree_Pressure+":"+"conventional"+".png").c_str());
+  //if(method=='c'||method=='C') c->SaveAs(("../figure/"+run_num+":"+tree_TMmode+":"+tree_Pressure+":"+"conventional"+".png").c_str());
+  else if((method=='o'||method=='O')&&FWHM_falg==false) c->SaveAs(("../figure/"+run_num+":"+tree_TMmode+":"+tree_Pressure+":"+"oldmuonium"+".png").c_str());
+  //else if(method=='o'||method=='O') c->SaveAs(("../figure/"+run_num+":"+tree_TMmode+":"+tree_Pressure+":"+"oldmuonium"+".png").c_str());
+
+  delete gRandom;
   delete f1;
   delete curve;
   delete c;

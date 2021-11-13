@@ -49,7 +49,7 @@ int main(int argc, const char** argv){
   //RFFIELD->Vis_RF();
   
   TTree* tree = run->GetDecayTree(false);
-  MAKETREE* create = new MAKETREE(tree, atol(argv[1]), "run01");
+  MAKETREE* create = new MAKETREE(tree, atol(argv[1]), "run04");
   
   delete run;
   return 0;

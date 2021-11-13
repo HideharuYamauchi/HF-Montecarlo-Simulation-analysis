@@ -24,6 +24,13 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
   TString MODE;
   TString ATM;
   TString KEL;
+
+  char mag_error;
+  do{
+    std::cout << "Create a tree of constant magnet field? [y/Y]or[n/N]:";
+    std::cin >> mag_error;
+  }while(mag_error!='y'&&mag_error!='Y'&&mag_error!='n'&&mag_error!='N');
+  
   if(gSystem->GetPathInfo(path, info)==0) std::cout << run_num + " is already exist" << std::endl;
   else{
     flag = true;
@@ -71,7 +78,8 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
 	}
       }
       magnet->GetDistance((*muon_position)[0], (*muon_position)[1], (*muon_position)[2]-cavity_center);
-      field[0] = (magnet->B_ave + magnet->GetBfieldValue())*magnet->scaling_factor; // scaling magnet field to ~1.7
+      if(mag_error=='n'||mag_error=='N') field[0] = (magnet->B_ave + magnet->GetBfieldValue())*magnet->scaling_factor; // scaling magnet field to ~1.7
+      else if(mag_error=='y'||mag_error=='Y') field[0] = B_cons;
       X_temp = field[0]*(gfactor_j*magnetic_moment_j + gfactor_mu_prime*magnetic_moment_mu)/(plank_const*v_exp);
       coefficientS = sqrt(0.5)*sqrt(1-X_temp/sqrt(1+X_temp*X_temp));
       coefficientC = sqrt(0.5)*sqrt(1+X_temp/sqrt(1+X_temp*X_temp));
@@ -98,7 +106,9 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
     }
     //decaytree->Scan("*");
   
-    file = new TFile(("../data/"+run_num+".root").c_str(),"RECREATE"); //std::string
+    if(mag_error=='n'||mag_error=='N') file = new TFile(("../data/"+run_num+".root").c_str(),"RECREATE"); //std::string
+    else if(mag_error=='y'||mag_error=='Y') file = new TFile(("../data/"+run_num+"const_B.root").c_str(),"RECREATE");
+    
     if(DecayTree->Write()) std::cout  << run_num << ".root is made." << std::endl;
     file->Close();
   }
