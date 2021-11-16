@@ -4,6 +4,7 @@
 //        Author: Hideharu Yamauchi 2021/10/13
 /////////////////////////////////////////////////////
 #include <stdio.h>
+#include <random>
 #include "../include/make_tree.hh"
 
 #ifndef ___class_muonstopping_
@@ -20,20 +21,19 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
     str_vec(4),muon_vec(4),muon_dispersion(4),positron_vec(4),positron_dispersion(4),field(3),state_amp(4),angle_vec(2),position(3),
     str_branch(0),muon_vec_branch(0),muon_dispersion_branch(0),positron_vec_branch(0),positron_dispersion_branch(0),field_branch(0),state_amp_branch(0),angle_branch(0)
 {
-  TString path = "../data/" + run_num + ".root";
-  TString path_magfield = "../data/" + run_num + "_constB.root";
+  TString path = "../data/" + run_num + "_dist.root";
   TString MODE;
   TString ATM;
   TString KEL;
+
+  const Double_t instability = 1.; // 1 mm 
+  Double_t shift[3];
+  std::random_device rnd;
+  std::mt19937 mt(rnd());
+  std::uniform_real_distribution<> randdist(-instability, instability);
   
-  char mag_error;
-  do{
-    std::cout << "Create a tree of constant magnet field? [y/Y]or[n/N]:";
-    std::cin >> mag_error;
-  }while(mag_error!='y'&&mag_error!='Y'&&mag_error!='n'&&mag_error!='N');
-  
-  if(gSystem->GetPathInfo(path, info)==0||gSystem->GetPathInfo(path_magfield, info)==0) std::cout << run_num + " is already exist" << std::endl;
-  else{
+  if(gSystem->GetPathInfo(path, info)==0) std::cout << run_num + "_dist is already exist" << std::endl;
+  else{    
     flag = true;
     MODE = "TM"+std::to_string(mode)+"mode";
     ATM = "1.0*atmosphere";
@@ -65,6 +65,9 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
     Double_t X_temp, coefficientS, coefficientC, b;
     for(int n=0; n<entries; n++){
       decaytree->GetEntry(n);
+      shift[0] = randdist(mt);
+      shift[1] = randdist(mt);
+      shift[2] = randdist(mt);
       for(int i=0;i<4;i++){
 	if(i==0){
 	  muon_vec[i] = decaytime;
@@ -72,15 +75,14 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
 	  positron_vec[i] = decaytime;
 	  positron_dispersion[i] = positron_energy;
 	}else if(i!=0){
-	  muon_vec[i] = (*muon_position)[i-1];
+	  muon_vec[i] = (*muon_position)[i-1]+shift[i-1];
 	  muon_dispersion[i] = (*muon_momentum)[i-1];
-	  positron_vec[i] = (*positron_position)[i-1];
+	  positron_vec[i] = (*positron_position)[i-1]+shift[i-1];
 	  positron_dispersion[i] = (*positron_momentum)[i-1];
 	}
       }
       magnet->GetDistance((*muon_position)[0], (*muon_position)[1], (*muon_position)[2]-cavity_center);
-      if(mag_error=='n'||mag_error=='N') field[0] = (magnet->B_ave + magnet->GetBfieldValue())*magnet->scaling_factor; // scaling magnet field to ~1.7
-      else if(mag_error=='y'||mag_error=='Y') field[0] = B_cons;
+      field[0] = B_cons; // scaling magnet field to ~1.7
       X_temp = field[0]*(gfactor_j*magnetic_moment_j + gfactor_mu_prime*magnetic_moment_mu)/(plank_const*v_exp);
       coefficientS = sqrt(0.5)*sqrt(1-X_temp/sqrt(1+X_temp*X_temp));
       coefficientC = sqrt(0.5)*sqrt(1+X_temp/sqrt(1+X_temp*X_temp));
@@ -107,10 +109,9 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
     }
     //decaytree->Scan("*");
   
-    if(mag_error=='n'||mag_error=='N') file = new TFile(("../data/"+run_num+".root").c_str(),"RECREATE"); //std::string
-    else if(mag_error=='y'||mag_error=='Y') file = new TFile(("../data/"+run_num+"_constB.root").c_str(),"RECREATE");
+    file = new TFile(("../data/"+run_num+"_dist.root").c_str(),"RECREATE");
     
-    if(DecayTree->Write()) std::cout  << "root file is made." << std::endl;
+    if(DecayTree->Write()) std::cout  << run_num << "_dist.root is made." << std::endl;
     file->Close();
   }
 }
