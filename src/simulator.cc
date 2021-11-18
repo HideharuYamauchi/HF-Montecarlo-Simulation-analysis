@@ -358,7 +358,17 @@ void SIMULATOR::CalculateSignal(bool FWHM_falg=false, Double_t bp=0., Double_t s
     std::cout << "Theoritical FWHM:" << The_FWHM << "[/kHz]" << "\n"
 	      << "Theoritiacl Singal Height:" << The_Height << std::endl;
   }else if(method=='o'||method=='O'){
-    The_FWHM = sqrt(pow(1/(start*1.0e-3),2.)-pow(bp/pi,2.));
+    std::string HM_power = std::to_string(bp)+'*'+std::to_string(bp);
+    //std::string HM_formula = HM_power+"*2*(1-cos(TMath::Sqrt(4*TMath::Pi()*TMath::Pi()*x*x+4*"+HM_power+")*"+start_str+"))/(4*TMath::Pi()*TMath::Pi()*x*x+4*"+HM_power+')';
+    std::string HM_formula =
+      HM_power+"*2/(((2*TMath::Pi()*x)**2)+4*"+HM_power+")*(TMath::Exp(-"+std::to_string(gamma)+'*'+start_str+")*(1-(TMath::Cos((TMath::Sqrt(((2*TMath::Pi()*x)**2)+4*"+HM_power+"))*"+start_str+")-(TMath::Sqrt(((2*TMath::Pi()*x)**2)+4*"+HM_power+"))/"+std::to_string(gamma)+"*TMath::Sin((TMath::Sqrt(((2*TMath::Pi()*x)**2)+4*"+HM_power+"))*"+start_str+"))*"+std::to_string(gamma)+'*'+std::to_string(gamma)+"/((((2*TMath::Pi()*x)**2)+4*"+HM_power+")+"+std::to_string(gamma)+'*'+std::to_string(gamma)+"))-TMath::Exp(-"+std::to_string(gamma)+'*'+end_str+")*(1-(TMath::Cos((TMath::Sqrt(((2*TMath::Pi()*x)**2)+4*"+HM_power+"))*"+end_str+")-(TMath::Sqrt(((2*TMath::Pi()*x)**2)+4*"+HM_power+"))/"+std::to_string(gamma)+"*TMath::Sin((TMath::Sqrt(((2*TMath::Pi()*x)**2)+4*"+HM_power+"))*"+end_str+"))*"+std::to_string(gamma)+'*'+std::to_string(gamma)+"/((((2*TMath::Pi()*x)**2)+4*"+HM_power+")+"+std::to_string(gamma)+'*'+std::to_string(gamma)+")))/(TMath::Exp(-"+std::to_string(gamma)+'*'+start_str+")-TMath::Exp(-"+std::to_string(gamma)+'*'+end_str+"))";
+    TF1 *fa1 = new TF1("fa1",
+                       HM_formula.c_str(),
+                       -scan_range, scan_range);
+    Double_t HM_left_the = fa1->GetX(0.5*fa1->GetMaximum(), -scan_range*0.5, 0.);
+    Double_t HM_right_the = fa1->GetX(0.5*fa1->GetMaximum(), 0., scan_range*0.5);
+    The_FWHM = HM_right_the - HM_left_the;
+    //The_FWHM = sqrt(pow(1/(start*1.0e-3),2.)-pow(bp/pi,2.));
     The_Height = 0.5*(1-std::cos(2*bp*start*1.0e-3));
     std::cout << "Theoritical FWHM:" << The_FWHM << "[/kHz]" << "\n"
 	      << "Theoritiacl Singal Height:" << The_Height << std::endl;
