@@ -195,7 +195,8 @@ void STOP::Vis_RFPowerHist(void){
 void STOP::Vis_FieldHist(void){
   TCanvas* c = new TCanvas("c", "c",900,900);
   Double_t set_label_scale = 1.0e+4;
-  TH1D* hist = new TH1D("hist","",1000,-0.001*set_label_scale,0.001*set_label_scale);
+  //TH1D* hist = new TH1D("hist","",1000,-0.001*set_label_scale,0.001*set_label_scale);
+  TH1D* hist = new TH1D("hist","",1000, -6, 6);
   hist->SetXTitle("B^{ER} #times10^{-4} [/Gauss]");
   hist->SetYTitle("");
   for(int k=0; k<entries; k++){

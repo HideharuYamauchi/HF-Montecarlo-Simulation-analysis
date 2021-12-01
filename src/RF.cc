@@ -100,7 +100,7 @@ void RFFIELD::Vis_RF(void){
 
 Double_t RFFIELD::GetEffectivePower(TH2D* xy_dist){
   TCanvas* c = new TCanvas("c", "c",900,900);
-  TH1D* hist = new TH1D("hist",title2,200,0,200);
+  TH1D* hist = new TH1D("hist",title2,200,0, 160);
   hist->SetXTitle("b [/kHz]");
   hist->SetYTitle("");
   

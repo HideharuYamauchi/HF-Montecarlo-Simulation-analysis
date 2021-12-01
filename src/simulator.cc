@@ -175,6 +175,7 @@ void SIMULATOR::CalculateSignal(bool FWHM_falg=false, Double_t bp=0., Double_t s
   TCanvas* c = new TCanvas("c","c", 1000, 900);
   c->SetGrid();
   gPad->SetRightMargin(0.03); // let the figure more right
+  std::string power_str = std::to_string(bp);
   TGraphErrors* curve = new TGraphErrors();
   TF1* f1;
   
@@ -201,7 +202,11 @@ void SIMULATOR::CalculateSignal(bool FWHM_falg=false, Double_t bp=0., Double_t s
 	    << 1500*minutes-gates << "[/pulse] is for BeamOff." << "\n"
 	    << std::string(60, '*') << "\n"
 	    << "RUN START: " << ctime(&t) << std::endl;
-  
+
+  //std::ofstream ofs_con("../figure/reso_conv.dat", std::ios::app);
+  //std::ofstream ofs_old("../figure/reso_old.dat", std::ios::app);
+
+  Sim_detected = 0;
   for(int w=0; w<scan_points; w++){
     Non = 0;
     Noff = 0;
@@ -267,20 +272,38 @@ void SIMULATOR::CalculateSignal(bool FWHM_falg=false, Double_t bp=0., Double_t s
       signal = Totalon/Totaloff-1;
       error = (Totalon/Totaloff)*TMath::Sqrt(1.0/Totalon+1.0/Totaloff);
     }
-
+    
     if(plot_method==2){
       for(int p=0; p<gates; p++){
 	Non += gRandom->Gaus(Pon, TMath::Sqrt(Pon));
 	Noff += gRandom->Gaus(Poff, TMath::Sqrt(Poff));
       }
       signal = Non/Noff-1;
-      //detected = Non;
       error = (Non/Noff)*TMath::Sqrt(1.0/Non+1.0/Noff);
-    }    
+    }
+    /*
+    if(method=='c'||method=='C')
+      ofs_con << detuning << "\t" << Non  << "\t" << Noff << "\t" << error << "\n";
+    else if(method=='o'||method=='O')
+      ofs_old << detuning << "\t" << Non  << "\t" << Noff << "\t" << error << "\n";
+    */
+
+    Sim_detected += Non;
     curve->SetPoint(w, detuning, signal);
     curve->SetPointError(w, 0, error);
   }
+  std::cout << "Detected e+:" << Sim_detected << std::endl;
+
+  // calculate the detected e+ of theory
+  /*
+  Double_t interval = std::exp(-gamma*end*1.0e-3)-std::exp(-gamma*start*1.0e-3);
+  y = threshold/positron_max_energy;
+  The_detected = (0.25*normalization/pi)*( interval*(1-(2*pow(y,3.)-pow(y,4.)))*solid_angle_mean + 0.5*polarization*(1-(3*pow(y,4.)-2*pow(y,3.)))*()*cos_solid_angle_mean/3 );
+  */
+
   
+  //ofs_con.close();
+  //ofs_old.close();
   t = time(NULL);
   std::cout << "RUN FINISH: " << ctime(&t) << std::string(60, '*') << std::endl;
   
@@ -320,7 +343,7 @@ void SIMULATOR::CalculateSignal(bool FWHM_falg=false, Double_t bp=0., Double_t s
    
   f1->FixParameter(0, 0); // offset
   //f1->SetParameter(0, 0); 
-  f1->SetParameter(1, power_mean); // microwave power
+  f1->SetParameter(1, 500); // microwave power
   f1->SetParameter(2, 0); // center                                                                                                                                                               
   f1->SetParameter(3, 1); // scaling
   
@@ -336,6 +359,7 @@ void SIMULATOR::CalculateSignal(bool FWHM_falg=false, Double_t bp=0., Double_t s
   Double_t fit_power = f1->GetParameter("b [/kHz]");
   Double_t fit_offset = f1->GetParameter("Offset");
   Double_t fit_Scaling = f1->GetParameter("Scaling");
+  Double_t fit_center = f1->GetParameter("Center");
   Double_t fit_gamma_para;
   if(fit_gamma==true) fit_gamma_para = f1->GetParameter("#gamma [/kHz]");
   center_error = f1->GetParError(2);
@@ -348,7 +372,8 @@ void SIMULATOR::CalculateSignal(bool FWHM_falg=false, Double_t bp=0., Double_t s
   Double_t HM_right = f1->GetX(0.5*f1->GetMaximum(), 0., scan_range*0.5);
   Sim_FWHM = HM_right - HM_left;
 
-  Sim_Height = f1->GetMaximum()/fit_Scaling;
+  //Sim_Height = f1->GetMaximum()/fit_Scaling;
+  Sim_Height = f1->Eval(fit_center)/fit_Scaling;
   std::cout << "Simulation FWHM:" << Sim_FWHM << "[/kHz]" << "\n"
 	    << "Simulation Signal Height:" << Sim_Height << std::endl;
 
@@ -368,16 +393,16 @@ void SIMULATOR::CalculateSignal(bool FWHM_falg=false, Double_t bp=0., Double_t s
     Double_t HM_left_the = fa1->GetX(0.5*fa1->GetMaximum(), -scan_range*0.5, 0.);
     Double_t HM_right_the = fa1->GetX(0.5*fa1->GetMaximum(), 0., scan_range*0.5);
     The_FWHM = HM_right_the - HM_left_the;
-    //The_FWHM = sqrt(pow(1/(start*1.0e-3),2.)-pow(bp/pi,2.));
-    The_Height = 0.5*(1-std::cos(2*bp*start*1.0e-3));
+    //The_Height = 0.5*(1-std::cos(2*bp*start*1.0e-3));
+    The_Height = fa1->Eval(0.);
     std::cout << "Theoritical FWHM:" << The_FWHM << "[/kHz]" << "\n"
 	      << "Theoritiacl Singal Height:" << The_Height << std::endl;
   }
  
   if((method=='c'||method=='C')&&FWHM_falg==false) c->SaveAs(("../figure/"+run_num+":"+tree_TMmode+":"+tree_Pressure+":"+"conventional"+".png").c_str());
   //if(method=='c'||method=='C') c->SaveAs(("../figure/"+run_num+":"+tree_TMmode+":"+tree_Pressure+":"+"conventional"+".png").c_str());
-  else if((method=='o'||method=='O')&&FWHM_falg==false) c->SaveAs(("../figure/"+run_num+":"+tree_TMmode+":"+tree_Pressure+":"+"oldmuonium"+".png").c_str());
-  //else if(method=='o'||method=='O') c->SaveAs(("../figure/"+run_num+":"+tree_TMmode+":"+tree_Pressure+":"+"oldmuonium"+".png").c_str());
+  //else if((method=='o'||method=='O')&&FWHM_falg==false) c->SaveAs(("../figure/"+run_num+":"+tree_TMmode+":"+tree_Pressure+":"+"oldmuonium"+".png").c_str());
+  else if(method=='o'||method=='O') c->SaveAs(("../figure/"+run_num+":"+tree_TMmode+":"+tree_Pressure+":"+"oldmuonium"+".png").c_str());
 
   delete gRandom;
   delete f1;

@@ -21,19 +21,18 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
     str_vec(4),muon_vec(4),muon_dispersion(4),positron_vec(4),positron_dispersion(4),field(3),state_amp(4),angle_vec(2),position(3),
     str_branch(0),muon_vec_branch(0),muon_dispersion_branch(0),positron_vec_branch(0),positron_dispersion_branch(0),field_branch(0),state_amp_branch(0),angle_branch(0)
 {
-  TString path = "../data/" + run_num + "_power.root";
+  TString path = "../data/" + run_num + "_dist2.root";
   TString MODE;
   TString ATM;
   TString KEL;
-  double power;
 
-  const Double_t instability = 0.02;
-  Double_t shift;
+  const Double_t instability = 1.; // 1 mm 
+  Double_t shift[3];
   std::random_device rnd;
   std::mt19937 mt(rnd());
-  std::uniform_real_distribution<> randpower(1-instability/100, 1+instability/100);
+  std::uniform_real_distribution<> randdist(-instability, instability);
   
-  if(gSystem->GetPathInfo(path, info)==0) std::cout << run_num + "_power is already exist" << std::endl;
+  if(gSystem->GetPathInfo(path, info)==0) std::cout << run_num + "_dist2 is already exist" << std::endl;
   else{    
     flag = true;
     MODE = "TM"+std::to_string(mode)+"mode";
@@ -66,6 +65,9 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
     Double_t X_temp, coefficientS, coefficientC, b;
     for(int n=0; n<entries; n++){
       decaytree->GetEntry(n);
+      shift[0] = randdist(mt);
+      shift[1] = randdist(mt);
+      shift[2] = randdist(mt);
       for(int i=0;i<4;i++){
 	if(i==0){
 	  muon_vec[i] = decaytime;
@@ -73,14 +75,14 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
 	  positron_vec[i] = decaytime;
 	  positron_dispersion[i] = positron_energy;
 	}else if(i!=0){
-	  muon_vec[i] = (*muon_position)[i-1];
+	  muon_vec[i] = (*muon_position)[i-1]+shift[i-1];
 	  muon_dispersion[i] = (*muon_momentum)[i-1];
-	  positron_vec[i] = (*positron_position)[i-1];
+	  positron_vec[i] = (*positron_position)[i-1]+shift[i-1];
 	  positron_dispersion[i] = (*positron_momentum)[i-1];
 	}
       }
-      magnet->GetDistance((*muon_position)[0], (*muon_position)[1], (*muon_position)[2]-cavity_center);
-      field[0] = B_cons; // scaling magnet field to ~1.7
+      magnet->GetDistance(muon_vec[1], muon_vec[2], muon_vec[3]-cavity_center);
+      field[0] = (magnet->B_ave + magnet->GetBfieldValue())*magnet->scaling_factor; // scaling magnet field to ~1.7
       X_temp = field[0]*(gfactor_j*magnetic_moment_j + gfactor_mu_prime*magnetic_moment_mu)/(plank_const*v_exp);
       coefficientS = sqrt(0.5)*sqrt(1-X_temp/sqrt(1+X_temp*X_temp));
       coefficientC = sqrt(0.5)*sqrt(1+X_temp/sqrt(1+X_temp*X_temp));
@@ -93,14 +95,12 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
       state_amp[1]=0.25*(1-(pow(coefficientC,2.)-pow(coefficientS,2.))*polarization);
       state_amp[2]=0.25*(1-polarization);
       state_amp[3]=0.25*(1+(pow(coefficientC,2.)-pow(coefficientS,2.))*polarization);
-      RF->GetXY((*muon_position)[0], (*muon_position)[1]);
-      field[1] = RF->TM_mode()*sqrt(1+0.02/100);
-      field[2] = b*field[1];
-      //shift = randpower(mt); // add 0.02% power instability
-      //field[2] = b*field[1]*(1+shift); // kHz
-      position[0] = (*muon_position)[0];
-      position[1] = (*muon_position)[1];
-      position[2] = (*muon_position)[2];
+      RF->GetXY(muon_vec[1], muon_vec[2]);
+      field[1] = RF->TM_mode();
+      field[2] = b*field[1]; // kHz
+      position[0] = muon_vec[1];
+      position[1] = muon_vec[2];
+      position[2] = muon_vec[3];
       CalculateAngle();
       angle_vec[0] = cos_solidangle;
       angle_vec[1] = solidangle;
@@ -109,9 +109,9 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
     }
     //decaytree->Scan("*");
   
-    file = new TFile(("../data/"+run_num+"_power.root").c_str(),"RECREATE");
+    file = new TFile(("../data/"+run_num+"_dist2.root").c_str(),"RECREATE");
     
-    if(DecayTree->Write()) std::cout  << run_num << "_power.root is made." << std::endl;
+    if(DecayTree->Write()) std::cout  << run_num << "_dist2.root is made." << std::endl;
     file->Close();
   }
 }

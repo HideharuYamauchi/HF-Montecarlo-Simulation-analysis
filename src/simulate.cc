@@ -6,7 +6,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "stop.cc"
-#include "make_tree.cc"
+//#include "make_tree.cc"
+//#include "make_tree_power.cc"
+//#include "make_tree_dist.cc"
+#include "make_tree_dist2.cc"
+//#include "make_tree_angle.cc"
 
 int main(int argc, const char** argv){
   if(argc!=4){
@@ -47,9 +51,9 @@ int main(int argc, const char** argv){
   
   // if you want to visualize RF field
   //RFFIELD->Vis_RF();
-  
+
   TTree* tree = run->GetDecayTree(false);
-  MAKETREE* create = new MAKETREE(tree, atol(argv[1]), "run04");
+  MAKETREE* create = new MAKETREE(tree, atol(argv[1]), "run01");
   
   delete run;
   return 0;

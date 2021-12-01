@@ -13,8 +13,7 @@ echo "compile complete..."
 echo "now execute..."
 
 #./execute.out 110 /home/hideharu/position/result/pos/run0011.dat /home/hideharu/position/result/pos/environment_run0011.dat
-./resonance.out ../data/run01.root #./resonance.out ../data/run01const_B.root
-
+./resonance.out ../data/run01.root 
 
 # -o option is for set the name of binary
 # プリプロセッサとは,コンパイルを行う前にソースコードに対して行われる前処理. c/c++では,ディレクティブ(# ...)という命令を処理する.
