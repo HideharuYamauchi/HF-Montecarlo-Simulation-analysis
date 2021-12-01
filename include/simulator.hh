@@ -49,7 +49,8 @@ public:
   Double_t solid_angle_mean;
   Double_t Amplitude[4] = {0.};
   Double_t A[2] = {0.};
-  Double_t detected;
+  Double_t The_detected;
+  Double_t Sim_detected;
   Double_t y; // positron_energy/positron_max_energy
   std::string myTreeTitle;
   std::string tree_TMmode;

@@ -72,7 +72,7 @@ const double overhang_thickness = 25.; // mm
 const double cavity_radius = 0.0935; // m
 const double cavity_radial_thickness = 0.015; //m
 double cavity_power[2] = {8., 10.}; // same with liu exp
-double Q_value[2] = {14000., 20000.};  // same with liu exp
+double Q_value[2] = {20000., 20000.};  // same with liu exp
 const double cavity_length = 0.27; // m
 const double G4cavity_length = 244.; // mm
 const double cavity_flange_length = 0.031; // m, up=down, 0.013+0.009+0.009
