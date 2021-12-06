@@ -307,4 +307,20 @@ void STOP::Vis_PositronEnergyAtDetector(void){
   delete hist;
   delete c;
 }
+
+void STOP::Vis_Decaytime(){
+  TCanvas* c = new TCanvas("c", "c",900,900);
+  TH1D* hist = new TH1D("hist","",13,0.,12.);
+  hist->SetXTitle("Time [#muSec]");
+  hist->SetYTitle("");
+  for(int k=0; k<entries; k++){
+    tree->GetEntry(k);
+    if((std::string(particle)=="mu+"&&std::string(process)=="DecayWithSpin")
+       &&(std::string(volume)=="Cavity"||std::string(volume)=="CavityFoil"||std::string(volume)=="CavityFlange"||std::string(volume)=="TargetGas")) hist->Fill(time*1.0e-3);
+  }
+  hist->Draw();
+  c->SaveAs("../figure/decaytime.png");
+  delete hist;
+  delete c;
+}
 #endif

@@ -10,7 +10,7 @@
 
 int main(int argc, const char** argv){
   SIMULATOR* sim = new SIMULATOR(argv[1]);
-  sim->CalculateSignal(true, 500., 6.5, 7.5);
+  sim->CalculateSignal(true, 230., 4., 5.);
   //sim->Vis_StateAmp(0.);
 
   int power_min = 100;
@@ -75,12 +75,12 @@ int main(int argc, const char** argv){
     ofs.close();
   }
   
-  std::ofstream ofs("../figure/merit.dat", std::ios::out);
+  std::ofstream ofs("../figure/merit_290.dat", std::ios::out);
   Double_t det;
   if(ofs){
     std::cout << "Successful to open file." << std::endl;                                                                                                                                                 
-    for(int t=1; t<13; t++){
-      sim->CalculateSignal(true, 125., t, t+1);
+    for(int t=2; t<12; t++){
+      sim->CalculateSignal(true, 290., t, t+1);
       ofs << t << "\t"
           << sim->Sim_FWHM << "\t"
 	  << sim->Sim_Height << "\t"

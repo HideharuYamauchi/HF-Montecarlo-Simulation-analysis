@@ -10,6 +10,9 @@
 #include <string>
 #include <time.h>
 #include "../include/simulator.hh"
+#include <Fit/FitResult.h>
+#include "TFitResult.h"
+#include "RtypesCore.h" // for tmatrix
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "TGraph.h"
@@ -17,6 +20,8 @@
 #include "TMultiGraph.h"
 #include "TAxis.h"
 #include "TRandom3.h"
+
+//ROOT::Fit::FitResult* FitResult = new ROOT::Fit::FitResult();
 
 SIMULATOR::SIMULATOR(const char* rootfile, Int_t run_time=20)
   : myMuonVec(0),myMuonDispersion(0),myPositronVec(0),myPositronDispersion(0),myField(0),myAmp(0),myAngleVec(0),
@@ -220,7 +225,8 @@ void SIMULATOR::CalculateSignal(bool FWHM_falg=false, Double_t bp=0., Double_t s
     if(FWHM_falg==false) std::cout << "START detuning " << detuning << "[/kHz]..." << std::endl;
     for(int i=0; i<entries; i++){
       myTree->GetEntry(i);
-      if(threshold<=(*myPositronDispersion)[0]*1.0e-3){ // cut positrons below threshold energy, 35 MeV for liu
+      if(threshold<=(*myPositronDispersion)[0]*1.0e-3/* && // cut positrons below threshold energy, 35 MeV for liu
+							( start*1.0e+3<=(*myMuonVec)[0] && (*myMuonVec)[0]<=end*1.0e+3 )*/){ // cut positrons whose decaytime is not in the timewindow
 	y = (*myPositronDispersion)[0]*1.0e-3/positron_max_energy;
 	A[0] = 2*y-1;
 	A[1] = 3-2*y;
@@ -261,6 +267,8 @@ void SIMULATOR::CalculateSignal(bool FWHM_falg=false, Double_t bp=0., Double_t s
 	}
       }
     }
+
+    //std::cout << "total e+:" << normalization++ << std::endl;
     
     if(plot_method==1){
       signal = signal/normalization;
@@ -343,7 +351,8 @@ void SIMULATOR::CalculateSignal(bool FWHM_falg=false, Double_t bp=0., Double_t s
    
   f1->FixParameter(0, 0); // offset
   //f1->SetParameter(0, 0); 
-  f1->SetParameter(1, 500); // microwave power
+  if(FWHM_falg) f1->SetParameter(1, bp); // microwave power
+  else  f1->SetParameter(1, power_mean);
   f1->SetParameter(2, 0); // center                                                                                                                                                               
   f1->SetParameter(3, 1); // scaling
   
@@ -353,7 +362,18 @@ void SIMULATOR::CalculateSignal(bool FWHM_falg=false, Double_t bp=0., Double_t s
   }else if(fit_gamma=='n'||fit_gamma=='N')
     f1->SetParNames("Offset", "b [/kHz]", "Center", "Scaling");
   
-  curve->Fit("f1","EM", "", -scan_range*0.5, scan_range*0.5);
+  //curve->Fit("f1","EM", "", -scan_range*0.5, scan_range*0.5);
+  TFitResultPtr FitResult = curve->Fit("f1","S", "", -scan_range*0.5, scan_range*0.5);
+  TMatrixDSym GetCorrelation_fit = FitResult->GetCorrelationMatrix();
+  TMatrixDSym Covariance_fit = FitResult->GetCovarianceMatrix();
+
+  
+  std::cout << "Correlation Matrix:";
+  GetCorrelation_fit.Print("v");
+
+  
+  std::cout << "Covariance Matrix:";
+  Covariance_fit.Print("v");
 
   // Serach FWHM
   Double_t fit_power = f1->GetParameter("b [/kHz]");
@@ -368,12 +388,11 @@ void SIMULATOR::CalculateSignal(bool FWHM_falg=false, Double_t bp=0., Double_t s
   else std::cout << "Fitting Microwave power:" << fit_power << "[/kHz]" << std::endl;
   
   std::cout << std::string(60, '*') << std::endl;
-  Double_t HM_left = f1->GetX(0.5*f1->GetMaximum(), -scan_range*0.5, 0.);
-  Double_t HM_right = f1->GetX(0.5*f1->GetMaximum(), 0., scan_range*0.5);
+  Sim_Height = f1->Eval(fit_center)/fit_Scaling;
+  Double_t HM_left = f1->GetX(0.5*f1->Eval(fit_center), -400, 0.);
+  Double_t HM_right = f1->GetX(0.5*f1->Eval(fit_center), 0., 400);
   Sim_FWHM = HM_right - HM_left;
 
-  //Sim_Height = f1->GetMaximum()/fit_Scaling;
-  Sim_Height = f1->Eval(fit_center)/fit_Scaling;
   std::cout << "Simulation FWHM:" << Sim_FWHM << "[/kHz]" << "\n"
 	    << "Simulation Signal Height:" << Sim_Height << std::endl;
 
@@ -390,15 +409,14 @@ void SIMULATOR::CalculateSignal(bool FWHM_falg=false, Double_t bp=0., Double_t s
     TF1 *fa1 = new TF1("fa1",
                        HM_formula.c_str(),
                        -scan_range, scan_range);
-    Double_t HM_left_the = fa1->GetX(0.5*fa1->GetMaximum(), -scan_range*0.5, 0.);
-    Double_t HM_right_the = fa1->GetX(0.5*fa1->GetMaximum(), 0., scan_range*0.5);
-    The_FWHM = HM_right_the - HM_left_the;
-    //The_Height = 0.5*(1-std::cos(2*bp*start*1.0e-3));
     The_Height = fa1->Eval(0.);
+    Double_t HM_left_the = fa1->GetX(0.5*The_Height, -400, 0.);
+    Double_t HM_right_the = fa1->GetX(0.5*The_Height, 0., 400);
+    The_FWHM = HM_right_the - HM_left_the;
     std::cout << "Theoritical FWHM:" << The_FWHM << "[/kHz]" << "\n"
 	      << "Theoritiacl Singal Height:" << The_Height << std::endl;
   }
- 
+  
   if((method=='c'||method=='C')&&FWHM_falg==false) c->SaveAs(("../figure/"+run_num+":"+tree_TMmode+":"+tree_Pressure+":"+"conventional"+".png").c_str());
   //if(method=='c'||method=='C') c->SaveAs(("../figure/"+run_num+":"+tree_TMmode+":"+tree_Pressure+":"+"conventional"+".png").c_str());
   //else if((method=='o'||method=='O')&&FWHM_falg==false) c->SaveAs(("../figure/"+run_num+":"+tree_TMmode+":"+tree_Pressure+":"+"oldmuonium"+".png").c_str());
