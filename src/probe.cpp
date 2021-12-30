@@ -72,7 +72,7 @@ int main(){
   //
   /////////////////////////////////////////////////////////////////////////////////////////////// 
   const double h = 6.62607015e-34; //プランク定数, exact
-  //const double h_bar = 1.054571800e-34;
+  const double h_bar = 1.054571800e-34;
   const double pi = TMath::Pi();
   const double a = 7.2973525693e-3; //0.000 000 0011 e-3
   const double mass_ratio = 4.83633169e-3; //0.000 000 11 e-3
@@ -86,7 +86,20 @@ int main(){
   const double v_exp = 4463302776; // from liu's experiment, 11 ppb
   const double proton_gyromagnetic_ratio = 42.577478518; // gyromagnetic ratio of the proton, 18 ppb
   const double x = B*(g_factor_j*magnetic_moment_j + g_factor_mu_prime*magnetic_moment_mu)/(h*v_exp);
-
+  const double E1 = 0.25*v_exp+0.5*B*(g_factor_j*magnetic_moment_j + g_factor_mu_prime*magnetic_moment_mu)/h;
+  const double E2 = -0.25*v_exp+0.5*v_exp*sqrt(1+x*x);
+  const double E3 = 0.25*v_exp-0.5*B*(g_factor_j*magnetic_moment_j + g_factor_mu_prime*magnetic_moment_mu)/h;
+  const double E4 = -0.25*v_exp-0.5*v_exp*sqrt(1+x*x);
+  std::cout << "E1:" << E1*1.e-9 << " [GHz]" << "\n"
+	    << "E2:" <<	E2*1.e-9 << " [GHz]" << "\n"
+	    << "E3:" <<	E3*1.e-9 << " [GHz]" << "\n"
+	    << "E4:" <<	E4*1.e-9 << " [GHz]" << "\n"
+	    << "E1-E2:" << (E1-E2)*1.e-9 << " [GHz]" << "\n"
+	    << "E3-E4:" << (E3-E4)*1.e-9 << " [GHz]" << "\n"
+	    << "E2-E3:" << (E2-E3)*1.e-9 << " [GHz]" << "\n"
+	    << "E4-E1:" << (E1-E4)*1.e-9 << " [GHz]" << "\n"
+	    << "MuHFS:" << (E1-E2+E3-E4)*1.e-9 << " [GHz]" << std::endl;
+  
   ///////////////////////////////////
   //    set errors for probe
   ///////////////////////////////////

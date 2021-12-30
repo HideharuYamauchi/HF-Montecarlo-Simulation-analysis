@@ -13,6 +13,7 @@
 #include <string>
 #include "../include/stop.hh"
 #include "TStyle.h"
+#include "TF1.h"
 #include "RF.cc"
 #include "magnet.cc"
 
@@ -222,6 +223,7 @@ void STOP::Vis_PositronEnergyHist(void){
   TH1D* hist = new TH1D("hist","",54,0.,53.);
   hist->SetXTitle("Positron Energy [/MeV]");
   hist->SetYTitle("");
+  double threshold = 35.;
   std::vector<Double_t> muon_vec(4);
   for(int k=0; k<entries; k++){
     tree->GetEntry(k);
@@ -239,12 +241,18 @@ void STOP::Vis_PositronEnergyHist(void){
           tree->GetEntry(k+l);
 	  if(std::string(particle)=="e+"
 	     &&std::string(process)=="initStep"
-	     &&(time==muon_vec[0]&&X==muon_vec[1]&&Y==muon_vec[2]&&Z==muon_vec[3])){
+	     &&(time==muon_vec[0]&&X==muon_vec[1]&&Y==muon_vec[2]&&Z==muon_vec[3])
+	     /*&&(threshold<=kE*1.0e-3)*/){
 	    hist->Fill(kE*1.0e-3); // convert keV to MeV 
 	    break;
 	  }
       }
     }
+  }
+  double n=0;
+  for(int t=0; t<14; t++){
+    std::cout << "t=:" << t  << "\t" << "number:" << hist->GetBinContent(t) << std::endl;
+    n+=hist->GetBinContent(t);
   }
   hist->Draw();
   c->SaveAs("../figure/EnergyHist.png");
@@ -313,13 +321,63 @@ void STOP::Vis_Decaytime(){
   TH1D* hist = new TH1D("hist","",13,0.,12.);
   hist->SetXTitle("Time [#muSec]");
   hist->SetYTitle("");
+  double total = 0.;
   for(int k=0; k<entries; k++){
     tree->GetEntry(k);
     if((std::string(particle)=="mu+"&&std::string(process)=="DecayWithSpin")
-       &&(std::string(volume)=="Cavity"||std::string(volume)=="CavityFoil"||std::string(volume)=="CavityFlange"||std::string(volume)=="TargetGas")) hist->Fill(time*1.0e-3);
+       &&(std::string(volume)=="Cavity"||std::string(volume)=="CavityFoil"||std::string(volume)=="CavityFlange"||std::string(volume)=="TargetGas")) {
+      hist->Fill(time*1.0e-3);
+      total++;
+    }
   }
+  std::cout << "total:" << total << std::endl;
+  double n=0;
+  for(int t=0; t<14; t++){
+    std::cout << "t=:" << t  << "\t" << "number:" << hist->GetBinContent(t) << std::endl;
+    n+=hist->GetBinContent(t);
+  }
+  std::cout << "total:" << n << std::endl;
   hist->Draw();
   c->SaveAs("../figure/decaytime.png");
+  delete hist;
+  delete c;
+}
+
+void STOP::Vis_MuoniumTime(){
+  gStyle->SetOptFit(1111);
+  TCanvas* c = new TCanvas("c", "c",900,900);
+  TH1D* hist = new TH1D("#mu Decay Hist","", 200, -0.1, 13.);
+  Double_t gamma = 1/2.1969811;
+  hist->SetXTitle("Time [#muSec]");
+  hist->SetYTitle("");
+  double total = 0.;
+  double threshold = 35.;
+  for(int k=0; k<entries; k++){
+    tree->GetEntry(k);
+    if((std::string(particle)=="e+"&&std::string(process)=="initStep")
+       &&(std::string(volume)=="Cavity"||std::string(volume)=="CavityFoil"||std::string(volume)=="CavityFlange"||std::string(volume)=="TargetGas")
+       /*&&(threshold<=kE*1.0e-3)*/){
+      hist->Fill(time*1.0e-3);
+      total++;
+    }
+  }
+  
+  std::cout << "total:" << total << std::endl;
+  std::string formula = "[0]*TMath::Exp(-"+std::to_string(gamma)+"*x)"; //std::to_string(gamma)
+  TF1* fit = new TF1("fit", formula.c_str(), -0.1, 13.);
+  hist->Fit("fit","EM", "", 0, 12.);
+  fit->SetParameter(0, total*gamma);
+  fit->SetParName(0, "Scaling"); 
+  /*
+  double n=0;
+  for(int t=0; t<14; t++){
+    std::cout << "t=:" << t  << "\t" << "number:" << hist->GetBinContent(t) << std::endl;
+    n+=hist->GetBinContent(t);
+  }
+  */
+  //std::cout << "total:" << n << std::endl;
+  hist->Draw();
+  c->SaveAs("../figure/MuoniumTime.png");
   delete hist;
   delete c;
 }
