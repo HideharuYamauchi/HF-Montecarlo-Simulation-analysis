@@ -70,5 +70,7 @@ public:
   void Vis_PositronEnergyHist(void);
   void Vis_PositronAngleHist(void);
   void Vis_PositronEnergyAtDetector(void);
+  void Vis_Decaytime(void);
+  void Vis_MuoniumTime(void);
 };
 #endif

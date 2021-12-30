@@ -37,6 +37,8 @@ const double coefficient_c = sqrt(0.5)*sqrt(1+X/sqrt(1+X*X));
 // the coefficient to change RF field to frequency(Hz), 0.001 is for coverting Hz/T to kHz/T
 const double b_12 = 0.001*0.25*(coefficient_s*gfactor_j*magnetic_moment_j + coefficient_c*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided; // kHz/T 
 const double b_34 = 0.001*0.25*(coefficient_s*gfactor_j*magnetic_moment_j - coefficient_c*gfactor_mu_prime*magnetic_moment_mu)/plank_const_divided; // kHz/T
+const double b_23 = 0.001*0.25*(coefficient_s*gfactor_mu_prime*magnetic_moment_mu + coefficient_c*gfactor_j*magnetic_moment_j)/plank_const_divided; // kHz/T
+const double b_41 = 0.001*0.25*(-coefficient_s*gfactor_mu_prime*magnetic_moment_mu + coefficient_c*gfactor_j*magnetic_moment_j)/plank_const_divided; // kHz/T
 
 // beam setting
 const double beam = 27.4; // MeV/c
@@ -71,7 +73,7 @@ const double overhang_thickness = 25.; // mm
 //------------HF cavity--------------
 const double cavity_radius = 0.0935; // m
 const double cavity_radial_thickness = 0.015; //m
-double cavity_power[2] = {8., 10.}; // same with liu exp
+double cavity_power[2] = {20., 120.}; // same with liu exp
 double Q_value[2] = {20000., 20000.};  // same with liu exp
 const double cavity_length = 0.27; // m
 const double G4cavity_length = 244.; // mm

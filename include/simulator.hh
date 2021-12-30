@@ -39,6 +39,8 @@ private:
   char fit_gamma;
     
 public:
+  Double_t fit_center;
+  Double_t fit_center_error;
   Double_t Non;
   Double_t Noff;
   Double_t Pon;
@@ -67,6 +69,7 @@ public:
   //void Vis_StateAmp(Double_t detune);
   Double_t ConventionalSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t cos_solid_angle, Double_t solid_angle, bool flag);
   Double_t OldMuoniumSignal(Double_t power, Double_t detuning, Double_t windowopen, Double_t windowclose, Double_t cos_solid_angle, Double_t solid_angle, bool flag);
+  void Signal2(Double_t power, Double_t detuning, Double_t Decay, Double_t cos_solid_angle, Double_t solid_angle, Double_t state13, Double_t state24, bool flag);
   void CalculateSignal(bool FWHM_falg, Double_t bp, Double_t start, Double_t end);
   void CalculateFWHM(void);
 };
