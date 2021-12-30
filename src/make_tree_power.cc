@@ -80,7 +80,7 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
 	}
       }
       magnet->GetDistance((*muon_position)[0], (*muon_position)[1], (*muon_position)[2]-cavity_center);
-      field[0] = B_cons; // scaling magnet field to ~1.7
+      field[0] = (magnet->B_ave + magnet->GetBfieldValue())*magnet->scaling_factor;
       X_temp = field[0]*(gfactor_j*magnetic_moment_j + gfactor_mu_prime*magnetic_moment_mu)/(plank_const*v_exp);
       coefficientS = sqrt(0.5)*sqrt(1-X_temp/sqrt(1+X_temp*X_temp));
       coefficientC = sqrt(0.5)*sqrt(1+X_temp/sqrt(1+X_temp*X_temp));
@@ -94,17 +94,19 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
       state_amp[2]=0.25*(1-polarization);
       state_amp[3]=0.25*(1+(pow(coefficientC,2.)-pow(coefficientS,2.))*polarization);
       RF->GetXY((*muon_position)[0], (*muon_position)[1]);
-      field[1] = RF->TM_mode()*sqrt(1+0.02/100);
-      field[2] = b*field[1];
-      //shift = randpower(mt); // add 0.02% power instability
-      //field[2] = b*field[1]*(1+shift); // kHz
+      field[1] = RF->TM_mode();
+      shift = randpower(mt); // add 0.02% power instability
+      field[2] = b*field[1]*shift; // kHz
       position[0] = (*muon_position)[0];
       position[1] = (*muon_position)[1];
       position[2] = (*muon_position)[2];
       CalculateAngle();
       angle_vec[0] = cos_solidangle;
       angle_vec[1] = solidangle;
-      if(n%1000==0) std::cout << "Present Entry: " << n << std::endl;
+      if(n%1000==0) {
+	std::cout << "Present Entry: " << n << std::endl;
+	//std::cout << "power=" << field[2] << " [kHz]" << std::endl;
+      }
       DecayTree->Fill();
     }
     //decaytree->Scan("*");

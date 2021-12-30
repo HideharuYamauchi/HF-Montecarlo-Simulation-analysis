@@ -75,9 +75,11 @@ MAKETREE::MAKETREE(TTree* decaytree, int mode, std::string run_num)
 	  positron_vec[i] = decaytime;
 	  positron_dispersion[i] = positron_energy;
 	}else if(i!=0){
-	  muon_vec[i] = (*muon_position)[i-1]+shift[i-1];
+	  if(i!=3) muon_vec[i] = (*muon_position)[i-1]+shift[i-1];
+	  else if(i==3) muon_vec[i] = (*muon_position)[i-1];
 	  muon_dispersion[i] = (*muon_momentum)[i-1];
-	  positron_vec[i] = (*positron_position)[i-1]+shift[i-1];
+	  if(i!=3) positron_vec[i] = (*positron_position)[i-1]+shift[i-1];
+	  else if(i==3) positron_vec[i] = (*positron_position)[i-1];
 	  positron_dispersion[i] = (*positron_momentum)[i-1];
 	}
       }

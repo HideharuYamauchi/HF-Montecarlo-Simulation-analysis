@@ -12,8 +12,8 @@ g++ ${GSL_INCLUDE_PATH} ${ROOT_INCLUDE_PATH} resonance.cc -o resonance.out ${GSL
 echo "compile complete..."
 echo "now execute..."
 
-#./execute.out 110 /home/hideharu/position/result/pos/run0011.dat /home/hideharu/position/result/pos/environment_run0011.dat
-./resonance.out ../data/run01.root 
+#./execute.out 110 /home/hideharu/position/result/pos/run0028.dat /home/hideharu/position/result/pos/environment_run0028.dat #28
+./resonance.out ../data/run28_tm210_power.root
 
 # -o option is for set the name of binary
 # プリプロセッサとは,コンパイルを行う前にソースコードに対して行われる前処理. c/c++では,ディレクティブ(# ...)という命令を処理する.

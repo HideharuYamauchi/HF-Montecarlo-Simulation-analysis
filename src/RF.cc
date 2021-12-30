@@ -74,8 +74,8 @@ void RFFIELD::Vis_RF(void){
     for(int xx=-100; xx<101; xx++){
       if(GetXY(xx,yy)<cavity_radius*1.0e+3){
         dt->SetPoint(i,double(xx),double(yy),TM_mode());	
-        dt2->Fill(xx,yy,TM_mode());                  
-        i++;                                                                          
+        dt2->Fill(xx,yy,TM_mode());           
+        i++;                                                   
       }                        
     }                          
   }
@@ -100,7 +100,7 @@ void RFFIELD::Vis_RF(void){
 
 Double_t RFFIELD::GetEffectivePower(TH2D* xy_dist){
   TCanvas* c = new TCanvas("c", "c",900,900);
-  TH1D* hist = new TH1D("hist",title2,200,0, 160);
+  TH1D* hist = new TH1D("hist",title2, 450, 0, 450);
   hist->SetXTitle("b [/kHz]");
   hist->SetYTitle("");
   

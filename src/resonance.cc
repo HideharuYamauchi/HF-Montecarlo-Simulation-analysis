@@ -13,7 +13,7 @@ int main(int argc, const char** argv){
   SIMULATOR* sim = new SIMULATOR(argv[1]);
 
   // true is for const RF field, false is for non-const RF field
-  //sim->CalculateSignal(true, 230., 0., 12.);
+  //sim->CalculateSignal(true, 230., 6., 7.);
   //sim->Vis_StateAmp(0.);
 
   //for(int i=0; i<12; i++) sim->CalculateSignal(true, 230., double(i), double(i+1));
@@ -29,13 +29,13 @@ int main(int argc, const char** argv){
   }
   */
   
-  std::ofstream ofs("../figure/FWHM_conv.dat", std::ios::out);
-  std::ofstream ofs2("../figure/FWHM_conv_hight.dat", std::ios::out);
+  //std::ofstream ofs("../figure/FWHM_conv.dat", std::ios::out);
+  //std::ofstream ofs2("../figure/FWHM_conv_hight.dat", std::ios::out);
   //std::ofstream ofs("../figure/FWHM_old.dat", std::ios::out);
   //std::ofstream ofs2("../figure/FWHM_old_hight.dat", std::ios::out);
   
-  
-  if(ofs&&ofs2){
+  /*
+  if(ofs){
     std::cout << "Successful to open file." << std::endl;
     for(int i=0; i<1+(power_max-power_min)/10; i++){
       power = power_min + 10*i;
@@ -48,7 +48,7 @@ int main(int argc, const char** argv){
     ofs.close();
     ofs2.close();
   }
-  /*
+  
   std::ofstream ofs("../figure/t1.dat", std::ios::out);
   if(ofs){
     std::cout << "Successful to open file." << std::endl;
@@ -79,8 +79,7 @@ int main(int argc, const char** argv){
     }                                                                                                                                              
     ofs.close();
   }
-  */
-  /*
+  
   std::ofstream ofs("../figure/merit_230_tm110_2.dat", std::ios::out);
   Double_t det;
   if(ofs){
@@ -94,8 +93,7 @@ int main(int argc, const char** argv){
     }
     ofs.close();
   }
-  */
-  /*
+  
   std::ofstream ofs("../figure/t1_height.dat", std::ios::out);
   if(ofs){
     std::cout << "Successful to open file." << std::endl;                                                                                                                                                 
@@ -110,12 +108,12 @@ int main(int argc, const char** argv){
   */
 
   // true is for const RF power, false is for non-const RF power
-  /*    
+  /*  
   TCanvas* cc = new TCanvas("cc","cc", 1200, 1200);
   gPad->SetRightMargin(0.03);
   TGraphErrors* ge = new TGraphErrors();
   for(int tt=1; tt<12; tt++){
-    sim->CalculateSignal(true, 230, tt, tt+1);
+    sim->CalculateSignal(false, 230, tt, tt+1);
     ge->SetPoint(tt, double(tt), sim->fit_center); //Int_t i, Double_t x, Double_y y
     ge->SetPointError(tt, 0, sim->fit_center_error); //Int_t i, Double_t ex, Double_y ey
   }
@@ -130,10 +128,10 @@ int main(int argc, const char** argv){
   f2->SetParameter(0, 0.);
   f2->SetParNames("Center [kHz]");
   ge->Fit("f2");
+  
   cc->SaveAs("../figure/virtual_trial_tm210_old.png");
   */
   
-  /*
   TCanvas* cc = new TCanvas("cc","cc", 1200, 1200);
   gPad->SetRightMargin(0.03);
   TGraphErrors* ge2 = new TGraphErrors();
@@ -163,8 +161,8 @@ int main(int argc, const char** argv){
   ge2->SetMarkerStyle(21);
   ge2->Draw("AP");
   ge2->Fit("f2a");
-  cc->SaveAs("../figure/virtual_trial_tm210_dist_old2.png"); 
-  */
+  cc->SaveAs("../figure/virtual_trial_tm210_power_old2.png"); 
+  
   /*
   TCanvas* cc = new TCanvas("cc","cc", 1200, 1200);
   cc->Divide(1, 2);
